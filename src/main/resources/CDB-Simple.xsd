@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://glease.net/chem/simple/DataStructure"
+	elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns="http://glease.net/chem/simple/DataStructure" xmlns:Q1="http://glease.net/chem/simple/DataStructure">
+
+	<xsd:complexType name="Substance">
+		<xsd:annotation>
+			<xsd:documentation>Substance is something you know on your textbook,
+				like you know there is something called Carbon Dioxide.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="atom" type="SubstanceContent"
+				minOccurs="0" maxOccurs="unbounded">
+			</xsd:element>
+			<xsd:element name="dissovle" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:attribute name="solvent" type="xsd:IDREF" />
+					<xsd:attribute name="s2TFunction" type="Expression"
+						use="required" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="name" type="xsd:string" use="required" />
+		<xsd:attribute name="meltPoint" type="Temperature" />
+		<xsd:attribute name="boilPoint" type="Temperature" />
+		<xsd:attribute name="id" type="xsd:ID" use="required" />
+		<xsd:attribute name="crystal" type="CrystalType" />
+	</xsd:complexType>
+
+	<xsd:element name="database" type="ChemDatabase">
+		<xsd:key name="substanceId">
+			<xsd:selector xpath="substances/substance" />
+			<xsd:field xpath="@id" />
+		</xsd:key>
+		<xsd:key name="atomId">
+			<xsd:selector xpath="atoms/atom" />
+			<xsd:field xpath="@id" />
+		</xsd:key>
+		<xsd:key name="reagentId">
+			<xsd:selector xpath="reagents/reagent" />
+			<xsd:field xpath="@id" />
+		</xsd:key>
+		<xsd:keyref name="substanceContentAtomRef" refer="atomId">
+			<xsd:selector xpath="substances/substance/atom" />
+			<xsd:field xpath="@atom" />
+		</xsd:keyref>
+		<xsd:keyref name="reagentContentSubstanceRef" refer="substanceId">
+			<xsd:selector xpath="reagents/reagent" />
+			<xsd:field xpath="@substance" />
+		</xsd:keyref>
+		<xsd:keyref name="reagentSolventReagentRef" refer="reagentId">
+			<xsd:selector xpath="reagents/reagent" />
+			<xsd:field xpath="@solvent" />
+		</xsd:keyref>
+		<xsd:keyref name="catalystRef" refer="reagentId">
+			<xsd:selector xpath="equations/equation/catalyst" />
+			<xsd:field xpath="@reagent" />
+		</xsd:keyref>
+		<xsd:keyref name="reactantRef" refer="reagentId">
+			<xsd:selector xpath="equations/equation/reactant" />
+			<xsd:field xpath="@reagent" />
+		</xsd:keyref>
+		<xsd:keyref name="resultantRef" refer="reagentId">
+			<xsd:selector xpath="equations/equation/reactant" />
+			<xsd:field xpath="@reagent" />
+		</xsd:keyref>
+		<xsd:keyref name="tableSolventReagentRef" refer="reagentId">
+			<xsd:selector xpath="substances/substance/dissolve" />
+			<xsd:field xpath="@solvent" />
+		</xsd:keyref>
+	</xsd:element>
+
+	<xsd:simpleType name="Temperature">
+		<xsd:annotation>
+			<xsd:documentation>
+				Represents a temperature, measured in K, not
+				Censils
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="PositiveDouble" />
+	</xsd:simpleType>
+
+	<xsd:simpleType name="PositiveDouble">
+		<xsd:restriction base="xsd:double">
+			<xsd:minExclusive value="0" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:complexType name="CountedAtom">
+		<xsd:attribute name="mol" type="xsd:positiveInteger"
+			use="optional" default="1" />
+		<xsd:attribute name="atom" type="xsd:IDREF" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="Reagent">
+		<xsd:annotation>
+			<xsd:documentation>Reagent is something you can obtain in the lab, or
+				somewhere else in the real world.
+
+				Reagents and substances differ in
+				that reagents have states like
+				temperature, solvent, state, etc.,
+				while substance never has such
+				kind of states.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:attribute name="substance" type="xsd:IDREF" use="required" />
+		<xsd:attribute name="solvent" type="xsd:IDREF" />
+		<xsd:attribute name="concentration" type="Percentage"
+			default="100" />
+		<xsd:attribute name="state" type="ReagentState">
+			<xsd:annotation>
+				<xsd:documentation>
+					The melt/boil point defined in the substance tag
+					is ignored
+					if state is solution, since it may be changed.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="name" type="xsd:string">
+			<xsd:annotation>
+				<xsd:documentation>
+					Sometimes some certain kind of reagents has
+					different names with their corresponding pure substance. Fill it
+					here. If it don't have, leave it
+					empty.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="id" type="xsd:ID" use="required"></xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:simpleType name="ReagentState">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="powder"></xsd:enumeration>
+			<xsd:enumeration value="nugget"></xsd:enumeration>
+			<xsd:enumeration value="chunk"></xsd:enumeration>
+			<xsd:enumeration value="liquid"></xsd:enumeration>
+			<xsd:enumeration value="solution"></xsd:enumeration>
+			<xsd:enumeration value="gas"></xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="CrystalType">
+		<xsd:annotation>
+			<xsd:documentation>For mixed crystal, use none.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="none" />
+			<xsd:enumeration value="metal" />
+			<xsd:enumeration value="ion" />
+			<xsd:enumeration value="molecule" />
+			<xsd:enumeration value="atom" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:complexType name="Equation">
+		<xsd:sequence maxOccurs="unbounded" minOccurs="0">
+			<xsd:element name="condition" type="xsd:string"
+				minOccurs="0" maxOccurs="unbounded"></xsd:element>
+			<xsd:element name="catalyst" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:attribute name="reagent" type="xsd:IDREF"></xsd:attribute>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="reactant" type="CountedReagent"
+				minOccurs="0" maxOccurs="unbounded">
+			</xsd:element>
+			<xsd:element name="resultant" type="CountedReagent"
+				minOccurs="0" maxOccurs="unbounded">
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute ref="temp" />
+		<xsd:attribute name="pressure" type="PositiveDouble"
+			default="1.01e+5" />
+		<xsd:attribute name="K" type="PositiveDouble" default="INF">
+			<xsd:annotation>
+				<xsd:documentation>Default to INF which means this reaction is an
+					irreversible reaction.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="heat" type="xsd:double" default="0"
+			use="optional">
+			<xsd:annotation>
+				<xsd:documentation>
+					Heat changed. Positive value means the reaction
+					is exothermic. Default to 0
+					means the heat change is so little that
+					could be ignored in production
+					(like the heat generated by most
+					neutralization reaction).
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:attribute name="temp" type="Temperature" default="298.15" />
+
+	<xsd:complexType name="ChemDatabase">
+		<xsd:all minOccurs="0" maxOccurs="1">
+			<xsd:element minOccurs="0" maxOccurs="1" name="substances">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="unbounded" name="substance"
+							type="Substance">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element minOccurs="0" maxOccurs="1" name="equations">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="unbounded" name="equation"
+							type="Equation" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element minOccurs="0" maxOccurs="1" name="atoms">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="atom" type="Atom" minOccurs="1"
+							maxOccurs="unbounded">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="reagents" minOccurs="0" maxOccurs="1">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="reagent" type="Reagent" minOccurs="1"
+							maxOccurs="unbounded">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:all>
+		<xsd:attribute use="required" name="UUID" type="UUID" />
+		<xsd:attribute name="version" type="xsd:string" use="required">
+			<xsd:annotation>
+				<xsd:documentation>
+					A version string. Loading databases with same
+					UUID
+					but different version should result in a crash.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="info" type="xsd:string">
+			<xsd:annotation>
+				<xsd:documentation>Some info. Authors, site link, license and other
+					metadata about this CDB goes in here except the version.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:simpleType name="UUID">
+		<xsd:annotation>
+			<xsd:documentation />
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern
+				value="(\d|[a-fA-F]){8}(-(\d|[a-fA-F]){4}){3}-(\d|[a-fA-F]){12}" />
+			<xsd:whiteSpace value="collapse" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:complexType name="Atom">
+		<xsd:attribute name="localizedName" type="xsd:string" />
+		<xsd:attribute name="symbol" type="xsd:string" />
+		<xsd:attribute use="required" name="molMass" type="xsd:float" />
+		<xsd:attribute use="required" name="index" type="xsd:unsignedByte" />
+		<xsd:attribute name="id" type="xsd:ID" use="required">
+			<xsd:annotation>
+				<xsd:documentation>id is not index. id is xml stuff and index is all
+					about chemistry.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:complexType name="SubstanceContent">
+		<xsd:attribute name="atom" type="xsd:IDREF" use="required" />
+		<xsd:attribute name="mol" type="xsd:positiveInteger"
+			use="optional" default="1" />
+	</xsd:complexType>
+
+	<xsd:simpleType name="Expression">
+		<xsd:restriction base="xsd:string" />
+	</xsd:simpleType>
+
+	<xsd:complexType name="CountedReagent">
+		<xsd:attribute name="mol" type="xsd:positiveInteger"
+			use="optional" default="1" />
+		<xsd:attribute name="reagent" type="xsd:IDREF" use="required" />
+	</xsd:complexType>
+
+	<xsd:simpleType name="Percentage">
+		<xsd:restriction base="xsd:float">
+			<xsd:minInclusive value="0" />
+			<xsd:maxInclusive value="100" />
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>

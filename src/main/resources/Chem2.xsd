@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://glease.net/Chem2"
+	elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://glease.net/Chem2" xmlns:Q1="http://glease.net/Chem2">
+
+	<complexType name="SubstanceBase" abstract="true">
+		<annotation>
+			<documentation>
+				A kind of substance identified with a XML ID. Its
+				molecule structure (or crystal structure if it doesn't
+				has one) is
+				undefined here.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="CrystalType">
+				<simpleType>
+					<restriction base="string">
+						<enumeration value="none" />
+						<enumeration value="metal" />
+						<enumeration value="ion" />
+						<enumeration value="molecule" />
+					</restriction>
+				</simpleType>
+			</element>
+			<element name="Dissovle" type="tns:DissovleTable" />
+		</sequence>
+		<attribute name="SubstanceID" type="ID" use="required" />
+		<attribute name="Name" type="string" use="required" />
+		<attribute name="MeltPoint" type="string" />
+		<attribute name="BoilPoint" type="tns:Temperature" />
+
+	</complexType>
+
+	<complexType name="DissovleTable">
+		<sequence>
+
+			<sequence>
+				<element name="GramPer100Gram">
+					<simpleType>
+						<restriction base="float">
+							<minInclusive value="0" />
+						</restriction>
+					</simpleType>
+				</element>
+				<element ref="tns:Substance">
+					<annotation>
+						<documentation>Solvent</documentation>
+					</annotation>
+				</element>
+			</sequence>
+		</sequence>
+	</complexType>
+
+	<complexType name="Substances">
+		<sequence>
+			<element ref="tns:Substance" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+
+
+
+	<complexType name="SubstanceGroup">
+		<sequence>
+			<element name="Content">
+				<complexType>
+					<sequence>
+						<element name="Substance" type="tns:SubstanceBase" />
+					</sequence>
+					<attribute name="Mole" type="positiveInteger" />
+					<attribute name="Status">
+						<simpleType>
+							<restriction base="string">
+								<enumeration value="powder" />
+								<enumeration value="nugget" />
+								<enumeration value="chunk" />
+								<enumeration value="dissolved" />
+								<enumeration value="gas" />
+								<enumeration value="Colloid" />
+								<enumeration value="Sediment" />
+							</restriction>
+						</simpleType>
+					</attribute>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+
+
+
+	<element name="ChemDatabase">
+		<complexType>
+			<choice minOccurs="0" maxOccurs="1">
+				<element name="Substances" type="tns:Substances" />
+
+				<element name="Equations">
+					<complexType>
+						<sequence>
+							<element ref="tns:Equation" minOccurs="0" maxOccurs="unbounded" />
+						</sequence>
+					</complexType>
+				</element>
+				<element name="Elements">
+					<complexType>
+						<sequence>
+							<element ref="tns:Element" minOccurs="1" maxOccurs="unbounded" />
+						</sequence>
+					</complexType>
+				</element>
+			</choice>
+			<attribute name="UUID" use="required">
+				<annotation>
+					<documentation>A UUID to identify the ChemDatabase. It should be
+						readable with the java.util.UUID#fromString().
+					</documentation>
+				</annotation>
+				<simpleType>
+					<restriction base="string">
+						<minLength value="6" />
+					</restriction>
+				</simpleType>
+			</attribute>
+		</complexType>
+	</element>
+
+
+	<simpleType name="Temperature">
+		<annotation>
+			<documentation>
+				Represents a temperature, measured in K, not Censils
+			</documentation>
+		</annotation>
+		<restriction base="float" />
+	</simpleType>
+
+	<simpleType name="PositiveDouble">
+		<restriction base="double">
+			<minExclusive value="0" />
+		</restriction>
+	</simpleType>
+
+
+	<complexType name="CountedElement">
+		<all>
+			<element ref="tns:Element" />
+		</all>
+		<attribute name="Mol" type="positiveInteger" />
+	</complexType>
+
+
+	<element name="Element">
+		<complexType>
+			<sequence>
+				<element name="LatinName" type="string" />
+				<element name="Symbol" type="string" />
+				<element name="MolMass" type="float" />
+				<element name="Index" type="byte" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="Equation">
+		<complexType>
+			<sequence>
+				<element name="Input" type="tns:SubstanceBase" minOccurs="1"
+					maxOccurs="1" />
+
+				<element name="Output" type="tns:SubstanceBase" minOccurs="1"
+					maxOccurs="1" />
+
+				<element name="Catalysts" type="tns:Substances" minOccurs="0"
+					maxOccurs="1" />
+
+			</sequence>
+			<attribute name="Temperature" type="tns:Temperature" use="optional" />
+
+			<attribute name="Pressure" use="optional">
+				<annotation>
+					<documentation>
+						The pressure of the reaction. Measured in atm.
+					</documentation>
+				</annotation>
+				<simpleType>
+					<restriction base="double">
+						<minExclusive value="0" />
+					</restriction>
+				</simpleType>
+			</attribute>
+			<attribute name="K">
+				<simpleType>
+					<restriction base="double">
+						<minExclusive value="0" />
+					</restriction>
+				</simpleType>
+			</attribute>
+		</complexType>
+	</element>
+
+	<element name="Pure" type="tns:CountedElement" />
+
+
+	<complexType name="SubstancePartBase" abstract="true">
+		<sequence>
+			<element name="Contents" type="tns:CountedElement" />
+			<element name="Bonds" type="positiveInteger" />
+		</sequence>
+		<attribute name="Name" type="string" />
+	</complexType>
+
+	<element name="SubstancePart" type="tns:SubstancePartBase" />
+
+
+
+
+	<element name="Substance" type="tns:SubstanceBase" />
+
+	<complexType name="CompoundBase">
+		<complexContent>
+			<extension base="tns:SubstanceBase">
+				<sequence>
+					<sequence>
+						<element ref="tns:SubstancePart" />
+					</sequence>
+				</sequence>
+
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="Ion" block="extension">
+		<complexContent>
+			<extension base="tns:SubstancePartBase">
+				<attribute name="Charge" type="boolean" />
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<element name="OrganoFunctionalGroup" type="tns:OrganoFunctionalGroupComplexType" />
+
+	<complexType name="OrganoFunctionalGroupComplexType">
+		<complexContent>
+			<extension base="tns:SubstancePartBase">
+				<sequence>
+					<element name="DisallowedBonds">
+						<complexType>
+							<sequence>
+								<element name="Disallow">
+									<complexType>
+										<sequence>
+											<element ref="tns:OrganoFunctionalGroup" />
+
+										</sequence>
+										<attribute name="Position" type="positiveInteger" />
+
+									</complexType>
+								</element>
+							</sequence>
+						</complexType>
+					</element>
+				</sequence>
+				<attribute name="Clockwise" type="boolean" />
+			</extension>
+		</complexContent>
+	</complexType>
+</schema>
