@@ -1,9 +1,13 @@
 
 package net.glease.chem.simple.datastructure;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -11,6 +15,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.google.common.reflect.TypeToken;
 
 import net.glease.chem.simple.util.UUIDAdaptor;
 
@@ -490,6 +496,44 @@ public class ChemDatabase {
 	protected UUID uuid;
 	protected String version;
 	protected String info;
+
+	private ChemDatabaseFinder finder;
+
+	public ChemDatabaseFinder finder() {
+		if (finder == null)
+			finder = new ChemDatabaseFinder(this);
+		return finder;
+	}
+
+	/**
+	 * <b>USING THIS METHOD REQUIRES YOU INCLUDE GENERIC INFO IN YOUR CLASS FILE! IF YOUR BUILDING 
+	 * PROCESS WILL REMOVE IT FOR WHATEVER REASON, USE METHOD IN {@link #finder() FINDER}!</b><p>
+	 * A convenient method to find various item.
+	 * @param test a predicate to match items
+	 * @return an immutable set of matching items.
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> Set<T> find(Predicate<T> test) {
+		for (Type type : test.getClass().getGenericInterfaces()) {
+			if (!(Predicate.class.isAssignableFrom(TypeToken.of(type).getRawType())))
+				continue;
+			Class<?> t = (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0];
+
+			if (Equation.class.equals(t)) {
+				return (Set<T>) finder().findEquation((Predicate<Equation>) test);
+			} else if (Reagent.class.equals(t)) {
+				return (Set<T>) finder().findEquation((Predicate<Equation>) test);
+			} else if (Substance.class.equals(t)) {
+				return (Set<T>) finder().findEquation((Predicate<Equation>) test);
+			} else if (Atom.class.equals(t)) {
+				return (Set<T>) finder().findEquation((Predicate<Equation>) test);
+			} else {
+				throw new IllegalArgumentException("No such type to find!");
+			}
+		}
+
+		throw new IllegalArgumentException("No such type to find!");
+	}
 
 	@Override
 	public boolean equals(Object obj) {

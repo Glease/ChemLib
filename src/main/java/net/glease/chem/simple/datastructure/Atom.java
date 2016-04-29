@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.apache.commons.lang3.builder.CompareToBuilder;
+
 /**
  *
  * <p>
@@ -36,7 +38,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  */
 @XmlAccessorType(XmlAccessType.PROPERTY)
 @XmlType(name = "Atom")
-public class Atom {
+public class Atom implements Comparable<Atom>{
 
 	protected String localizedName;
 
@@ -193,6 +195,13 @@ public class Atom {
 		builder.append(getId());
 		builder.append("]");
 		return builder.toString();
+	}
+	@Override
+	public int compareTo(Atom o) {
+		CompareToBuilder b = new CompareToBuilder();
+		b.append(getIndex(), o.getIndex());
+		b.append(getMolMass(), o.getMolMass());
+		return b.toComparison();
 	}
 
 }

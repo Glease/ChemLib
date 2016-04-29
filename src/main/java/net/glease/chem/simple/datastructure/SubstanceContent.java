@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
+import org.apache.commons.lang3.builder.CompareToBuilder;
+
 /**
  * The Java class of SubstanceContent complex type.
  *
@@ -31,7 +33,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.PROPERTY)
 @XmlType(name = "SubstanceContent")
-public class SubstanceContent {
+public class SubstanceContent implements Comparable<SubstanceContent>{
 
 	protected Atom atom;
 	protected BigInteger mol;
@@ -134,6 +136,14 @@ public class SubstanceContent {
 		builder.append(getMol());
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public int compareTo(SubstanceContent o) {
+		CompareToBuilder b = new CompareToBuilder();
+		b.append(getAtom(), o.getAtom());
+		b.append(getMol(), getMol());
+		return b.toComparison();
 	}
 
 }

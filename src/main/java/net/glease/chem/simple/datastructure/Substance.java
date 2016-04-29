@@ -2,6 +2,7 @@
 package net.glease.chem.simple.datastructure;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -15,10 +16,15 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.apache.commons.lang3.builder.CompareToBuilder;
+
+import net.glease.chem.simple.util.ListComparator;
+
 /**
- * Substance is something you know on your textbook,
- * 				like you know there is something called Carbon Dioxide.
- * <p>The Java class of Substance complex type.
+ * Substance is something you know on your textbook, like you know there is
+ * something called Carbon Dioxide.
+ * <p>
+ * The Java class of Substance complex type.
  *
  * <p>
  * The following XML Schema snipplet contains the expect content of this class.
@@ -53,11 +59,24 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *
  */
 @XmlAccessorType(XmlAccessType.PROPERTY)
-@XmlType(name = "Substance", propOrder = {
-	    "atom",
-	    "dissovle"
-	})
+@XmlType(name = "Substance", propOrder = { "atom", "dissovle" })
 public class Substance {
+
+	public enum SubstanceComparator implements Comparator<Substance> {
+		INSTANCE;
+		private static final ListComparator<SubstanceContent> LIST_COMP_CONTENT = new ListComparator<>(true, true);
+
+		@Override
+		public int compare(Substance o1, Substance o2) {
+			CompareToBuilder b = new CompareToBuilder();
+			b.append(o1.getAtom().size(), o2.getAtom().size());
+			b.appendSuper(LIST_COMP_CONTENT.compare(o1.getAtom(), o2.getAtom()));
+			b.append(o1.getName(), o2.getName());
+			b.append(o1.getId(), o2.getId());
+			return b.toComparison();
+		}
+
+	}
 
 	/**
 	 * The Java class of anonymous complex type.
@@ -82,6 +101,17 @@ public class Substance {
 	@XmlAccessorType(XmlAccessType.PROPERTY)
 	@XmlType(name = "")
 	public static class Dissovle {
+		public enum DissovleComparator implements Comparator<Dissovle> {
+			INSTANCE;
+
+			@Override
+			public int compare(Dissovle o1, Dissovle o2) {
+				CompareToBuilder b = new CompareToBuilder();
+				b.appendSuper(SubstanceComparator.INSTANCE.compare(o1.getSolvent(), o2.getSolvent()));
+				b.append(o1.getS2TFunction(), o2.getS2TFunction());
+				return b.toComparison();
+			}
+		}
 
 		protected Substance solvent;
 		protected String s2TFunction;
@@ -133,6 +163,7 @@ public class Substance {
 		}
 
 	}
+
 	protected List<SubstanceContent> atom;
 	protected List<Substance.Dissovle> dissovle;
 	protected String name;
@@ -187,7 +218,7 @@ public class Substance {
 	 * 
 	 * 
 	 */
-	@XmlElement(name="atom")
+	@XmlElement(name = "atom")
 	public List<SubstanceContent> getAtom() {
 		if (atom == null) {
 			atom = new ArrayList<SubstanceContent>();
@@ -240,7 +271,7 @@ public class Substance {
 	 * 
 	 * 
 	 */
-	@XmlElement(name="dissolve")
+	@XmlElement(name = "dissolve")
 	public List<Substance.Dissovle> getDissovle() {
 		if (dissovle == null) {
 			dissovle = new ArrayList<Substance.Dissovle>();

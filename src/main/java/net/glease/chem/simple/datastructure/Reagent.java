@@ -47,7 +47,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  */
 @XmlAccessorType(XmlAccessType.PROPERTY)
 @XmlType(name = "Reagent")
-public class Reagent {
+public class Reagent implements Comparable<Reagent>{
 
 	protected Substance substance;
 	protected Substance solvent;
@@ -246,6 +246,17 @@ public class Reagent {
 		builder.append(getId());
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public int compareTo(Reagent o) {
+		int d = getId().compareTo(o.getId());
+		if(d!=0)
+			return d;
+		d = getName().compareTo(o.getName());
+		if(d!=0)//TODO
+			return d;
+		return d;
 	}
 
 }
