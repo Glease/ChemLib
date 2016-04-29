@@ -69,6 +69,7 @@ public class Equation {
 	protected Double k;
 
 	protected Double heat;
+	protected Double speed;
 
 	private SoftReference<Set<String>> conditions;
 	private SoftReference<Set<Reagent>> catalysts;
@@ -124,6 +125,7 @@ public class Equation {
 		}
 		return true;
 	}
+
 	/**
 	 * Get a lazily-initialized, {@link SoftReference}-cached {@link Set} of
 	 * catalysts.
@@ -140,6 +142,7 @@ public class Equation {
 		}
 		return tmp;
 	}
+
 	/**
 	 * Gets the value of the conditionAndCatalystAndReactant property.
 	 *
@@ -184,6 +187,7 @@ public class Equation {
 		}
 		return this.conditionAndCatalystAndReactant;
 	}
+
 	/**
 	 * Get a lazily-initialized, {@link SoftReference}-cached {@link Set} of
 	 * conditions.
@@ -274,6 +278,17 @@ public class Equation {
 				getConditionAndCatalystAndReactant().stream().filter(e -> RESULTANT_QNAME.equals(e.getName()))
 						.map(e -> (CountedReagent) e.getValue()).collect(Collectors.toSet()));
 		return tmp;
+	}
+
+	/**
+	 * Get the value of speed.
+	 *
+	 * @return possible object is {@link Double }
+	 *
+	 */
+	@XmlAttribute(name = "speed", required = true)
+	public double getSpeed() {
+		return speed;
 	}
 
 	/**
