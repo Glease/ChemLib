@@ -1,43 +1,31 @@
 
 package net.glease.chem.simple.datastructure;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlID;
-import javax.xml.bind.annotation.XmlIDREF;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 /**
- * Reagent is something you can obtain in the lab, or
- * 				somewhere else in the real world.
+ *
+ * Reagent is something you can obtain in the lab, or somewhere else in the real
+ * world.
+ *
+ * Reagents and substances differ in that reagents have states like temperature,
+ * solvent, state, etc., while substance never has such kind of states.
  * 
- * 				Reagents and substances differ in
- * 				that reagents have states like
- * 				temperature, solvent, state, etc.,
- * 				while substance never has such
- * 				kind of states.
- * 			
- * 
- * <p>
- * The Java class of Reagent complex type.
  *
  * <p>
- * The following XML Schema snipplet contains the expect content of this class.
+ * Reagent complex type的 Java 类。
+ *
+ * <p>
+ * 以下模式片段指定包含在此类中的预期内容。
  *
  * <pre>
  * &lt;complexType name="Reagent">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="substance" use="required" type="{http://www.w3.org/2001/XMLSchema}IDREF" />
- *       &lt;attribute name="solvent" type="{http://www.w3.org/2001/XMLSchema}IDREF" />
+ *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *       &lt;attribute name="name" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute ref="{http://glease.net/chem/simple/DataStructure}substance use="required""/>
+ *       &lt;attribute ref="{http://glease.net/chem/simple/DataStructure}solvent"/>
  *       &lt;attribute name="concentration" type="{http://glease.net/chem/simple/DataStructure}Percentage" default="100" />
  *       &lt;attribute name="state" type="{http://glease.net/chem/simple/DataStructure}ReagentState" />
- *       &lt;attribute name="name" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}ID" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -45,218 +33,115 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *
  *
  */
-@XmlAccessorType(XmlAccessType.PROPERTY)
-@XmlType(name = "Reagent")
-public class Reagent implements Comparable<Reagent>{
-
-	protected Substance substance;
-	protected Substance solvent;
-	protected Float concentration;
-	protected ReagentState state;
-	protected String name;
-	protected String id;
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (!(obj instanceof Reagent)) {
-			return false;
-		}
-		Reagent other = (Reagent) obj;
-		if (id == null) {
-			if (other.id != null) {
-				return false;
-			}
-		} else if (!id.equals(other.id)) {
-			return false;
-		}
-		return true;
-	}
+public interface Reagent {
 
 	/**
-	 * Get the value of concentration.
-	 * 
-	 * @return possible object is {@link Float }
-	 * 
-	 */
-	@XmlAttribute(name = "concentration")
-	public float getConcentration() {
-		if (concentration == null) {
-			return 100.0F;
-		} else {
-			return concentration;
-		}
-	}
-
-	/**
-	 * Get the value of id.
+	 * 获取concentration属性的值。
 	 * 
 	 * @return possible object is {@link String }
 	 * 
 	 */
-	@XmlAttribute(name = "id", required = true)
-	@XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-	@XmlID
-	@XmlSchemaType(name = "ID")
-	public String getId() {
-		return id;
-	}
+	float getConcentration();
 
 	/**
-	 * Get the value of name.
+	 * 获取id属性的值。
 	 * 
 	 * @return possible object is {@link String }
 	 * 
 	 */
-	@XmlAttribute(name = "name")
-	public String getName() {
-		return name;
-	}
+	String getId();
 
 	/**
-	 * Get the value of solvent.
+	 * 
+	 * Sometimes some certain kind of reagents has different names with their
+	 * corresponding pure substance. Fill it here. If it don't have, leave it
+	 * empty.
+	 * 
+	 * 
+	 * @return possible object is {@link String }
+	 * 
+	 */
+	String getName();
+
+	/**
+	 * 获取solvent属性的值。
 	 * 
 	 * @return possible object is {@link Object }
 	 * 
 	 */
-	@XmlAttribute(name = "solvent")
-	@XmlIDREF
-	@XmlSchemaType(name = "IDREF")
-	public Substance getSolvent() {
-		return solvent;
-	}
+	Reagent getSolvent();
 
 	/**
-	 * Get the value of state.
+	 * 
+	 * The melt/boil point defined in the substance tag is ignored if state is
+	 * solution, since it may be changed.
+	 * 
 	 * 
 	 * @return possible object is {@link ReagentState }
 	 * 
 	 */
-	@XmlAttribute(name = "state")
-	public ReagentState getState() {
-		return state;
-	}
+	ReagentState getState();
 
 	/**
-	 * Get the value of substance.
+	 * 获取substance属性的值。
 	 * 
-	 * @return possible object is {@link Substance }
+	 * @return possible object is {@link Object }
 	 * 
 	 */
-	@XmlAttribute(name = "substance", required = true)
-	@XmlIDREF
-	@XmlSchemaType(name = "IDREF")
-	public Substance getSubstance() {
-		return substance;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (id == null ? 0 : id.hashCode());
-		return result;
-	}
+	Substance getSubstance();
 
 	/**
-	 * Set the value of concentration.
-	 * 
-	 * @param value
-	 *            allowed object is {@link Float }
-	 * 
-	 */
-	public void setConcentration(Float value) {
-		this.concentration = value;
-	}
-
-	/**
-	 * Set the value of id.
+	 * 设置concentration属性的值。
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }
 	 * 
 	 */
-	public void setId(String value) {
-		this.id = value;
-	}
+	void setConcentration(Float value);
 
 	/**
-	 * Set the value of name.
+	 * 设置id属性的值。
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }
 	 * 
 	 */
-	public void setName(String value) {
-		this.name = value;
-	}
+	void setId(String value);
 
 	/**
-	 * Set the value of solvent.
+	 * 设置name属性的值。
 	 * 
 	 * @param value
-	 *            allowed object is {@link Substance }
+	 *            allowed object is {@link String }
 	 * 
 	 */
-	public void setSolvent(Substance value) {
-		this.solvent = value;
-	}
+	void setName(String value);
 
 	/**
-	 * Set the value of state.
+	 * 设置solvent属性的值。
+	 * 
+	 * @param value
+	 *            allowed object is {@link Object }
+	 * 
+	 */
+	void setSolvent(Reagent value);
+
+	/**
+	 * 设置state属性的值。
 	 * 
 	 * @param value
 	 *            allowed object is {@link ReagentState }
 	 * 
 	 */
-	public void setState(ReagentState value) {
-		this.state = value;
-	}
+	void setState(ReagentState value);
 
 	/**
-	 * Set the value of substance.
+	 * 设置substance属性的值。
 	 * 
 	 * @param value
-	 *            allowed object is {@link Substance }
+	 *            allowed object is {@link Object }
 	 * 
 	 */
-	public void setSubstance(Substance value) {
-		this.substance = value;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Reagent [getSubstance()=");
-		builder.append(getSubstance());
-		builder.append(", getSolvent()=");
-		builder.append(getSolvent());
-		builder.append(", getConcentration()=");
-		builder.append(getConcentration());
-		builder.append(", getState()=");
-		builder.append(getState());
-		builder.append(", getName()=");
-		builder.append(getName());
-		builder.append(", getId()=");
-		builder.append(getId());
-		builder.append("]");
-		return builder.toString();
-	}
-
-	@Override
-	public int compareTo(Reagent o) {
-		int d = getId().compareTo(o.getId());
-		if(d!=0)
-			return d;
-		d = getName().compareTo(o.getName());
-		if(d!=0)//TODO
-			return d;
-		return d;
-	}
+	void setSubstance(Substance value);
 
 }

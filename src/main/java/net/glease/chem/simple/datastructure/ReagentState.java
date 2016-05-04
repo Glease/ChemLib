@@ -1,16 +1,23 @@
 
 package net.glease.chem.simple.datastructure;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * The Java class of ReagentState.
- * 
- * <p>The following XML Schema snipplet contains the expect content of this class.
  * <p>
+ * ReagentState的 Java 类。
+ *
+ * <p>
+ * 以下模式片段指定包含在此类中的预期内容。
+ * <p>
+ * 
  * <pre>
  * &lt;simpleType name="ReagentState">
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
@@ -23,41 +30,45 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- * 
+ *
  */
 @XmlType(name = "ReagentState")
 @XmlEnum
 public enum ReagentState {
 
-    @XmlEnumValue("powder")
-    POWDER("powder"),
-    @XmlEnumValue("nugget")
-    NUGGET("nugget"),
-    @XmlEnumValue("chunk")
-    CHUNK("chunk"),
-    @XmlEnumValue("liquid")
-    LIQUID("liquid"),
-    @XmlEnumValue("solution")
-    SOLUTION("solution"),
-    @XmlEnumValue("gas")
-    GAS("gas");
-    private final String value;
+	@XmlEnumValue("powder") 
+	POWDER("powder"),
+	@XmlEnumValue("nugget") 
+	NUGGET("nugget"),
+	@XmlEnumValue("chunk") 
+	CHUNK("chunk"),
+	@XmlEnumValue("liquid") 
+	LIQUID("liquid"),
+	@XmlEnumValue("solution") 
+	SOLUTION("solution"),
+	@XmlEnumValue("gas") 
+	GAS("gas");
+	
+	private static Map<String, ReagentState> values = Arrays.stream(values())
+			.collect(Collectors.toMap(ReagentState::name, Function.identity()));
+	
+	public static ReagentState fromValue(String v) {
+		ReagentState s = values.get(v);
+		
+		if(s!=null)
+			return s;
+		
+		throw new IllegalArgumentException(v);
+	}
 
-    ReagentState(String v) {
-        value = v;
-    }
+	private final String value;
 
-    public String value() {
-        return value;
-    }
+	ReagentState(String v) {
+		value = v;
+	}
 
-    public static ReagentState fromValue(String v) {
-        for (ReagentState c: ReagentState.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
-    }
+	public String value() {
+		return value;
+	}
 
 }

@@ -1,22 +1,23 @@
 
-package net.glease.chem.simple.datastructure;
+package net.glease.chem.simple.datastructure.impl;
 
 import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 
-import net.glease.chem.simple.datastructure.impl.AtomImpl;
-import net.glease.chem.simple.datastructure.impl.ChemDatabaseImpl;
-import net.glease.chem.simple.datastructure.impl.CountedAtomImpl;
-import net.glease.chem.simple.datastructure.impl.EquationImpl;
-import net.glease.chem.simple.datastructure.impl.ReactantImpl;
-import net.glease.chem.simple.datastructure.impl.ReagentImpl;
-import net.glease.chem.simple.datastructure.impl.ResultantImpl;
-import net.glease.chem.simple.datastructure.impl.SubstanceContentImpl;
-import net.glease.chem.simple.datastructure.impl.SubstanceImpl;
+import net.glease.chem.simple.datastructure.Atom;
+import net.glease.chem.simple.datastructure.ChemDatabase;
+import net.glease.chem.simple.datastructure.CountedAtom;
+import net.glease.chem.simple.datastructure.Database;
+import net.glease.chem.simple.datastructure.Equation;
+import net.glease.chem.simple.datastructure.Reactant;
+import net.glease.chem.simple.datastructure.Reagent;
+import net.glease.chem.simple.datastructure.Resultant;
+import net.glease.chem.simple.datastructure.Substance;
+import net.glease.chem.simple.datastructure.SubstanceContent;
 
 /**
  * This object contains factory methods for each Java content interface and Java
- * element interface generated in the net.glease.chem.simple.datastructure2
+ * element interface generated in the net.glease.chem.simple.datastructure2.impl
  * package.
  * <p>
  * An ObjectFactory allows you to programatically construct new instances of the
@@ -29,56 +30,51 @@ import net.glease.chem.simple.datastructure.impl.SubstanceImpl;
 @XmlRegistry
 public class ObjectFactory {
 
-	/*
-	 * What is this? TODO
-	 */
-	@SuppressWarnings("unused")
-	private final static Void _useJAXBProperties = null;
-
 	/**
 	 * Create a new ObjectFactory that can be used to create new instances of
-	 * schema derived classes for package: net.glease.chem.simple.datastructure2
-	 * 
+	 * schema derived classes for package:
+	 * net.glease.chem.simple.datastructure2.impl
+	 *
 	 */
 	public ObjectFactory() {
 	}
 
 	/**
 	 * Create an instance of {@link Atom }
-	 * 
+	 *
 	 */
-	public Atom createAtom() {
+	public AtomImpl createAtom() {
 		return new AtomImpl();
 	}
 
 	/**
 	 * Create an instance of {@link ChemDatabase }
-	 * 
+	 *
 	 */
-	public ChemDatabase createChemDatabase() {
+	public ChemDatabaseImpl createChemDatabase() {
 		return new ChemDatabaseImpl();
 	}
 
 	/**
 	 * Create an instance of {@link CountedAtom }
-	 * 
+	 *
 	 */
-	public CountedAtom createCountedAtom() {
+	public CountedAtomImpl createCountedAtom() {
 		return new CountedAtomImpl();
 	}
 
 	/**
 	 * Create an instance of {@link Database }}
-	 * 
+	 *
 	 */
 	@XmlElementDecl(namespace = "http://glease.net/chem/simple/DataStructure", name = "database")
-	public Database createDatabase(ChemDatabase value) {
-		return new Database(((ChemDatabaseImpl) value));
+	public Database createDatabase(ChemDatabaseImpl value) {
+		return new Database(value);
 	}
 
 	/**
 	 * Create an instance of {@link Equation }
-	 * 
+	 *
 	 */
 	public Equation createEquation() {
 		return new EquationImpl();
@@ -86,57 +82,57 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link Equation.Catalyst }
-	 * 
+	 *
 	 */
-	public Equation.Catalyst createEquationCatalyst() {
+	public EquationImpl.CatalystImpl createEquationCatalyst() {
 		return new EquationImpl.CatalystImpl();
 	}
 
 	/**
 	 * Create an instance of {@link Reactant }
-	 * 
+	 *
 	 */
-	public Reactant createReactant() {
+	public ReactantImpl createReactant() {
 		return new ReactantImpl();
 	}
 
 	/**
 	 * Create an instance of {@link Reagent }
-	 * 
+	 *
 	 */
-	public Reagent createReagent() {
+	public ReagentImpl createReagent() {
 		return new ReagentImpl();
 	}
 
 	/**
 	 * Create an instance of {@link Resultant }
-	 * 
+	 *
 	 */
-	public Resultant createResultant() {
+	public ResultantImpl createResultant() {
 		return new ResultantImpl();
 	}
 
 	/**
 	 * Create an instance of {@link Substance }
-	 * 
+	 *
 	 */
-	public Substance createSubstance() {
+	public SubstanceImpl createSubstance() {
 		return new SubstanceImpl();
 	}
 
 	/**
 	 * Create an instance of {@link SubstanceContent }
-	 * 
+	 *
 	 */
-	public SubstanceContent createSubstanceContent() {
+	public SubstanceContentImpl createSubstanceContent() {
 		return new SubstanceContentImpl();
 	}
 
 	/**
 	 * Create an instance of {@link Substance.Dissovle }
-	 * 
+	 *
 	 */
-	public Substance.Dissovle createSubstanceDissovle() {
+	public SubstanceImpl.DissovleImpl createSubstanceDissovle() {
 		return new SubstanceImpl.DissovleImpl();
 	}
 

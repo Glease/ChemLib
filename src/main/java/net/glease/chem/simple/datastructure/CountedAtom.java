@@ -1,27 +1,19 @@
 
 package net.glease.chem.simple.datastructure;
 
-import java.math.BigInteger;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlIDREF;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
-
 /**
- * The Java class of CountedAtom complex type.
+ * <p>
+ * CountedAtom complex type的 Java 类。
  *
  * <p>
- * The following XML Schema snipplet contains the expect content of this class.
+ * 以下模式片段指定包含在此类中的预期内容。
  *
  * <pre>
  * &lt;complexType name="CountedAtom">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="mol" type="{http://www.w3.org/2001/XMLSchema}positiveInteger" default="1" />
- *       &lt;attribute name="atom" use="required" type="{http://www.w3.org/2001/XMLSchema}IDREF" />
+ *       &lt;attribute name="mol" type="{http://glease.net/chem/simple/DataStructure}PositiveInteger" default="1" />
+ *       &lt;attribute ref="{http://glease.net/chem/simple/DataStructure}atom use="required""/>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -29,111 +21,40 @@ import javax.xml.bind.annotation.XmlType;
  *
  *
  */
-@XmlAccessorType(XmlAccessType.PROPERTY)
-@XmlType(name = "CountedAtom")
-public class CountedAtom {
-
-	protected BigInteger mol;
-	protected Atom atom;
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (!(obj instanceof CountedAtom)) {
-			return false;
-		}
-		CountedAtom other = (CountedAtom) obj;
-		if (atom == null) {
-			if (other.atom != null) {
-				return false;
-			}
-		} else if (!atom.equals(other.atom)) {
-			return false;
-		}
-		if (mol == null) {
-			if (other.mol != null) {
-				return false;
-			}
-		} else if (!mol.equals(other.mol)) {
-			return false;
-		}
-		return true;
-	}
+public interface CountedAtom {
 
 	/**
-	 * Get the value of atom.
+	 * 获取atom属性的值。
 	 * 
-	 * @return possible object is {@link Atom }
+	 * @return possible object is {@link Object }
 	 * 
 	 */
-	@XmlAttribute(name = "atom", required = true)
-	@XmlIDREF
-	@XmlSchemaType(name = "IDREF")
-	public Atom getAtom() {
-		return atom;
-	}
+	Atom getAtom();
 
 	/**
-	 * Get the value of mol.
+	 * 获取mol属性的值。
 	 * 
-	 * @return possible object is {@link BigInteger }
+	 * @return possible object is {@link String }
 	 * 
 	 */
-	@XmlAttribute(name = "mol")
-	@XmlSchemaType(name = "positiveInteger")
-	public BigInteger getMol() {
-		if (mol == null) {
-			return new BigInteger("1");
-		} else {
-			return mol;
-		}
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (atom == null ? 0 : atom.hashCode());
-		result = prime * result + (mol == null ? 0 : mol.hashCode());
-		return result;
-	}
+	int getMol();
 
 	/**
-	 * Set the value of atom.
+	 * 设置atom属性的值。
 	 * 
 	 * @param value
-	 *            allowed object is {@link Atom }
+	 *            allowed object is {@link Object }
 	 * 
 	 */
-	public void setAtom(Atom value) {
-		this.atom = value;
-	}
+	void setAtom(Atom value);
 
 	/**
-	 * Set the value of mol.
+	 * 设置mol属性的值。
 	 * 
 	 * @param value
-	 *            allowed object is {@link BigInteger }
+	 *            allowed object is {@link String }
 	 * 
 	 */
-	public void setMol(BigInteger value) {
-		this.mol = value;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("CountedAtom [getMol()=");
-		builder.append(getMol());
-		builder.append(", getAtom()=");
-		builder.append(getAtom());
-		builder.append("]");
-		return builder.toString();
-	}
+	void setMol(Integer value);
 
 }

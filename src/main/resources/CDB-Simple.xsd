@@ -1,31 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema targetNamespace="http://glease.net/chem/simple/DataStructure"
 	elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns="http://glease.net/chem/simple/DataStructure" xmlns:Q1="http://glease.net/chem/simple/DataStructure">
+	xmlns="http://glease.net/chem/simple/DataStructure" xmlns:Q1="http://glease.net/chem/simple/DataStructure"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.0">
 
+	<xsd:annotation>
+		<xsd:appinfo>
+			<jaxb:globalBindings generateElementClass="true"
+				generateValueClass="false">
+				<jaxb:serializable uid="1" />
+			</jaxb:globalBindings>
+			<jaxb:schemaBindings>
+				<jaxb:package name="net.glease.chem.simple.datastructure2">
+				</jaxb:package>
+			</jaxb:schemaBindings>
+		</xsd:appinfo>
+	</xsd:annotation>
 	<xsd:complexType name="Substance">
 		<xsd:annotation>
-			<xsd:documentation>Substance is something you know on your textbook,
-				like you know there is something called Carbon Dioxide.
+			<xsd:appinfo>
+				<jaxb:property>
+					<jaxb:javadoc>
+						Substance is something you know on your
+						textbook, like you know there is something
+						called Carbon Dioxide.
+					</jaxb:javadoc>
+				</jaxb:property>
+			</xsd:appinfo>
+			<xsd:documentation>
+				Substance is something you know on your textbook,
+				like
+				you know there is something called Carbon Dioxide.
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
 			<xsd:element name="atom" type="SubstanceContent"
-				minOccurs="1" maxOccurs="unbounded">
-			</xsd:element>
+				minOccurs="1" maxOccurs="unbounded" />
 			<xsd:element name="dissovle" minOccurs="0" maxOccurs="unbounded">
 				<xsd:complexType>
-					<xsd:attribute name="solvent" type="xsd:IDREF" />
+					<xsd:attribute ref="solvent" use="required" />
 					<xsd:attribute name="s2TFunction" type="Expression"
 						use="required" />
 				</xsd:complexType>
 			</xsd:element>
 		</xsd:sequence>
 		<xsd:attribute name="name" type="xsd:string" use="required" />
-		<xsd:attribute name="meltPoint" type="Temperature" />
-		<xsd:attribute name="boilPoint" type="Temperature" />
+		<xsd:attribute name="meltPoint" type="Temperature">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<jaxb:property>
+						<jaxb:javadoc>
+                        Represents a temperature, measured in K, not
+                        Censils
+                    </jaxb:javadoc>
+					</jaxb:property>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="boilPoint" type="Temperature">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<jaxb:property>
+						<jaxb:javadoc>
+                        Represents a temperature, measured in K, not
+                        Censils
+                    </jaxb:javadoc>
+					</jaxb:property>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
 		<xsd:attribute name="id" type="xsd:ID" use="required" />
-		<xsd:attribute name="crystal" type="CrystalType" />
+		<xsd:attribute name="crystal" type="CrystalType">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<jaxb:property>
+						<jaxb:javadoc>
+                        For mixed crystal, use none.
+                    </jaxb:javadoc>
+					</jaxb:property>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
 	</xsd:complexType>
 
 	<xsd:element name="database" type="ChemDatabase">
@@ -81,70 +136,110 @@
 		<xsd:restriction base="PositiveDouble" />
 	</xsd:simpleType>
 
+
 	<xsd:simpleType name="PositiveDouble">
-		<xsd:restriction base="xsd:double">
+		<xsd:annotation>
+		</xsd:annotation>
+		<xsd:restriction base="JavaDouble">
 			<xsd:minExclusive value="0" />
 		</xsd:restriction>
 	</xsd:simpleType>
 
 	<xsd:complexType name="CountedAtom">
-		<xsd:attribute name="mol" type="xsd:positiveInteger"
-			use="optional" default="1" />
-		<xsd:attribute name="atom" type="xsd:IDREF" use="required" />
+		<xsd:attribute name="mol" type="PositiveInteger" use="optional"
+			default="1" />
+		<xsd:attribute ref="atom" use="required" />
 	</xsd:complexType>
 
 	<xsd:complexType name="Reagent">
 		<xsd:annotation>
-			<xsd:documentation>Reagent is something you can obtain in the lab, or
+			<xsd:appinfo>
+				<jaxb:property>
+					<jaxb:javadoc>
+						Reagent is something you can obtain in the lab,
+						or somewhere else in the real world.
+
+						Reagents and substances differ in that reagents
+						have states like temperature, solvent, state,
+						etc., while substance never has such kind of
+						states.
+					</jaxb:javadoc>
+				</jaxb:property>
+			</xsd:appinfo>
+			<xsd:documentation>
+				Reagent is something you can obtain in the lab, or
 				somewhere else in the real world.
 
 				Reagents and substances differ in
-				that reagents have states like
-				temperature, solvent, state, etc.,
-				while substance never has such
-				kind of states.
+				that reagents have
+				states like temperature, solvent, state, etc.,
+				while
+				substance never has such kind of states.
 			</xsd:documentation>
 		</xsd:annotation>
-		<xsd:attribute name="substance" type="xsd:IDREF" use="required" />
-		<xsd:attribute name="solvent" type="xsd:IDREF" />
-		<xsd:attribute name="concentration" type="Percentage"
-			default="100" />
-		<xsd:attribute name="state" type="ReagentState">
-			<xsd:annotation>
-				<xsd:documentation>
-					The melt/boil point defined in the substance tag
-					is ignored
-					if state is solution, since it may be changed.
-				</xsd:documentation>
-			</xsd:annotation>
-		</xsd:attribute>
+		<xsd:attribute name="id" use="required" type="xsd:ID" />
 		<xsd:attribute name="name" type="xsd:string">
 			<xsd:annotation>
+				<xsd:appinfo>
+					<jaxb:property>
+						<jaxb:javadoc>
+							Sometimes some certain kind of reagents has
+							different names with their corresponding
+							pure substance. Fill it here. If it don't
+							have, leave it empty.
+						</jaxb:javadoc>
+					</jaxb:property>
+				</xsd:appinfo>
 				<xsd:documentation>
 					Sometimes some certain kind of reagents has
-					different names with their corresponding pure substance. Fill it
+					different names with their corresponding pure
+					substance. Fill it
 					here. If it don't have, leave it
 					empty.
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="id" type="xsd:ID" use="required"></xsd:attribute>
+		<xsd:attribute ref="substance" use="required" />
+		<xsd:attribute ref="solvent" />
+		<xsd:attribute name="concentration" type="Percentage"
+			default="100" />
+		<xsd:attribute name="state" type="ReagentState">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<jaxb:property>
+						<jaxb:javadoc>
+							The melt/boil point defined in the substance
+							tag is ignored if state is solution, since
+							it may be changed.
+						</jaxb:javadoc>
+					</jaxb:property>
+				</xsd:appinfo>
+				<xsd:documentation>
+					The melt/boil point defined in the substance tag
+					is
+					ignored if state is solution, since it may be
+					changed.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
 	</xsd:complexType>
 
 	<xsd:simpleType name="ReagentState">
 		<xsd:restriction base="xsd:string">
-			<xsd:enumeration value="powder"></xsd:enumeration>
-			<xsd:enumeration value="nugget"></xsd:enumeration>
-			<xsd:enumeration value="chunk"></xsd:enumeration>
-			<xsd:enumeration value="liquid"></xsd:enumeration>
-			<xsd:enumeration value="solution"></xsd:enumeration>
-			<xsd:enumeration value="gas"></xsd:enumeration>
+			<xsd:enumeration value="powder" />
+			<xsd:enumeration value="nugget" />
+			<xsd:enumeration value="chunk" />
+			<xsd:enumeration value="liquid" />
+			<xsd:enumeration value="solution" />
+			<xsd:enumeration value="gas" />
 		</xsd:restriction>
 	</xsd:simpleType>
 
 	<xsd:simpleType name="CrystalType">
 		<xsd:annotation>
-			<xsd:documentation>For mixed crystal, use none.</xsd:documentation>
+			<xsd:documentation>
+				For mixed crystal, use none.
+			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="xsd:string">
 			<xsd:enumeration value="none" />
@@ -156,58 +251,115 @@
 	</xsd:simpleType>
 
 	<xsd:complexType name="Equation">
-		<xsd:sequence maxOccurs="unbounded" minOccurs="0">
+		<xsd:sequence maxOccurs="unbounded" minOccurs="1">
 			<xsd:element name="condition" type="xsd:string"
-				minOccurs="0" maxOccurs="unbounded">
-			</xsd:element>
-			<xsd:element name="catalyst" minOccurs="0"
-				maxOccurs="unbounded">
+				minOccurs="0" maxOccurs="unbounded" />
+			<xsd:element name="catalyst" minOccurs="0" maxOccurs="unbounded">
 				<xsd:complexType>
-					<xsd:attribute name="reagent" type="xsd:IDREF"></xsd:attribute>
+					<xsd:attribute name="reagent" type="xsd:IDREF">
+						<xsd:annotation>
+							<xsd:appinfo>
+								<jaxb:property>
+									<jaxb:baseType name="Reagent"></jaxb:baseType>
+								</jaxb:property>
+							</xsd:appinfo>
+						</xsd:annotation>
+					</xsd:attribute>
 				</xsd:complexType>
 			</xsd:element>
-			<xsd:element name="reactant" type="CountedReagent"
-				minOccurs="0" maxOccurs="unbounded">
-			</xsd:element>
-			<xsd:element name="resultant" type="CountedReagent"
-				minOccurs="0" maxOccurs="unbounded">
-			</xsd:element>
+			<xsd:element name="reactant" type="Reactant" minOccurs="1"
+				maxOccurs="unbounded" />
+			<xsd:element name="resultant" type="Resultant" minOccurs="1"
+				maxOccurs="unbounded" />
 		</xsd:sequence>
-		<xsd:attribute ref="temp" />
+		<xsd:attribute ref="temp" use="optional" />
 		<xsd:attribute name="pressure" type="PositiveDouble"
-			default="1.01e+5" />
-		<xsd:attribute name="K" type="PositiveDouble" default="INF">
+			default="1.01e+5" use="optional" />
+		<xsd:attribute name="K" type="PositiveDouble" default="INF"
+			use="optional">
 			<xsd:annotation>
+				<xsd:appinfo>
+					<jaxb:property>
+						<jaxb:javadoc>
+							Default to INF which means this reaction is
+							an irreversible reaction.
+						</jaxb:javadoc>
+					</jaxb:property>
+				</xsd:appinfo>
 				<xsd:documentation>
 					Default to INF which means this reaction is an
 					irreversible reaction.
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="heat" type="xsd:double" default="0"
+		<xsd:attribute name="heat" type="JavaDouble" default="0"
 			use="optional">
 			<xsd:annotation>
+				<xsd:appinfo>
+					<jaxb:property>
+						<jaxb:javadoc>
+							Heat changed. Positive value means the
+							reaction is exothermic. Default to 0 means
+							the heat change is so little that could be
+							ignored in production (like the heat
+							generated by most neutralization reaction).
+							Measured in kJ.
+						</jaxb:javadoc>
+					</jaxb:property>
+				</xsd:appinfo>
 				<xsd:documentation>
-					Heat changed. Positive value means the reaction is
+					Heat changed. Positive value means the reaction
+					is
 					exothermic. Default to 0 means the heat change is so
-					little that could be ignored in production (like the
-					heat generated by most neutralization reaction).
+					little that
+					could be ignored in production (like the
+					heat generated by most
+					neutralization reaction).
+					Measured in kJ.
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="speed" type="PositiveDouble" use="required"></xsd:attribute>
+		<xsd:attribute name="speed" type="PositiveDouble" use="required" />
+		<xsd:attribute name="solvent" type="xsd:IDREF">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<jaxb:property>
+						<jaxb:baseType name="Reagent"></jaxb:baseType>
+					</jaxb:property>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
 	</xsd:complexType>
 
-	<xsd:attribute name="temp" type="Temperature" default="298.15" />
+	<xsd:attribute name="temp" type="Temperature" default="298.15">
+		<xsd:annotation>
+			<xsd:appinfo>
+				<jaxb:property>
+					<jaxb:javadoc>
+                        Represents a temperature, measured in K, not
+                        Censils
+                    </jaxb:javadoc>
+				</jaxb:property>
+			</xsd:appinfo>
+		</xsd:annotation>
+	</xsd:attribute>
 
 	<xsd:complexType name="ChemDatabase">
+		<xsd:annotation>
+			<xsd:appinfo>
+				<jaxb:property>
+					<jaxb:javadoc>
+                        A java.util.UUID compatible serialized form.
+                    </jaxb:javadoc>
+				</jaxb:property>
+			</xsd:appinfo>
+		</xsd:annotation>
 		<xsd:all minOccurs="0" maxOccurs="1">
 			<xsd:element minOccurs="0" maxOccurs="1" name="substances">
 				<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element minOccurs="1" maxOccurs="unbounded" name="substance"
-							type="Substance">
-						</xsd:element>
+							type="Substance" />
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
@@ -223,8 +375,7 @@
 				<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element name="atom" type="Atom" minOccurs="1"
-							maxOccurs="unbounded">
-						</xsd:element>
+							maxOccurs="unbounded" />
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
@@ -232,8 +383,7 @@
 				<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element name="reagent" type="Reagent" minOccurs="1"
-							maxOccurs="unbounded">
-						</xsd:element>
+							maxOccurs="unbounded" />
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
@@ -241,6 +391,15 @@
 		<xsd:attribute use="required" name="UUID" type="UUID" />
 		<xsd:attribute name="version" type="xsd:string" use="required">
 			<xsd:annotation>
+				<xsd:appinfo>
+					<jaxb:property>
+						<jaxb:javadoc>
+							A version string. Loading databases with
+							same UUID but different version should
+							result in a crash.
+						</jaxb:javadoc>
+					</jaxb:property>
+				</xsd:appinfo>
 				<xsd:documentation>
 					A version string. Loading databases with same
 					UUID
@@ -250,8 +409,10 @@
 		</xsd:attribute>
 		<xsd:attribute name="info" type="xsd:string">
 			<xsd:annotation>
-				<xsd:documentation>Some info. Authors, site link, license and other
-					metadata about this CDB goes in here except the version.
+				<xsd:documentation>
+					Some info. Authors, site link, license and other
+					metadata about this CDB goes in here, except the
+					version.
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -259,7 +420,12 @@
 
 	<xsd:simpleType name="UUID">
 		<xsd:annotation>
-			<xsd:documentation />
+			<xsd:appinfo>
+				<jaxb:javaType name="java.util.UUID" parseMethod="java.util.UUID.fromString" />
+			</xsd:appinfo>
+			<xsd:documentation>
+				A java.util.UUID compatible serialized form.
+			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="xsd:string">
 			<xsd:pattern
@@ -270,12 +436,20 @@
 
 	<xsd:complexType name="Atom">
 		<xsd:attribute name="localizedName" type="xsd:string" />
-		<xsd:attribute name="symbol" type="xsd:string" />
-		<xsd:attribute use="required" name="molMass" type="xsd:float" />
+		<xsd:attribute name="symbol">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:minLength value="1"></xsd:minLength>
+					<xsd:maxLength value="2"></xsd:maxLength>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute use="required" name="molMass" type="JavaFloat" />
 		<xsd:attribute use="required" name="index" type="xsd:unsignedByte" />
 		<xsd:attribute name="id" type="xsd:ID" use="required">
 			<xsd:annotation>
-				<xsd:documentation>id is not index. id is xml stuff and index is all
+				<xsd:documentation>
+					id is not index. id is xml stuff and index is all
 					about chemistry.
 				</xsd:documentation>
 			</xsd:annotation>
@@ -283,25 +457,118 @@
 	</xsd:complexType>
 
 	<xsd:complexType name="SubstanceContent">
-		<xsd:attribute name="atom" type="xsd:IDREF" use="required" />
-		<xsd:attribute name="mol" type="xsd:positiveInteger"
-			use="optional" default="1" />
+		<xsd:attribute ref="atom" use="required" />
+		<xsd:attribute name="mol" type="xsd:unsignedShort" use="optional"
+			default="1" />
 	</xsd:complexType>
 
 	<xsd:simpleType name="Expression">
+		<xsd:annotation>
+			<xsd:appinfo />
+
+
+		</xsd:annotation>
 		<xsd:restriction base="xsd:string" />
 	</xsd:simpleType>
 
-	<xsd:complexType name="CountedReagent">
-		<xsd:attribute name="mol" type="xsd:positiveInteger"
-			use="optional" default="1" />
-		<xsd:attribute name="reagent" type="xsd:IDREF" use="required" />
+	<xsd:complexType name="EquationComponent" abstract="true">
+		<xsd:attribute name="mol" type="xsd:unsignedShort" use="optional"
+			default="1" />
+		<xsd:attribute ref="substance" use="required" />
+		<xsd:attribute name="state" type="ReagentState" />
 	</xsd:complexType>
 
 	<xsd:simpleType name="Percentage">
-		<xsd:restriction base="xsd:float">
+		<xsd:annotation>
+			<xsd:appinfo>
+				<jaxb:javaType name="float" />
+			</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:restriction base="JavaFloat">
 			<xsd:minInclusive value="0" />
 			<xsd:maxInclusive value="100" />
 		</xsd:restriction>
 	</xsd:simpleType>
+
+	<xsd:complexType name="Reactant">
+		<xsd:complexContent>
+			<xsd:extension base="EquationComponent">
+				<xsd:attribute name="purity" type="Percentage" />
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+
+	<xsd:complexType name="Resultant">
+		<xsd:complexContent>
+			<xsd:extension base="EquationComponent" />
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:simpleType name="JavaInteger">
+		<xsd:annotation>
+			<xsd:appinfo>
+				<jaxb:javaType name="int" />
+			</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:double">
+			<xsd:maxExclusive value="2147483648"></xsd:maxExclusive>
+			<xsd:minInclusive value="-2147483648"></xsd:minInclusive>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="JavaFloat">
+		<xsd:annotation>
+			<xsd:appinfo>
+				<jaxb:javaType name="float" />
+			</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:float"></xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="JavaDouble">
+		<xsd:annotation>
+			<xsd:appinfo>
+				<jaxb:javaType name="double" />
+			</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:double"></xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="PositiveInteger">
+		<xsd:restriction base="JavaInteger">
+			<xsd:minExclusive value="0"></xsd:minExclusive>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:attribute name="solvent" type="xsd:IDREF">
+		<xsd:annotation>
+			<xsd:appinfo>
+				<jaxb:property>
+					<jaxb:baseType name="Reagent"></jaxb:baseType>
+				</jaxb:property>
+			</xsd:appinfo>
+			<xsd:documentation>A reagent as solvent.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:attribute>
+
+	<xsd:attribute name="atom" type="xsd:IDREF">
+		<xsd:annotation>
+			<xsd:appinfo>
+				<jaxb:property>
+					<jaxb:baseType name="Atom"></jaxb:baseType>
+				</jaxb:property>
+			</xsd:appinfo>
+		</xsd:annotation>
+	</xsd:attribute>
+
+	<xsd:attribute name="substance" type="xsd:IDREF">
+		<xsd:annotation>
+			<xsd:appinfo>
+				<jaxb:property>
+					<jaxb:baseType name="Substance"></jaxb:baseType>
+				</jaxb:property>
+			</xsd:appinfo>
+		</xsd:annotation>
+	</xsd:attribute>
 </xsd:schema>
