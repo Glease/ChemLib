@@ -9,11 +9,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import net.glease.chem.simple.datastructure.Atom;
 import net.glease.chem.simple.datastructure.CountedAtom;
-import net.glease.chem.simple.datastructure.IntAdapter;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "CountedAtom")
@@ -21,7 +19,6 @@ public class CountedAtomImpl implements Serializable, CountedAtom {
 
 	private final static long serialVersionUID = 1L;
 	@XmlAttribute(name = "mol")
-	@XmlJavaTypeAdapter(IntAdapter.class)
 	protected int mol = 1;
 	@XmlAttribute(name = "atom", namespace = "http://glease.net/chem/simple/DataStructure", required = true)
 	@XmlIDREF

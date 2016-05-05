@@ -11,25 +11,25 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
-import net.glease.chem.simple.datastructure.EquationComponent;
+import net.glease.chem.simple.datastructure.ReactionComponent;
 import net.glease.chem.simple.datastructure.ReagentState;
 import net.glease.chem.simple.datastructure.Substance;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EquationComponent")
 @XmlSeeAlso({ ReactantImpl.class, ResultantImpl.class })
-public abstract class EquationComponentImpl implements Serializable, EquationComponent {
+public abstract class ReactionComponentImpl implements Serializable, ReactionComponent {
 
 	private final static long serialVersionUID = 1L;
 	@XmlAttribute(name = "mol")
 	@XmlSchemaType(name = "unsignedShort")
-	protected Integer mol;
+	protected int mol = 1;
 	@XmlAttribute(name = "substance", namespace = "http://glease.net/chem/simple/DataStructure", required = true)
 	@XmlIDREF
 	@XmlSchemaType(name = "IDREF")
 	protected Substance substance;
 	@XmlAttribute(name = "state")
-	protected ReagentState state;
+	protected ReagentState state = ReagentState.POWDER;
 
 	@Override
 	public boolean equals(Object obj) {
@@ -42,12 +42,8 @@ public abstract class EquationComponentImpl implements Serializable, EquationCom
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		EquationComponentImpl other = (EquationComponentImpl) obj;
-		if (mol == null) {
-			if (other.mol != null) {
-				return false;
-			}
-		} else if (!mol.equals(other.mol)) {
+		ReactionComponentImpl other = (ReactionComponentImpl) obj;
+		if (mol != other.mol) {
 			return false;
 		}
 		if (state != other.state) {
@@ -65,11 +61,7 @@ public abstract class EquationComponentImpl implements Serializable, EquationCom
 
 	@Override
 	public int getMol() {
-		if (mol == null) {
-			return 1;
-		} else {
 			return mol;
-		}
 	}
 
 	@Override
@@ -86,7 +78,7 @@ public abstract class EquationComponentImpl implements Serializable, EquationCom
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((mol == null) ? 0 : mol.hashCode());
+		result = prime * result + mol;
 		result = prime * result + ((state == null) ? 0 : state.hashCode());
 		result = prime * result + ((substance == null) ? 0 : substance.hashCode());
 		return result;
@@ -110,7 +102,7 @@ public abstract class EquationComponentImpl implements Serializable, EquationCom
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("EquationComponentImpl [");
+		builder.append("ReactionComponentImpl [");
 		if (substance != null) {
 			builder.append("substance=");
 			builder.append(substance);

@@ -1,191 +1,53 @@
-
 package net.glease.chem.simple.datastructure;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import net.glease.chem.simple.datastructure.impl.NormalizationException;
 
-import net.glease.chem.simple.datastructure.impl.AtomImpl;
-import net.glease.chem.simple.datastructure.impl.EquationImpl;
-import net.glease.chem.simple.datastructure.impl.ReagentImpl;
-import net.glease.chem.simple.datastructure.impl.SubstanceImpl;
+public interface ChemDatabase {
+ 
+	@Override
+	boolean equals(Object obj);
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ChemDatabase", propOrder = {
+	List<Atom> getAtoms();
 
-})
-public class ChemDatabase implements Serializable {
+	List<Reaction> getReactions();
 
-	private final static long serialVersionUID = 1L;
+	String getInfo();
 
-	@XmlElementWrapper(name = "substances")
-	@XmlElement(type = SubstanceImpl.class)
-	protected List<Substance> substances;
+	List<Reagent> getReagents();
 
-	@XmlElementWrapper(name = "equations")
-	@XmlElement(type = EquationImpl.class)
-	protected List<Equation> equations;
+	List<Substance> getSubstances();
 
-	@XmlElementWrapper(name = "atoms")
-	@XmlElement(name = "atom", type = AtomImpl.class)
-	protected List<Atom> atoms;
+	UUID getUUID();
 
-	@XmlElementWrapper(name = "reagents")
-	@XmlElement(type = ReagentImpl.class)
-	protected List<Reagent> reagents;
-
-	@XmlAttribute(name = "UUID", required = true)
-	@XmlJavaTypeAdapter(UUIDAdapter.class)
-	protected UUID uuid;
-
-	@XmlAttribute(name = "version", required = true)
-	protected String version;
-
-	@XmlAttribute(name = "info")
-	protected String info;
+	String getVersion();
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		ChemDatabase other = (ChemDatabase) obj;
-		if (uuid == null) {
-			if (other.uuid != null) {
-				return false;
-			}
-		} else if (!uuid.equals(other.uuid)) {
-			return false;
-		}
-		if (version == null) {
-			if (other.version != null) {
-				return false;
-			}
-		} else if (!version.equals(other.version)) {
-			return false;
-		}
-		return true;
-	}
+	int hashCode();
 
-	public List<Atom> getAtoms() {
-		return atoms;
-	}
+	/**
+	 * Perform various tasks that normalize this database into a standard,
+	 * nothing omitted one. It will return <code>false</code> immediately if an
+	 * value is omitted but can't be substituted, leaving everything previously
+	 * done just there, as there won't be any damage theoretically.
+	 * <p>
+	 * Currently, it will
+	 * <ul>
+	 * <li>Add all atoms omitted symbols, localizedNames.
+	 * </ul>
+	 * 
+	 * @return <code>true</code> if normalization completed normally,
+	 *         <code>false</code> if normalization found some errors
+	 * @throws NormalizationException 
+	 */
+	void normalize() throws NormalizationException;
 
-	public List<Equation> getEquations() {
-		return equations;
-	}
+	void setInfo(String value);
 
-	public String getInfo() {
-		return info;
-	}
+	void setUUID(UUID value);
 
-	public List<Reagent> getReagents() {
-		return reagents;
-	}
-
-	public List<Substance> getSubstances() {
-		return substances;
-	}
-
-	public UUID getUUID() {
-		return uuid;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
-		result = prime * result + ((version == null) ? 0 : version.hashCode());
-		return result;
-	}
-
-	public void setAtoms(List<Atom> value) {
-		this.atoms = value;
-	}
-
-	public void setEquations(List<Equation> value) {
-		this.equations = value;
-	}
-
-	public void setInfo(String value) {
-		this.info = value;
-	}
-
-	public void setReagents(List<Reagent> value) {
-		this.reagents = value;
-	}
-
-	public void setSubstances(List<Substance> value) {
-		this.substances = value;
-	}
-
-	public void setUUID(UUID value) {
-		this.uuid = value;
-	}
-
-	public void setVersion(String value) {
-		this.version = value;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("ChemDatabaseImpl [");
-		if (substances != null) {
-			builder.append("substances=");
-			builder.append(substances);
-			builder.append(", ");
-		}
-		if (equations != null) {
-			builder.append("equations=");
-			builder.append(equations);
-			builder.append(", ");
-		}
-		if (atoms != null) {
-			builder.append("atoms=");
-			builder.append(atoms);
-			builder.append(", ");
-		}
-		if (reagents != null) {
-			builder.append("reagents=");
-			builder.append(reagents);
-			builder.append(", ");
-		}
-		if (uuid != null) {
-			builder.append("uuid=");
-			builder.append(uuid);
-			builder.append(", ");
-		}
-		if (version != null) {
-			builder.append("version=");
-			builder.append(version);
-			builder.append(", ");
-		}
-		if (info != null) {
-			builder.append("info=");
-			builder.append(info);
-		}
-		builder.append("]");
-		return builder.toString();
-	}
+	void setVersion(String value);
 
 }

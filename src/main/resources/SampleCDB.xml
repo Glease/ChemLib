@@ -14,26 +14,31 @@
 		<atom index="6" molMass="12" id="a6-12" localizedName="Carbon" />
 		<atom index="8" molMass="16" id="a8-16" localizedName="Oxygen" />
 	</atoms>
-	<equations>
-		<equation>
-			<reactant reagent="r1" mol="2" />
-			<reactant reagent="r2" />
+	<reactions>
+		<reaction speed="1">
 			<condition>ignition</condition>
-			<resultant reagent="r3" mol="2" />
-		</equation>
-	</equations>
+			<reactant purity="0.9" substance="s1" mol="2" />
+			<reactant purity="0.9" substance="s2" />
+			<resultant substance="r3" mol="2" />
+		</reaction>
+	</reactions>
 	<substances>
 		<substance name="Water" id="s1">
 			<atom atom="a8-16" />
 			<dissovle solvent="s2" s2TFunction="100.0" />
 		</substance>
 		<substance name="C2H5OH" id="s2">
-			<dissovle s2TFunction="100.0" solvent="s1"></dissovle>
+			<atom atom="a6-12" mol="2" />
+			<atom atom="a1-1" mol="6" />
+			<atom atom="a8-16" />
+			<dissovle s2TFunction="100.0" solvent="s1" />
 		</substance>
 		<substance name="Hydrogen" id="s3">
 			<atom atom="a1-1" mol="2" />
 		</substance>
-		<substance name="Oxydgren" id="s4"></substance>
+		<substance name="Oxydgren" id="s4">
+			<atom atom="a8-16" mol="2" />
+		</substance>
 	</substances>
 	<reagents>
 		<reagent substance="s3" state="gas" id="r1" />

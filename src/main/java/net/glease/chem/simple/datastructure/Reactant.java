@@ -20,7 +20,7 @@ package net.glease.chem.simple.datastructure;
  *
  *
  */
-public interface Reactant extends EquationComponent {
+public interface Reactant extends ReactionComponent {
 
 	/**
 	 * 获取purity属性的值。

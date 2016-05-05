@@ -11,7 +11,7 @@ import net.glease.chem.simple.datastructure.Resultant;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Resultant")
-public class ResultantImpl extends EquationComponentImpl implements Serializable, Resultant {
+public class ResultantImpl extends ReactionComponentImpl implements Serializable, Resultant {
 
 	private final static long serialVersionUID = 1L;
 

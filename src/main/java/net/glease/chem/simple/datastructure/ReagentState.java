@@ -49,8 +49,8 @@ public enum ReagentState {
 	@XmlEnumValue("gas") 
 	GAS("gas");
 	
-	private static Map<String, ReagentState> values = Arrays.stream(values())
-			.collect(Collectors.toMap(ReagentState::name, Function.identity()));
+	static Map<String, ReagentState> values = Arrays.stream(values())
+			.collect(Collectors.toMap(Enum::name, Function.identity()));
 	
 	public static ReagentState fromValue(String v) {
 		ReagentState s = values.get(v);

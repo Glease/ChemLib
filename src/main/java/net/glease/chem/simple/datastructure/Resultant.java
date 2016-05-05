@@ -19,6 +19,6 @@ package net.glease.chem.simple.datastructure;
  *
  *
  */
-public interface Resultant extends EquationComponent {
+public interface Resultant extends ReactionComponent {
 
 }

@@ -17,7 +17,6 @@ import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import net.glease.chem.simple.datastructure.CrystalType;
-import net.glease.chem.simple.datastructure.DoubleAdapter;
 import net.glease.chem.simple.datastructure.Reagent;
 import net.glease.chem.simple.datastructure.Substance;
 import net.glease.chem.simple.datastructure.SubstanceContent;
@@ -68,10 +67,8 @@ public class SubstanceImpl implements Serializable, Substance {
 	@XmlAttribute(name = "name", required = true)
 	protected String name;
 	@XmlAttribute(name = "meltPoint")
-	@XmlJavaTypeAdapter(DoubleAdapter.class)
 	protected double meltPoint;
 	@XmlAttribute(name = "boilPoint")
-	@XmlJavaTypeAdapter(DoubleAdapter.class)
 	protected double boilPoint;
 	@XmlAttribute(name = "id", required = true)
 	@XmlJavaTypeAdapter(CollapsedStringAdapter.class)

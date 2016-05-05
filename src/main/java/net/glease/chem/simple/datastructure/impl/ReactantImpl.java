@@ -7,18 +7,15 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import net.glease.chem.simple.datastructure.FloatAdapter;
 import net.glease.chem.simple.datastructure.Reactant;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Reactant")
-public class ReactantImpl extends EquationComponentImpl implements Serializable, Reactant {
+public class ReactantImpl extends ReactionComponentImpl implements Serializable, Reactant {
 
 	private final static long serialVersionUID = 1L;
 	@XmlAttribute(name = "purity")
-	@XmlJavaTypeAdapter(FloatAdapter.class)
 	protected float purity;
 
 	@Override

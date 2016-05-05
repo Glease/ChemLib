@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 /**
  * <p>
  * Equation complex typeµÄ Java Àà¡£
@@ -43,7 +45,7 @@ import java.util.stream.Stream;
  *
  *
  */
-public interface Equation {
+public interface Reaction {
 
 	/**
 	 * <p>
@@ -85,11 +87,19 @@ public interface Equation {
 
 	}
 
-	List<Equation.Catalyst> getCatalysts();
+	@NonNull
+	default List<Reagent> getAllCatalysts() {
+		return getCatalysts().stream().map(Catalyst::getReagent).collect(Collectors.toList());
+	}
 
+	@NonNull
+	List<Reaction.Catalyst> getCatalysts();
+
+	@NonNull
 	List<String> getConditions();
-	
-	default List<EquationComponent> getAllEquationComponents() {
+
+	@NonNull
+	default List<ReactionComponent> getAllEquationComponents() {
 		return Stream.concat(getResultants().stream(), getReactants().stream()).collect(Collectors.toList());
 	}
 
@@ -124,8 +134,10 @@ public interface Equation {
 	 */
 	double getPressure();
 
+	@NonNull
 	List<Reactant> getReactants();
 
+	@NonNull
 	List<Resultant> getResultants();
 
 	/**

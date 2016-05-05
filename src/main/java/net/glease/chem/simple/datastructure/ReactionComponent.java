@@ -9,7 +9,7 @@ package net.glease.chem.simple.datastructure;
  * 以下模式片段指定包含在此类中的预期内容。
  *
  * <pre>
- * &lt;complexType name="EquationComponent">
+ * &lt;complexType name="ReactionComponent">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;attribute name="mol" type="{http://www.w3.org/2001/XMLSchema}unsignedShort" default="1" />
@@ -22,7 +22,7 @@ package net.glease.chem.simple.datastructure;
  *
  *
  */
-public interface EquationComponent {
+public interface ReactionComponent {
 
 	/**
 	 * 获取mol属性的值。

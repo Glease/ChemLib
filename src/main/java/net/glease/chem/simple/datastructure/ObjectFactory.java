@@ -5,8 +5,9 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 
 import net.glease.chem.simple.datastructure.impl.AtomImpl;
+import net.glease.chem.simple.datastructure.impl.ChemDatabaseImpl;
 import net.glease.chem.simple.datastructure.impl.CountedAtomImpl;
-import net.glease.chem.simple.datastructure.impl.EquationImpl;
+import net.glease.chem.simple.datastructure.impl.ReactionImpl;
 import net.glease.chem.simple.datastructure.impl.ReactantImpl;
 import net.glease.chem.simple.datastructure.impl.ReagentImpl;
 import net.glease.chem.simple.datastructure.impl.ResultantImpl;
@@ -51,11 +52,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ChemDatabase }
+	 * Create an instance of {@link ChemDatabaseImpl }
 	 * 
 	 */
-	public ChemDatabase createChemDatabase() {
-		return new ChemDatabase();
+	public ChemDatabase createChemDatabaseImpl() {
+		return new ChemDatabaseImpl();
 	}
 
 	/**
@@ -71,24 +72,24 @@ public class ObjectFactory {
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://glease.net/chem/simple/DataStructure", name = "database")
-	public Database createDatabase(ChemDatabase value) {
+	public Database createImpl(ChemDatabaseImpl value) {
 		return new Database(value);
 	}
 
 	/**
-	 * Create an instance of {@link Equation }
+	 * Create an instance of {@link Reaction }
 	 * 
 	 */
-	public Equation createEquation() {
-		return new EquationImpl();
+	public Reaction createEquation() {
+		return new ReactionImpl();
 	}
 
 	/**
-	 * Create an instance of {@link Equation.Catalyst }
+	 * Create an instance of {@link Reaction.Catalyst }
 	 * 
 	 */
-	public Equation.Catalyst createEquationCatalyst() {
-		return new EquationImpl.CatalystImpl();
+	public Reaction.Catalyst createEquationCatalyst() {
+		return new ReactionImpl.CatalystImpl();
 	}
 
 	/**

@@ -2,6 +2,7 @@
 package net.glease.chem.simple.datastructure.impl;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -11,21 +12,21 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import net.glease.chem.simple.datastructure.DoubleAdapter;
-import net.glease.chem.simple.datastructure.Equation;
+import org.eclipse.jdt.annotation.NonNull;
+
 import net.glease.chem.simple.datastructure.Reactant;
+import net.glease.chem.simple.datastructure.Reaction;
 import net.glease.chem.simple.datastructure.Reagent;
 import net.glease.chem.simple.datastructure.Resultant;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Equation", propOrder = { "conditionAndCatalystAndReactant" })
-public class EquationImpl implements Serializable, Equation {
+public class ReactionImpl implements Serializable, Reaction {
 
 	@XmlAccessorType(XmlAccessType.FIELD)
 	@XmlType(name = "")
-	public static class CatalystImpl implements Serializable, Equation.Catalyst {
+	public static class CatalystImpl implements Serializable, Reaction.Catalyst {
 
 		private final static long serialVersionUID = 1L;
 		@XmlAttribute(name = "reagent")
@@ -47,27 +48,26 @@ public class EquationImpl implements Serializable, Equation {
 
 	private final static long serialVersionUID = 1L;
 	@XmlElement(name = "condition", required = true, type = String.class)
-	protected List<String> conditions;
-	@XmlElement(name = "catalyst", required = true, type = EquationImpl.CatalystImpl.class)
-	protected List<Equation.Catalyst> catalysts;
+	@NonNull
+	protected List<String> conditions = new ArrayList<>();
+	@XmlElement(name = "catalyst", required = true, type = ReactionImpl.CatalystImpl.class)
+	@NonNull
+	protected List<Reaction.Catalyst> catalysts = new ArrayList<>();
 	@XmlElement(name = "reactant", required = true, type = ReactantImpl.class)
-	protected List<Reactant> reactants;
+	@NonNull
+	protected List<Reactant> reactants = new ArrayList<>();
 	@XmlElement(name = "resultant", required = true, type = ResultantImpl.class)
-	protected List<Resultant> resultants;
+	@NonNull
+	protected List<Resultant> resultants = new ArrayList<>();
 	@XmlAttribute(name = "temp", namespace = "http://glease.net/chem/simple/DataStructure")
-	@XmlJavaTypeAdapter(DoubleAdapter.class)
 	protected double temp = 298.15d;
 	@XmlAttribute(name = "pressure")
-	@XmlJavaTypeAdapter(DoubleAdapter.class)
 	protected double pressure = 1.01e+5d;
 	@XmlAttribute(name = "K")
-	@XmlJavaTypeAdapter(DoubleAdapter.class)
 	protected double k = Double.POSITIVE_INFINITY;
 	@XmlAttribute(name = "heat")
-	@XmlJavaTypeAdapter(DoubleAdapter.class)
 	protected double heat = 0;
 	@XmlAttribute(name = "speed", required = true)
-	@XmlJavaTypeAdapter(DoubleAdapter.class)
 	protected double speed;
 
 	@XmlAttribute(name = "solvent")
@@ -86,19 +86,11 @@ public class EquationImpl implements Serializable, Equation {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		EquationImpl other = (EquationImpl) obj;
-		if (catalysts == null) {
-			if (other.catalysts != null) {
-				return false;
-			}
-		} else if (!catalysts.equals(other.catalysts)) {
+		ReactionImpl other = (ReactionImpl) obj;
+		if (!catalysts.equals(other.catalysts)) {
 			return false;
 		}
-		if (conditions == null) {
-			if (other.conditions != null) {
-				return false;
-			}
-		} else if (!conditions.equals(other.conditions)) {
+		if (!conditions.equals(other.conditions)) {
 			return false;
 		}
 		if (Double.doubleToLongBits(heat) != Double.doubleToLongBits(other.heat)) {
@@ -110,18 +102,10 @@ public class EquationImpl implements Serializable, Equation {
 		if (Double.doubleToLongBits(pressure) != Double.doubleToLongBits(other.pressure)) {
 			return false;
 		}
-		if (reactants == null) {
-			if (other.reactants != null) {
-				return false;
-			}
-		} else if (!reactants.equals(other.reactants)) {
+		if (!reactants.equals(other.reactants)) {
 			return false;
 		}
-		if (resultants == null) {
-			if (other.resultants != null) {
-				return false;
-			}
-		} else if (!resultants.equals(other.resultants)) {
+		if (!resultants.equals(other.resultants)) {
 			return false;
 		}
 		if (solvent == null) {
@@ -141,7 +125,7 @@ public class EquationImpl implements Serializable, Equation {
 	}
 
 	@Override
-	public List<Equation.Catalyst> getCatalysts() {
+	public List<Reaction.Catalyst> getCatalysts() {
 		return catalysts;
 	}
 
@@ -246,7 +230,7 @@ public class EquationImpl implements Serializable, Equation {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("EquationImpl [");
+		builder.append("ReactionImpl [");
 		if (conditions != null) {
 			builder.append("conditions=");
 			builder.append(conditions);

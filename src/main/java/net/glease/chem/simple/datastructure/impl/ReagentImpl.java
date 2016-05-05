@@ -1,6 +1,7 @@
 
 package net.glease.chem.simple.datastructure.impl;
 
+import java.awt.Color;
 import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -13,7 +14,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import net.glease.chem.simple.datastructure.FloatAdapter;
+import net.glease.chem.simple.datastructure.ColorAdaptor;
 import net.glease.chem.simple.datastructure.Reagent;
 import net.glease.chem.simple.datastructure.ReagentState;
 import net.glease.chem.simple.datastructure.Substance;
@@ -41,11 +42,25 @@ public class ReagentImpl implements Serializable, net.glease.chem.simple.datastr
 	protected Reagent solvent;
 
 	@XmlAttribute(name = "concentration")
-	@XmlJavaTypeAdapter(FloatAdapter.class)
-	protected Float concentration;
+	protected float concentration = 100f;
 
 	@XmlAttribute(name = "state")
 	protected ReagentState state;
+
+	@XmlAttribute(name="color")
+	@XmlJavaTypeAdapter(ColorAdaptor.class)
+	@XmlSchemaType(name = "string")
+	protected Color color;
+	
+	@Override
+	public Color getColor() {
+		return color;
+	}
+
+	@Override
+	public void setColor(Color color) {
+		this.color = color;
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -71,11 +86,7 @@ public class ReagentImpl implements Serializable, net.glease.chem.simple.datastr
 
 	@Override
 	public float getConcentration() {
-		if (concentration == null) {
-			return new FloatAdapter().unmarshal("100");
-		} else {
-			return concentration;
-		}
+		return concentration;
 	}
 
 	@Override
@@ -160,11 +171,9 @@ public class ReagentImpl implements Serializable, net.glease.chem.simple.datastr
 			builder.append(solvent);
 			builder.append(", ");
 		}
-		if (concentration != null) {
-			builder.append("concentration=");
-			builder.append(concentration);
-			builder.append(", ");
-		}
+		builder.append("concentration=");
+		builder.append(concentration);
+		builder.append(", ");
 		if (state != null) {
 			builder.append("state=");
 			builder.append(state);

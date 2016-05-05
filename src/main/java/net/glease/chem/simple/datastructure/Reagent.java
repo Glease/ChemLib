@@ -1,6 +1,8 @@
 
 package net.glease.chem.simple.datastructure;
 
+import java.awt.Color;
+
 /**
  *
  * Reagent is something you can obtain in the lab, or somewhere else in the real
@@ -143,5 +145,9 @@ public interface Reagent {
 	 * 
 	 */
 	void setSubstance(Substance value);
+
+	void setColor(Color color);
+
+	Color getColor();
 
 }
