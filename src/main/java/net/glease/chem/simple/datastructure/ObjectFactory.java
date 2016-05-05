@@ -5,7 +5,6 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 
 import net.glease.chem.simple.datastructure.impl.AtomImpl;
-import net.glease.chem.simple.datastructure.impl.ChemDatabaseImpl;
 import net.glease.chem.simple.datastructure.impl.CountedAtomImpl;
 import net.glease.chem.simple.datastructure.impl.EquationImpl;
 import net.glease.chem.simple.datastructure.impl.ReactantImpl;
@@ -56,7 +55,7 @@ public class ObjectFactory {
 	 * 
 	 */
 	public ChemDatabase createChemDatabase() {
-		return new ChemDatabaseImpl();
+		return new ChemDatabase();
 	}
 
 	/**
@@ -73,7 +72,7 @@ public class ObjectFactory {
 	 */
 	@XmlElementDecl(namespace = "http://glease.net/chem/simple/DataStructure", name = "database")
 	public Database createDatabase(ChemDatabase value) {
-		return new Database(((ChemDatabaseImpl) value));
+		return new Database(((ChemDatabase) value));
 	}
 
 	/**

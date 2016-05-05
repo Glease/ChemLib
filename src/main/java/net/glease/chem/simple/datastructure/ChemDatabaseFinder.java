@@ -2,17 +2,28 @@ package net.glease.chem.simple.datastructure;
 
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
+import static org.eclipse.jdt.annotation.DefaultLocation.PARAMETER;
+import static org.eclipse.jdt.annotation.DefaultLocation.RETURN_TYPE;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
+
+import javax.xml.bind.annotation.XmlTransient;
+
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
+@XmlTransient
+@NonNullByDefault({PARAMETER, RETURN_TYPE})
 public class ChemDatabaseFinder {
 	public class AtomFinder {
 
@@ -30,12 +41,7 @@ public class ChemDatabaseFinder {
 				s.filter(e -> e.getIndex() == index);
 			if (molMass != -1)
 				s.filter(e -> e.getMolMass() == molMass);
-			return s.filter(p).collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
-		}
-
-		public AtomFinder match(Predicate<Atom> next) {
-			p = p == null ? next : p.and(next);
-			return this;
+			return s.filter(p).collect(immutableSetCollector());
 		}
 
 		/**
@@ -47,6 +53,7 @@ public class ChemDatabaseFinder {
 		 * @throws IllegalStateException
 		 *             if multiple results are found.
 		 */
+		@Nullable
 		public Atom unique() {
 			Set<Atom> find = find();
 			switch (find.size()) {
@@ -74,16 +81,17 @@ public class ChemDatabaseFinder {
 
 	public class EquationFinder {
 		private Predicate<Equation> p;
+
 		private EquationFinder() {
 			super();
 		}
 
 		public Set<Equation> find() {
 			return db.getEquations().parallelStream().filter(p == null ? e -> true : p)
-					.collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
+					.collect(immutableSetCollector());
 		}
 
-		public EquationFinder match(Predicate<Equation> next) {
+		private EquationFinder match(Predicate<Equation> next) {
 			p = p == null ? next : p.and(next);
 			return this;
 		}
@@ -92,12 +100,14 @@ public class ChemDatabaseFinder {
 			return match(e -> e.getCatalysts().contains(catalyst));
 		}
 
-		public EquationFinder withCatalysts(boolean allOrAny, Reagent... catalysts) {
+		public EquationFinder withAllCatalysts(Reagent... catalysts) {
 			List<Reagent> l = Arrays.asList(catalysts);
-			if (allOrAny)
-				return match(e -> e.getCatalysts().containsAll(l));
-			else
-				return match(e -> e.getCatalysts().stream().anyMatch(l::contains));
+			return match(e -> e.getCatalysts().containsAll(l));
+		}
+
+		public EquationFinder withAnyCatalysts(Reagent... catalysts) {
+			List<Reagent> l = Arrays.asList(catalysts);
+			return match(e -> e.getCatalysts().stream().anyMatch(l::contains));
 		}
 
 		public EquationFinder withComponent(EquationComponent comp) {
@@ -105,24 +115,28 @@ public class ChemDatabaseFinder {
 					: e -> e.getReactants().contains(comp));
 		}
 
-		public EquationFinder withComponents(boolean allOrAny, EquationComponent... comp) {
+		public EquationFinder withAllComponents(EquationComponent... comp) {
 			List<EquationComponent> rs = Arrays.asList(comp);
-			if (allOrAny)
-				return match(t -> t.getAllEquationComponents().parallelStream().allMatch(rs::contains));
-			else
-				return match(t -> t.getAllEquationComponents().parallelStream().anyMatch(rs::contains));
+			return match(t -> t.getAllEquationComponents().parallelStream().allMatch(rs::contains));
+		}
+
+		public EquationFinder withAnyComponents(EquationComponent... comp) {
+			List<EquationComponent> rs = Arrays.asList(comp);
+			return match(t -> t.getAllEquationComponents().parallelStream().anyMatch(rs::contains));
 		}
 
 		public EquationFinder withCondition(String condition) {
 			return match(e -> e.getConditions().contains(condition));
 		}
 
-		public EquationFinder withConditions(boolean allOrAny, String... conditions) {
+		public EquationFinder withAllConditions(String... conditions) {
 			List<String> l = Arrays.asList(conditions);
-			if (allOrAny)
-				return match(e -> e.getConditions().containsAll(l));
-			else
-				return match(e -> e.getConditions().stream().anyMatch(l::contains));
+			return match(e -> e.getConditions().containsAll(l));
+		}
+
+		public EquationFinder withAnyConditions(String... conditions) {
+			List<String> l = Arrays.asList(conditions);
+			return match(e -> e.getConditions().stream().anyMatch(l::contains));
 		}
 
 		public EquationFinder withSubstance(ReactionSide side, Substance s) {
@@ -134,37 +148,95 @@ public class ChemDatabaseFinder {
 		 * {@link #substance(ReactionSide, Substance)} calls than using this
 		 * method if the <code>ss</code> is too small.
 		 * 
-		 * @param allOrAny
 		 * @param ss
 		 * @return
 		 */
-		public EquationFinder withSubstances(boolean allOrAny, SetMultimap<ReactionSide, Substance> ss) {
+		public EquationFinder withAllSubstances(SetMultimap<ReactionSide, Substance> ss) {
 			if (ss.size() == 0)
 				return this;
 
-			if (allOrAny)
-				return match(t -> {
-					for (ReactionSide rs : ReactionSide.values) {
-						Set<Substance> s = ss.get(rs);
-						if (s.isEmpty())
-							continue;
-						if (!s.containsAll(rs.get(t)))
-							return false;
-					}
-					return true;
-				});
-			else
-				return match(t -> {
-					for (ReactionSide rs : ReactionSide.values) {
-						Set<Substance> s = ss.get(rs);
-						if (s.isEmpty())
-							continue;
-						if (rs.get(t).stream().anyMatch(s::contains))
-							return true;
-					}
-					return false;
-				});
+			return match(t -> {
+				for (ReactionSide rs : ReactionSide.values) {
+					Set<Substance> s = ss.get(rs);
+					if (s.isEmpty())
+						continue;
+					if (!s.containsAll(rs.get(t)))
+						return false;
+				}
+				return true;
+			});
 		}
+
+		/**
+		 * I'd rather use multiple chained
+		 * {@link #substance(ReactionSide, Substance)} calls than using this
+		 * method if the <code>ss</code> is too small.
+		 * 
+		 * @param ss
+		 * @return
+		 */
+		public EquationFinder withAnySubstances(SetMultimap<ReactionSide, Substance> ss) {
+			if (ss.size() == 0)
+				return this;
+
+			return match(t -> {
+				for (ReactionSide rs : ReactionSide.values) {
+					Set<Substance> s = ss.get(rs);
+					if (s.isEmpty())
+						continue;
+					if (!s.containsAll(rs.get(t)))
+						return false;
+				}
+				return true;
+			});
+		}
+	}
+
+	public class ReagentFinder {
+
+		private Substance s1;
+		private Substance s2;
+		private String name;
+		private ReagentState state;
+
+		private ReagentFinder() {
+			super();
+		}
+
+		public Set<Reagent> find() {
+			Stream<Reagent> s = db.getReagents().stream();
+			if (name != null)
+				s.filter(r -> name.equals(r.getName()));
+			if (s1 != null)
+				s.filter(r -> s1.equals(r.getSubstance()));
+			if (s2 != null)
+				s.filter(r -> s2.equals(r.getSolvent()));
+			if (state != null)
+				s.filter(r -> state.equals(r.getState()));
+
+			return s.collect(immutableSetCollector());
+		}
+
+		public ReagentFinder withSubstance(Substance s) {
+			s1 = s;
+			return this;
+		}
+
+		public ReagentFinder withSolvent(Substance s) {
+			s2 = s;
+			return this;
+		}
+
+		public ReagentFinder withName(String s) {
+			name = s;
+			return this;
+		}
+
+		public ReagentFinder withState(ReagentState s) {
+			state = s;
+			return this;
+		}
+
 	}
 
 	public class SubstanceFinder {
@@ -184,16 +256,20 @@ public class ChemDatabaseFinder {
 			return this;
 		}
 
+		public SubstanceFinder containsAny(SubstanceContent... contents) {
+			return match(e -> e.getAtom().stream().anyMatch(Arrays.asList(contents)::contains));
+		}
+
 		public Set<Substance> find() {
 			Stream<Substance> s = db.getSubstances().parallelStream();
 			if (p != null)
 				s.filter(p);
 			if (scs != null)
 				s.filter(a -> a.getAtom().stream().allMatch(scs::contains));
-			return s.collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
+			return s.collect(immutableSetCollector());
 		}
 
-		public SubstanceFinder match(Predicate<Substance> next) {
+		private SubstanceFinder match(Predicate<Substance> next) {
 			p = p == null ? next : p.and(next);
 			return this;
 		}
@@ -224,12 +300,21 @@ public class ChemDatabaseFinder {
 	public AtomFinder findAtom() {
 		return new AtomFinder();
 	}
-	
+
 	public EquationFinder findEquation() {
 		return new EquationFinder();
 	}
-	
+
+	public ReagentFinder findReagent() {
+		return new ReagentFinder();
+	}
+
 	public SubstanceFinder findSusbtance() {
 		return new SubstanceFinder();
+	}
+
+	@SuppressWarnings("null")
+	private static <T> Collector<T, ?, @NonNull Set<T>> immutableSetCollector() {
+		return collectingAndThen(toSet(), Collections::unmodifiableSet);
 	}
 }

@@ -4,18 +4,17 @@ package net.glease.chem.simple.datastructure;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
-import net.glease.chem.simple.datastructure.impl.ChemDatabaseImpl;
-
 public class Database extends JAXBElement<ChemDatabase> {
 
+	private static final long serialVersionUID = 1L;
 	protected final static QName NAME = new QName("http://glease.net/chem/simple/DataStructure", "database");
 
 	public Database() {
-		super(NAME, ((Class) ChemDatabaseImpl.class), null, null);
+		super(NAME, ChemDatabase.class, null, null);
 	}
 
-	public Database(ChemDatabaseImpl value) {
-		super(NAME, ((Class) ChemDatabaseImpl.class), null, value);
+	public Database(ChemDatabase value) {
+		super(NAME, ChemDatabase.class, null, value);
 	}
 
 }

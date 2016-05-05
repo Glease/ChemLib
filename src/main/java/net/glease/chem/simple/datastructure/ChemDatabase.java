@@ -1,202 +1,191 @@
 
 package net.glease.chem.simple.datastructure;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * <p>
- * ChemDatabase complex type的 Java 类。
- *
- * <p>
- * 以下模式片段指定包含在此类中的预期内容。
- *
- * <pre>
- * &lt;complexType name="ChemDatabase">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;all minOccurs="0">
- *         &lt;element name="substances" minOccurs="0">
- *           &lt;complexType>
- *             &lt;complexContent>
- *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *                 &lt;sequence>
- *                   &lt;element name="substance" type="{http://glease.net/chem/simple/DataStructure}Substance" maxOccurs="unbounded"/>
- *                 &lt;/sequence>
- *               &lt;/restriction>
- *             &lt;/complexContent>
- *           &lt;/complexType>
- *         &lt;/element>
- *         &lt;element name="equations" minOccurs="0">
- *           &lt;complexType>
- *             &lt;complexContent>
- *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *                 &lt;sequence>
- *                   &lt;element name="equation" type="{http://glease.net/chem/simple/DataStructure}Equation" maxOccurs="unbounded"/>
- *                 &lt;/sequence>
- *               &lt;/restriction>
- *             &lt;/complexContent>
- *           &lt;/complexType>
- *         &lt;/element>
- *         &lt;element name="atoms" minOccurs="0">
- *           &lt;complexType>
- *             &lt;complexContent>
- *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *                 &lt;sequence>
- *                   &lt;element name="atom" type="{http://glease.net/chem/simple/DataStructure}Atom" maxOccurs="unbounded"/>
- *                 &lt;/sequence>
- *               &lt;/restriction>
- *             &lt;/complexContent>
- *           &lt;/complexType>
- *         &lt;/element>
- *         &lt;element name="reagents" minOccurs="0">
- *           &lt;complexType>
- *             &lt;complexContent>
- *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *                 &lt;sequence>
- *                   &lt;element name="reagent" type="{http://glease.net/chem/simple/DataStructure}Reagent" maxOccurs="unbounded"/>
- *                 &lt;/sequence>
- *               &lt;/restriction>
- *             &lt;/complexContent>
- *           &lt;/complexType>
- *         &lt;/element>
- *       &lt;/all>
- *       &lt;attribute name="UUID" use="required" type="{http://glease.net/chem/simple/DataStructure}UUID" />
- *       &lt;attribute name="version" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="info" type="{http://www.w3.org/2001/XMLSchema}string" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- *
- *
- */
-public interface ChemDatabase {
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-	default ChemDatabaseFinder finder() {
-		return new ChemDatabaseFinder(this);
+import net.glease.chem.simple.datastructure.impl.AtomImpl;
+import net.glease.chem.simple.datastructure.impl.EquationImpl;
+import net.glease.chem.simple.datastructure.impl.ReagentImpl;
+import net.glease.chem.simple.datastructure.impl.SubstanceImpl;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "ChemDatabase", propOrder = {
+
+})
+public class ChemDatabase implements Serializable {
+
+	private final static long serialVersionUID = 1L;
+
+	@XmlElementWrapper(name = "substances")
+	@XmlElement(type = SubstanceImpl.class)
+	protected List<Substance> substances;
+
+	@XmlElementWrapper(name = "equations")
+	@XmlElement(type = EquationImpl.class)
+	protected List<Equation> equations;
+
+	@XmlElementWrapper(name = "atoms")
+	@XmlElement(name = "atom", type = AtomImpl.class)
+	protected List<Atom> atoms;
+
+	@XmlElementWrapper(name = "reagents")
+	@XmlElement(type = ReagentImpl.class)
+	protected List<Reagent> reagents;
+
+	@XmlAttribute(name = "UUID", required = true)
+	@XmlJavaTypeAdapter(UUIDAdapter.class)
+	protected UUID uuid;
+
+	@XmlAttribute(name = "version", required = true)
+	protected String version;
+
+	@XmlAttribute(name = "info")
+	protected String info;
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		ChemDatabase other = (ChemDatabase) obj;
+		if (uuid == null) {
+			if (other.uuid != null) {
+				return false;
+			}
+		} else if (!uuid.equals(other.uuid)) {
+			return false;
+		}
+		if (version == null) {
+			if (other.version != null) {
+				return false;
+			}
+		} else if (!version.equals(other.version)) {
+			return false;
+		}
+		return true;
 	}
-	
-	/**
-	 * 获取atoms属性的值。
-	 * 
-	 * @return possible object is {@link List<Atom> }
-	 * 
-	 */
-	List<Atom> getAtoms();
 
-	/**
-	 * 获取equations属性的值。
-	 * 
-	 * @return possible object is {@link List<Equation> }
-	 * 
-	 */
-	List<Equation> getEquations();
+	public List<Atom> getAtoms() {
+		return atoms;
+	}
 
-	/**
-	 * 获取info属性的值。
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	String getInfo();
+	public List<Equation> getEquations() {
+		return equations;
+	}
 
-	/**
-	 * 获取reagents属性的值。
-	 * 
-	 * @return possible object is {@link List<Reagent> }
-	 * 
-	 */
-	List<Reagent> getReagents();
+	public String getInfo() {
+		return info;
+	}
 
-	/**
-	 * 获取substances属性的值。
-	 * 
-	 * @return possible object is {@link List<Substance> }
-	 * 
-	 */
-	List<Substance> getSubstances();
+	public List<Reagent> getReagents() {
+		return reagents;
+	}
 
-	/**
-	 * 获取uuid属性的值。
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	UUID getUUID();
+	public List<Substance> getSubstances() {
+		return substances;
+	}
 
-	/**
-	 * 
-	 * A version string. Loading databases with same UUID but different version
-	 * should result in a crash.
-	 * 
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	String getVersion();
+	public UUID getUUID() {
+		return uuid;
+	}
 
-	/**
-	 * 设置atoms属性的值。
-	 * 
-	 * @param value
-	 *            allowed object is {@link List<Atom> }
-	 * 
-	 */
-	void setAtoms(List<Atom> value);
+	public String getVersion() {
+		return version;
+	}
 
-	/**
-	 * 设置equations属性的值。
-	 * 
-	 * @param value
-	 *            allowed object is {@link List<Equation> }
-	 * 
-	 */
-	void setEquations(List<Equation> value);
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
+		result = prime * result + ((version == null) ? 0 : version.hashCode());
+		return result;
+	}
 
-	/**
-	 * 设置info属性的值。
-	 * 
-	 * @param value
-	 *            allowed object is {@link String }
-	 * 
-	 */
-	void setInfo(String value);
+	public void setAtoms(List<Atom> value) {
+		this.atoms = value;
+	}
 
-	/**
-	 * 设置reagents属性的值。
-	 * 
-	 * @param value
-	 *            allowed object is {@link List<Reagent> }
-	 * 
-	 */
-	void setReagents(List<Reagent> value);
+	public void setEquations(List<Equation> value) {
+		this.equations = value;
+	}
 
-	/**
-	 * 设置substances属性的值。
-	 * 
-	 * @param value
-	 *            allowed object is {@link List<Substance> }
-	 * 
-	 */
-	void setSubstances(List<Substance> value);
+	public void setInfo(String value) {
+		this.info = value;
+	}
 
-	/**
-	 * 设置uuid属性的值。
-	 * 
-	 * @param value
-	 *            allowed object is {@link String }
-	 * 
-	 */
-	void setUUID(UUID value);
+	public void setReagents(List<Reagent> value) {
+		this.reagents = value;
+	}
 
-	/**
-	 * 设置version属性的值。
-	 * 
-	 * @param value
-	 *            allowed object is {@link String }
-	 * 
-	 */
-	void setVersion(String value);
+	public void setSubstances(List<Substance> value) {
+		this.substances = value;
+	}
+
+	public void setUUID(UUID value) {
+		this.uuid = value;
+	}
+
+	public void setVersion(String value) {
+		this.version = value;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ChemDatabaseImpl [");
+		if (substances != null) {
+			builder.append("substances=");
+			builder.append(substances);
+			builder.append(", ");
+		}
+		if (equations != null) {
+			builder.append("equations=");
+			builder.append(equations);
+			builder.append(", ");
+		}
+		if (atoms != null) {
+			builder.append("atoms=");
+			builder.append(atoms);
+			builder.append(", ");
+		}
+		if (reagents != null) {
+			builder.append("reagents=");
+			builder.append(reagents);
+			builder.append(", ");
+		}
+		if (uuid != null) {
+			builder.append("uuid=");
+			builder.append(uuid);
+			builder.append(", ");
+		}
+		if (version != null) {
+			builder.append("version=");
+			builder.append(version);
+			builder.append(", ");
+		}
+		if (info != null) {
+			builder.append("info=");
+			builder.append(info);
+		}
+		builder.append("]");
+		return builder.toString();
+	}
 
 }
