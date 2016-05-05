@@ -7,7 +7,9 @@ import static org.eclipse.jdt.annotation.DefaultLocation.RETURN_TYPE;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
@@ -18,9 +20,6 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-
-import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Sets;
 
 @XmlTransient
 @NonNullByDefault({PARAMETER, RETURN_TYPE})
@@ -151,7 +150,7 @@ public class ChemDatabaseFinder {
 		 * @param ss
 		 * @return
 		 */
-		public EquationFinder withAllSubstances(SetMultimap<ReactionSide, Substance> ss) {
+		public EquationFinder withAllSubstances(Map<ReactionSide, Set<Substance>> ss) {
 			if (ss.size() == 0)
 				return this;
 
@@ -175,7 +174,7 @@ public class ChemDatabaseFinder {
 		 * @param ss
 		 * @return
 		 */
-		public EquationFinder withAnySubstances(SetMultimap<ReactionSide, Substance> ss) {
+		public EquationFinder withAnySubstances(Map<ReactionSide, Set<Substance>> ss) {
 			if (ss.size() == 0)
 				return this;
 
@@ -249,7 +248,7 @@ public class ChemDatabaseFinder {
 
 		public SubstanceFinder containsAll(SubstanceContent... contents) {
 			if (scs == null)
-				scs = Sets.newHashSet();
+				scs = new HashSet<>();
 			for (SubstanceContent content : contents) {
 				scs.add(content);
 			}

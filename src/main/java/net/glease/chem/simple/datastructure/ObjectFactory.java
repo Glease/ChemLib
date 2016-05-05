@@ -72,7 +72,7 @@ public class ObjectFactory {
 	 */
 	@XmlElementDecl(namespace = "http://glease.net/chem/simple/DataStructure", name = "database")
 	public Database createDatabase(ChemDatabase value) {
-		return new Database(((ChemDatabase) value));
+		return new Database(value);
 	}
 
 	/**
