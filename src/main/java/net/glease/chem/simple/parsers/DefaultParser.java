@@ -1,92 +1,50 @@
 package net.glease.chem.simple.parsers;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
-import java.net.URL;
+import java.io.IOException;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import javax.xml.validation.ValidatorHandler;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import net.glease.chem.simple.datastructure.ChemDatabase;
-import net.glease.chem.simple.datastructure.impl.ChemDatabaseImpl;
+import net.glease.chem.simple.parsers.CDBParserFactory.DefaultFactory;
 
 /**
- * A simple wrapper around JAXB.
- * 
  * @author glease
  *
  */
-public class DefaultParser {
-	private final static QName _Database_QNAME = new QName("http://glease.net/chem/simple/DataStructure", "database", "cdbs");
+class DefaultParser implements DatabaseParser {
+	static final String CDB_SIMPLE_NAMESPACE = "http://glease.net/chem/simple/DataStructure";
 
-	private JAXBContext ctx;
-	private Unmarshaller un;
-	private Marshaller ma;
+	static final String DEFAULT_NAMESPACE_PREFIX = "cdbs";
+	private final DefaultFactory factory;
 
-	public DefaultParser() {
+	public DefaultParser(DefaultFactory factory) {
+		this.factory = factory;
 	}
 
-	public void init() throws JAXBException {
-		ctx = JAXBContext.newInstance(ChemDatabaseImpl.class);
+	@Override
+	public ChemDatabase unmarshal(InputSource in) throws SAXException, IOException {
+		XMLReader reader = XMLReaderFactory.createXMLReader();
+		UnmarshallingHanlder uh = new UnmarshallingHanlder();
+		ValidatorHandler vh = Holders.SCHEMA.newValidatorHandler();
+		vh.setContentHandler(uh);
+		vh.setErrorHandler(factory.eh);
+		reader.setContentHandler(vh);
+		reader.setErrorHandler(factory.eh);
+		reader.setEntityResolver(factory.er);
+		reader.parse(in);
+		return uh.get();
 	}
 
-	protected Unmarshaller getUnmarshaller() throws JAXBException {
-		if (ctx == null)
-			throw new IllegalStateException("not initialized");
-		return un = un == null ? ctx.createUnmarshaller() : un;
-	}
-
-	protected Marshaller getMarshaller() throws JAXBException {
-		if (ctx == null)
-			throw new IllegalStateException("not initialized");
-		return ma = ma == null ? ctx.createMarshaller() : ma;
-	}
-
-	public ChemDatabase unmarshal(byte[] bytes) throws JAXBException {
-		return unmarshal(new ByteArrayInputStream(bytes));
-	}
-
-	public ChemDatabaseImpl unmarshal(File in) throws JAXBException {
-		return (ChemDatabaseImpl) ((JAXBElement<?>) getUnmarshaller().unmarshal(in)).getValue();
-	}
-
-	public ChemDatabase unmarshal(InputStream in) throws JAXBException {
-		return (ChemDatabase) ((JAXBElement<?>) getUnmarshaller().unmarshal(in)).getValue();
-	}
-
-	public ChemDatabase unmarshal(Reader in) throws JAXBException {
-		return (ChemDatabase) ((JAXBElement<?>) getUnmarshaller().unmarshal(in)).getValue();
-	}
-
-	public ChemDatabase unmarshal(URL in) throws JAXBException {
-		return (ChemDatabase) ((JAXBElement<?>) getUnmarshaller().unmarshal(in)).getValue();
-	}
-
-	public byte[] marshal(ChemDatabaseImpl db) throws JAXBException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		marshal(db, baos);
-		return baos.toByteArray();
-	}
-
-	public void marshal(ChemDatabaseImpl db, File out) throws JAXBException {
-		getMarshaller().marshal(new JAXBElement<ChemDatabaseImpl>(_Database_QNAME, ChemDatabaseImpl.class, db), out);
-	}
-
-	public void marshal(ChemDatabaseImpl db, OutputStream out) throws JAXBException {
-		getMarshaller().marshal(new JAXBElement<ChemDatabaseImpl>(_Database_QNAME, ChemDatabaseImpl.class, db), out);
-	}
-
-	public void marshal(ChemDatabaseImpl db, Writer out) throws JAXBException {
-		getMarshaller().marshal(new JAXBElement<ChemDatabaseImpl>(_Database_QNAME, ChemDatabaseImpl.class, db), out);
+	@Override
+	public void marshal(ChemDatabase db, XMLStreamWriter out) throws XMLStreamException {
+		new CDBMarshaller(db).marshal(out);
 	}
 
 }

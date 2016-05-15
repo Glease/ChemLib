@@ -3,21 +3,14 @@ package net.glease.chem.simple.datastructure.impl;
 
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
-
 import net.glease.chem.simple.datastructure.Reactant;
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Reactant")
 public class ReactantImpl extends ReactionComponentImpl implements Serializable, Reactant {
 
 	private final static long serialVersionUID = 1L;
-	@XmlAttribute(name = "purity")
-	protected float purity;
 
+	protected double purity = 100d;
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -26,18 +19,18 @@ public class ReactantImpl extends ReactionComponentImpl implements Serializable,
 		if (!super.equals(obj)) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (obj instanceof Reactant) {
 			return false;
 		}
-		ReactantImpl other = (ReactantImpl) obj;
-		if (Float.floatToIntBits(purity) != Float.floatToIntBits(other.purity)) {
+		Reactant other = (Reactant) obj;
+		if (Double.doubleToLongBits(purity) != Double.doubleToLongBits(other.getPurity())) {
 			return false;
 		}
 		return true;
 	}
 
 	@Override
-	public float getPurity() {
+	public double getPurity() {
 		return purity;
 	}
 
@@ -45,12 +38,14 @@ public class ReactantImpl extends ReactionComponentImpl implements Serializable,
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Float.floatToIntBits(purity);
+		long temp;
+		temp = Double.doubleToLongBits(purity);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 
 	@Override
-	public void setPurity(Float value) {
+	public void setPurity(double value) {
 		this.purity = value;
 	}
 

@@ -3,16 +3,16 @@ package net.glease.chem.simple.datastructure;
 
 /**
  * <p>
- * SubstanceContent complex type的 Java 类。
+ * The Java class of SubstanceContent.
  *
  * <p>
- * 以下模式片段指定包含在此类中的预期内容。
+ * The following XML Schema snippet contains the expect content of this class.
  *
  * <pre>
  * &lt;complexType name="SubstanceContent">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute ref="{http://glease.net/chem/simple/DataStructure}atom use="required""/>
+ *       &lt;attribute ref="{http://glease.net/chem/simple/DataStructure}content use="required""/>
  *       &lt;attribute name="mol" type="{http://www.w3.org/2001/XMLSchema}unsignedShort" default="1" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -21,18 +21,23 @@ package net.glease.chem.simple.datastructure;
  *
  *
  */
-public interface SubstanceContent {
+public interface SubstanceContent extends Element<Substance> {
 
 	/**
-	 * 获取atom属性的值。
+	 * Get the value of atom.
 	 * 
 	 * @return possible object is {@link Object }
 	 * 
 	 */
 	Atom getAtom();
 
+	@Override
+	default String getId() {
+		return getAtom().getId();
+	}
+	
 	/**
-	 * 获取mol属性的值。
+	 * Get the value of mol.
 	 * 
 	 * @return possible object is {@link Integer }
 	 * 
@@ -40,21 +45,21 @@ public interface SubstanceContent {
 	int getMol();
 
 	/**
-	 * 设置atom属性的值。
+	 * Set the value of atom.
 	 * 
 	 * @param value
-	 *            allowed object is {@link Object }
+	 *            allowed object is {@link Atom }
 	 * 
 	 */
 	void setAtom(Atom value);
 
 	/**
-	 * 设置mol属性的值。
+	 * Set the value of mol.
 	 * 
 	 * @param value
-	 *            allowed object is {@link Integer }
+	 *            allowed type is {@code int }
 	 * 
 	 */
-	void setMol(Integer value);
+	void setMol(int value);
 
 }

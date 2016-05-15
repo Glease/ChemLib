@@ -3,10 +3,10 @@ package net.glease.chem.simple.datastructure;
 
 /**
  * <p>
- * EquationComponent complex type的 Java 类。
+ * The Java class of EquationComponent.
  *
  * <p>
- * 以下模式片段指定包含在此类中的预期内容。
+ * The following XML Schema snippet contains the expect content of this class.
  *
  * <pre>
  * &lt;complexType name="ReactionComponent">
@@ -22,10 +22,15 @@ package net.glease.chem.simple.datastructure;
  *
  *
  */
-public interface ReactionComponent {
+public interface ReactionComponent extends Element<Reaction> {
 
+	@Override
+	default String getId() {
+		return getSubstance().getId();
+	}
+	
 	/**
-	 * 获取mol属性的值。
+	 * Get the value of mol.
 	 * 
 	 * @return possible object is {@link Integer }
 	 * 
@@ -33,7 +38,7 @@ public interface ReactionComponent {
 	int getMol();
 
 	/**
-	 * 获取state属性的值。
+	 * Get the value of state.
 	 * 
 	 * @return possible object is {@link ReagentState }
 	 * 
@@ -41,7 +46,7 @@ public interface ReactionComponent {
 	ReagentState getState();
 
 	/**
-	 * 获取substance属性的值。
+	 * Get the value of substance.
 	 * 
 	 * @return possible object is {@link Object }
 	 * 
@@ -49,16 +54,16 @@ public interface ReactionComponent {
 	Substance getSubstance();
 
 	/**
-	 * 设置mol属性的值。
+	 * Set the value of mol.
 	 * 
 	 * @param value
 	 *            allowed object is {@link Integer }
 	 * 
 	 */
-	void setMol(Integer value);
+	void setMol(int value);
 
 	/**
-	 * 设置state属性的值。
+	 * Set the value of state.
 	 * 
 	 * @param value
 	 *            allowed object is {@link ReagentState }
@@ -67,7 +72,7 @@ public interface ReactionComponent {
 	void setState(ReagentState value);
 
 	/**
-	 * 设置substance属性的值。
+	 * Set the value of substance.
 	 * 
 	 * @param value
 	 *            allowed object is {@link Object }

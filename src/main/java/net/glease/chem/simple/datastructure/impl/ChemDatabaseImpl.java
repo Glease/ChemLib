@@ -2,60 +2,41 @@
 package net.glease.chem.simple.datastructure.impl;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import net.glease.chem.simple.datastructure.Atom;
 import net.glease.chem.simple.datastructure.ChemDatabase;
+import net.glease.chem.simple.datastructure.ChemDatabaseFinder;
+import net.glease.chem.simple.datastructure.NormalizationException;
 import net.glease.chem.simple.datastructure.Reaction;
 import net.glease.chem.simple.datastructure.Reagent;
 import net.glease.chem.simple.datastructure.Substance;
-import net.glease.chem.simple.datastructure.UUIDAdapter;
+import net.glease.chem.simple.util.NormalizationPlugin;
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ChemDatabase", propOrder = {
-
-})
 public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElementWrapper(name = "substances")
-	@XmlElement(type = SubstanceImpl.class)
-	protected List<Substance> substances;
+	protected Map<String, Substance> substances = new HashMap<>();
 
-	@XmlElementWrapper(name = "reactions")
-	@XmlElement(type = ReactionImpl.class)
-	protected List<Reaction> reactions;
+	protected Set<Reaction> reactions = new HashSet<>();
 
-	@XmlElementWrapper(name = "atoms")
-	@XmlElement(name = "atom", type = AtomImpl.class)
-	protected List<Atom> atoms;
+	protected Map<String, Atom> atoms = new HashMap<>();
 
-	@XmlElementWrapper(name = "reagents")
-	@XmlElement(type = ReagentImpl.class)
-	protected List<Reagent> reagents;
+	protected Map<String, Reagent> reagents = new HashMap<>();
 
-	@XmlAttribute(name = "UUID", required = true)
-	@XmlJavaTypeAdapter(UUIDAdapter.class)
+	protected Set<NormalizationPlugin> plugins = Collections.newSetFromMap(new IdentityHashMap<>());
+
 	protected UUID uuid;
 
-	@XmlAttribute(name = "version", required = true)
 	protected String version;
 
-	@XmlAttribute(name = "info")
 	protected String info;
 
 	@Override
@@ -63,37 +44,28 @@ public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
+		if (!(obj instanceof ChemDatabase)) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		ChemDatabase other = (ChemDatabase) obj;
+		if (!uuid.equals(other.getUUID())) {
 			return false;
 		}
-		ChemDatabaseImpl other = (ChemDatabaseImpl) obj;
-		if (uuid == null) {
-			if (other.uuid != null) {
-				return false;
-			}
-		} else if (!uuid.equals(other.uuid)) {
-			return false;
-		}
-		if (version == null) {
-			if (other.version != null) {
-				return false;
-			}
-		} else if (!version.equals(other.version)) {
-			return false;
-		}
-		return true;
+		return version.equals(other.getVersion());
 	}
 
 	@Override
-	public List<Atom> getAtoms() {
+	public ChemDatabaseFinder find() {
+		return new ChemDatabaseFinderImpl(this);
+	}
+
+	@Override
+	public Map<String, Atom> getAtoms() {
 		return atoms;
 	}
 
 	@Override
-	public List<Reaction> getReactions() {
+	public Set<Reaction> getReactions() {
 		return reactions;
 	}
 
@@ -103,12 +75,12 @@ public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 	}
 
 	@Override
-	public List<Reagent> getReagents() {
+	public Map<String, Reagent> getReagents() {
 		return reagents;
 	}
 
 	@Override
-	public List<Substance> getSubstances() {
+	public Map<String, Substance> getSubstances() {
 		return substances;
 	}
 
@@ -134,6 +106,9 @@ public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 	@Override
 	public final void normalize() throws NormalizationException {
 		addMissingAtomAttributes();
+		for (NormalizationPlugin plugin : plugins) {
+			plugin.normalize(this);
+		}
 	}
 
 	private static boolean hasContent(String s) {
@@ -141,13 +116,13 @@ public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 	}
 
 	private void addMissingAtomAttributes() throws NormalizationException {
-		Map<Short, String> symbols = new HashMap<>();
-		Map<Short, String> names = new HashMap<>();
+		Map<Integer, String> symbols = new HashMap<>();
+		Map<Integer, String> names = new HashMap<>();
 		Set<Atom> omitted = new HashSet<>();
 
-		for (Atom atom : getAtoms()) {
+		for (Atom atom : getAtoms().values()) {
 			String s = atom.getSymbol(), temp;
-			short index = atom.getIndex();
+			int index = atom.getIndex();
 			if (hasContent(s))
 				if (!s.equals(temp = symbols.put(index, s)))
 					throw new NormalizationException(
@@ -165,7 +140,7 @@ public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 
 		for (Atom atom : omitted) {
 			String s;
-			short index = atom.getIndex();
+			int index = atom.getIndex();
 			if (!hasContent(atom.getSymbol())) {
 				s = symbols.get(index);
 				if (hasContent(s))
@@ -229,12 +204,18 @@ public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 			builder.append(version);
 			builder.append(", ");
 		}
-		if (info != null) { 
+		if (info != null) {
 			builder.append("info=");
 			builder.append(info);
 		}
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public void accept(NormalizationPlugin plugin) {
+		if (!plugins.add(plugin))
+			throw new IllegalArgumentException("duplicate plugin: " + plugin);
 	}
 
 }

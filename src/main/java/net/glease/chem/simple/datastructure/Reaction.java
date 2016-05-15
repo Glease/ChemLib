@@ -1,18 +1,20 @@
 
 package net.glease.chem.simple.datastructure;
 
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.jdt.annotation.NonNull;
+import net.glease.chem.simple.scoping.IScope;
+import net.glease.chem.simple.scoping.IScoped;
+import net.glease.chem.simple.scoping.ScopeException;
 
 /**
  * <p>
- * Equation complex type的 Java 类。
+ * The Java class of Equation.
  *
  * <p>
- * 以下模式片段指定包含在此类中的预期内容。
+ * The following XML Schema snippet contains the expect content of this class.
  *
  * <pre>
  * &lt;complexType name="Equation">
@@ -33,10 +35,10 @@ import org.eclipse.jdt.annotation.NonNull;
  *         &lt;element name="resultant" type="{http://glease.net/chem/simple/DataStructure}Resultant" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *       &lt;attribute ref="{http://glease.net/chem/simple/DataStructure}temp"/>
- *       &lt;attribute name="pressure" type="{http://glease.net/chem/simple/DataStructure}PositiveDouble" default="1.01e+5" />
- *       &lt;attribute name="K" type="{http://glease.net/chem/simple/DataStructure}PositiveDouble" default="INF" />
- *       &lt;attribute name="heat" type="{http://glease.net/chem/simple/DataStructure}JavaDouble" default="0" />
- *       &lt;attribute name="speed" use="required" type="{http://glease.net/chem/simple/DataStructure}PositiveDouble" />
+ *       &lt;attribute name="pressure" type="{http://glease.net/chem/simple/DataStructure}Positivedouble" default="1.01e+5" />
+ *       &lt;attribute name="K" type="{http://glease.net/chem/simple/DataStructure}Positivedouble" default="INF" />
+ *       &lt;attribute name="heat" type="{http://glease.net/chem/simple/DataStructure}Javadouble" default="0" />
+ *       &lt;attribute name="speed" use="required" type="{http://glease.net/chem/simple/DataStructure}Positivedouble" />
  *       &lt;attribute name="solvent" type="{http://www.w3.org/2001/XMLSchema}IDREF" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -45,62 +47,38 @@ import org.eclipse.jdt.annotation.NonNull;
  *
  *
  */
-public interface Reaction {
+public interface Reaction extends Element<ChemDatabase>, IScope<ChemDatabase, Reaction> {
 
-	/**
-	 * <p>
-	 * anonymous complex type的 Java 类。
-	 * 
-	 * <p>
-	 * 以下模式片段指定包含在此类中的预期内容。
-	 * 
-	 * <pre>
-	 * &lt;complexType>
-	 *   &lt;complexContent>
-	 *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-	 *       &lt;attribute name="reagent" type="{http://www.w3.org/2001/XMLSchema}IDREF" />
-	 *     &lt;/restriction>
-	 *   &lt;/complexContent>
-	 * &lt;/complexType>
-	 * </pre>
-	 * 
-	 * 
-	 */
-	public interface Catalyst {
+	Set<Reagent> getCatalysts();
 
-		/**
-		 * 获取reagent属性的值。
-		 * 
-		 * @return possible object is {@link Object }
-		 * 
-		 */
-		Reagent getReagent();
+	Set<String> getConditions();
 
-		/**
-		 * 设置reagent属性的值。
-		 * 
-		 * @param value
-		 *            allowed object is {@link Object }
-		 * 
-		 */
-		void setReagent(Reagent value);
-
+	default Set<ReactionComponent> getAllReactionComponents() {
+		return Stream.concat(getResultants().stream(), getReactants().stream()).collect(Collectors.toSet());
 	}
 
-	@NonNull
-	default List<Reagent> getAllCatalysts() {
-		return getCatalysts().stream().map(Catalyst::getReagent).collect(Collectors.toList());
+	@Override
+	default void onBind(IScoped<Reaction> o) {
+		if(o instanceof Reactant)
+			getReactants().add((Reactant) o);
+		else if(o instanceof Resultant)
+			getResultants().add((Resultant) o);
+		else
+			throw new ScopeException("Element not identified.", this, o);
+		IScope.super.onBind(o);
 	}
 
-	@NonNull
-	List<Reaction.Catalyst> getCatalysts();
-
-	@NonNull
-	List<String> getConditions();
-
-	@NonNull
-	default List<ReactionComponent> getAllEquationComponents() {
-		return Stream.concat(getResultants().stream(), getReactants().stream()).collect(Collectors.toList());
+	@Override
+	default void onUnbind(IScoped<Reaction> o) {
+		if(o instanceof Reactant)
+			if(!getReactants().remove(o))
+				throw new ScopeException("Not binded to this scope", this, o);
+		else if(o instanceof Resultant)
+			if(!getResultants().remove(o))
+				throw new ScopeException("Not binded to this scope", this, o);
+		else
+			throw new ScopeException("Element not identified.", this, o);
+		IScope.super.onUnbind(o);
 	}
 
 	/**
@@ -127,21 +105,27 @@ public interface Reaction {
 	double getK();
 
 	/**
-	 * 获取pressure属性的值。
+	 * Get the value of name.
+	 * 
+	 * @return possible object is {@link String }
+	 * 
+	 */
+	String getName();
+
+	/**
+	 * Get the value of pressure.
 	 * 
 	 * @return possible object is {@link String }
 	 * 
 	 */
 	double getPressure();
 
-	@NonNull
-	List<Reactant> getReactants();
+	Set<Reactant> getReactants();
 
-	@NonNull
-	List<Resultant> getResultants();
+	Set<Resultant> getResultants();
 
 	/**
-	 * 获取solvent属性的值。
+	 * Get the value of solvent.
 	 * 
 	 * @return possible object is {@link Object }
 	 * 
@@ -149,12 +133,12 @@ public interface Reaction {
 	Reagent getSolvent();
 
 	/**
-	 * 获取speed属性的值。
+	 * Get the value of speed.
 	 * 
 	 * @return possible object is {@link String }
 	 * 
 	 */
-	Double getSpeed();
+	double getSpeed();
 
 	/**
 	 * 
@@ -167,34 +151,49 @@ public interface Reaction {
 	double getTemp();
 
 	/**
-	 * 设置heat属性的值。
+	 * Set the value of heat.
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }
 	 * 
 	 */
-	void setHeat(Double value);
+	void setHeat(double value);
 
 	/**
-	 * 设置k属性的值。
+	 * Set the value of id.
+	 * 
+	 */
+	void setId(String value);
+
+	/**
+	 * Set the value of k.
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }
 	 * 
 	 */
-	void setK(Double value);
+	void setK(double value);
 
 	/**
-	 * 设置pressure属性的值。
+	 * Set the value of name.
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }
 	 * 
 	 */
-	void setPressure(Double value);
+	void setName(String value);
+	
+	/**
+	 * Set the value of pressure.
+	 * 
+	 * @param value
+	 *            allowed object is {@link String }
+	 * 
+	 */
+	void setPressure(double value);
 
 	/**
-	 * 设置solvent属性的值。
+	 * Set the value of solvent.
 	 * 
 	 * @param value
 	 *            allowed object is {@link Object }
@@ -203,21 +202,21 @@ public interface Reaction {
 	void setSolvent(Reagent value);
 
 	/**
-	 * 设置speed属性的值。
+	 * Set the value of speed.
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }
 	 * 
 	 */
-	void setSpeed(Double value);
+	void setSpeed(double value);
 
 	/**
-	 * 设置temp属性的值。
+	 * Set the value of temp.
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }
 	 * 
 	 */
-	void setTemp(Double value);
+	void setTemp(double value);
 
 }

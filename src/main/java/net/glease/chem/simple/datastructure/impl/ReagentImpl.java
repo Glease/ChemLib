@@ -3,63 +3,50 @@ package net.glease.chem.simple.datastructure.impl;
 
 import java.awt.Color;
 import java.io.Serializable;
+import java.util.Objects;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlID;
-import javax.xml.bind.annotation.XmlIDREF;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import net.glease.chem.simple.datastructure.ColorAdaptor;
+import net.glease.chem.simple.datastructure.ChemDatabase;
 import net.glease.chem.simple.datastructure.Reagent;
 import net.glease.chem.simple.datastructure.ReagentState;
 import net.glease.chem.simple.datastructure.Substance;
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Reagent")
 public class ReagentImpl implements Serializable, net.glease.chem.simple.datastructure.Reagent {
 
 	private final static long serialVersionUID = 1L;
-	@XmlAttribute(name = "id", required = true)
-	@XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-	@XmlID
-	@XmlSchemaType(name = "ID")
 	protected String id;
-	@XmlAttribute(name = "name")
 	protected String name;
-	@XmlAttribute(name = "substance", namespace = "http://glease.net/chem/simple/DataStructure", required = true)
-	@XmlIDREF
-	@XmlSchemaType(name = "IDREF")
 	protected Substance substance;
+	protected Substance solvent;
+	protected double concentration = 100d;
 
-	@XmlAttribute(name = "solvent", namespace = "http://glease.net/chem/simple/DataStructure")
-	@XmlIDREF
-	@XmlSchemaType(name = "IDREF")
-	protected Reagent solvent;
-
-	@XmlAttribute(name = "concentration")
-	protected float concentration = 100f;
-
-	@XmlAttribute(name = "state")
 	protected ReagentState state;
 
-	@XmlAttribute(name="color")
-	@XmlJavaTypeAdapter(ColorAdaptor.class)
-	@XmlSchemaType(name = "string")
 	protected Color color;
 	
+	protected ChemDatabase scope;
+
+	@Override
+	public ChemDatabase scope() {
+		return scope;
+	}
+
+	@Override
+	public void bind(ChemDatabase scope) {
+		if (this.scope != null)
+			this.scope.onUnbind(this);
+		this.scope = scope;
+		if (scope != null)
+			scope.onBind(this);
+	}
+
 	@Override
 	public Color getColor() {
 		return color;
 	}
 
 	@Override
-	public void setColor(Color color) {
-		this.color = color;
+	public void setColor(Color value) {
+		this.color = Objects.requireNonNull(value);
 	}
 
 	@Override
@@ -67,25 +54,18 @@ public class ReagentImpl implements Serializable, net.glease.chem.simple.datastr
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
+		if (!(obj instanceof Reagent)) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		Reagent other = (Reagent) obj;
+		if (scope!=other.scope()) {
 			return false;
 		}
-		ReagentImpl other = (ReagentImpl) obj;
-		if (id == null) {
-			if (other.id != null) {
-				return false;
-			}
-		} else if (!id.equals(other.id)) {
-			return false;
-		}
-		return true;
+		return id.equals(other.getId());
 	}
 
 	@Override
-	public float getConcentration() {
+	public double getConcentration() {
 		return concentration;
 	}
 
@@ -100,7 +80,7 @@ public class ReagentImpl implements Serializable, net.glease.chem.simple.datastr
 	}
 
 	@Override
-	public Reagent getSolvent() {
+	public Substance getSolvent() {
 		return solvent;
 	}
 
@@ -118,38 +98,41 @@ public class ReagentImpl implements Serializable, net.glease.chem.simple.datastr
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((scope() == null) ? 0 : scope().hashCode());
+		result = prime * result +  id.hashCode();
 		return result;
 	}
 
 	@Override
-	public void setConcentration(Float value) {
+	public void setConcentration(double value) {
 		this.concentration = value;
 	}
 
 	@Override
 	public void setId(String value) {
+		if(Objects.requireNonNull(value).isEmpty())
+			throw new IllegalArgumentException("empty id");
 		this.id = value;
 	}
 
 	@Override
 	public void setName(String value) {
-		this.name = value;
+		this.name = Objects.requireNonNull(value);
 	}
 
 	@Override
-	public void setSolvent(Reagent value) {
-		this.solvent = value;
+	public void setSolvent(Substance value) {
+		this.solvent = Objects.requireNonNull(value);
 	}
 
 	@Override
 	public void setState(ReagentState value) {
-		this.state = value;
+		this.state = Objects.requireNonNull(value);
 	}
 
 	@Override
 	public void setSubstance(Substance value) {
-		this.substance = value;
+		this.substance = Objects.requireNonNull(value);
 	}
 
 	@Override

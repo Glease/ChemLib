@@ -2,68 +2,57 @@
 package net.glease.chem.simple.datastructure.impl;
 
 import java.io.Serializable;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlID;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Objects;
 
 import net.glease.chem.simple.datastructure.Atom;
+import net.glease.chem.simple.datastructure.ChemDatabase;
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Atom")
 public class AtomImpl implements Serializable, Atom {
 
 	private final static long serialVersionUID = 1L;
-
-	@XmlAttribute(name = "localizedName")
 	protected String localizedName;
-	@XmlAttribute(name = "symbol")
+
 	protected String symbol;
-	@XmlAttribute(name = "molMass", required = true)
+
 	protected int molMass;
-	@XmlAttribute(name = "index", required = true)
-	@XmlSchemaType(name = "unsignedByte")
-	protected short index;
-	@XmlAttribute(name = "id", required = true)
-	@XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-	@XmlID
-	@XmlSchemaType(name = "ID")
-	protected String id;
+
+	protected int index;
+
+	protected ChemDatabase scope;
+
+	@Override
+	public ChemDatabase scope() {
+		return scope;
+	}
+
+	@Override
+	public void bind(ChemDatabase scope) {
+		if (this.scope != null)
+			this.scope.onUnbind(this);
+		this.scope = scope;
+		if (scope != null)
+			scope.onBind(this);
+	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
+		if (!(obj instanceof Atom)) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		Atom other = (Atom) obj;
+		if (scope == null || scope != other.scope()) {
 			return false;
 		}
-		AtomImpl other = (AtomImpl) obj;
-		if (id == null) {
-			if (other.id != null) {
-				return false;
-			}
-		} else if (!id.equals(other.id)) {
+		if (getIndex() != other.getIndex())
 			return false;
-		}
-		return true;
+		return getMolMass() == other.getMolMass();
 	}
 
 	@Override
-	public String getId() {
-		return id;
-	}
-
-	@Override
-	public short getIndex() {
+	public int getIndex() {
 		return index;
 	}
 
@@ -86,32 +75,36 @@ public class AtomImpl implements Serializable, Atom {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((scope() == null) ? 0 : scope().hashCode());
+		result = prime * result + getId().hashCode();
 		return result;
 	}
 
 	@Override
-	public void setId(String value) {
-		this.id = value;
-	}
-
-	@Override
-	public void setIndex(short value) {
+	public void setIndex(int value) {
+		if (value < 1)
+			throw new IllegalArgumentException(Integer.toString(value));
 		this.index = value;
 	}
 
 	@Override
 	public void setLocalizedName(String value) {
+		if (Objects.requireNonNull(value).isEmpty())
+			throw new IllegalArgumentException("name empty");
 		this.localizedName = value;
 	}
 
 	@Override
 	public void setMolMass(int value) {
+		if (value < 1)
+			throw new IllegalArgumentException(Integer.toString(value));
 		this.molMass = value;
 	}
 
 	@Override
 	public void setSymbol(String value) {
+		if (Objects.requireNonNull(value).isEmpty() || !value.matches("[A-Z][a-z]?"))
+			throw new IllegalArgumentException(value);
 		this.symbol = value;
 	}
 
@@ -135,10 +128,8 @@ public class AtomImpl implements Serializable, Atom {
 		builder.append("index=");
 		builder.append(index);
 		builder.append(", ");
-		if (id != null) {
-			builder.append("id=");
-			builder.append(id);
-		}
+		builder.append("scope=");
+		builder.append(scope().getId());
 		builder.append("]");
 		return builder.toString();
 	}

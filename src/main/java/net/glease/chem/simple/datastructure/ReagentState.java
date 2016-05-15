@@ -6,16 +6,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
-
 /**
  * <p>
- * ReagentState的 Java 类。
+ * The Java class of ReagentState.
  *
  * <p>
- * 以下模式片段指定包含在此类中的预期内容。
+ * The following XML Schema snippet contains the expect content of this class.
  * <p>
  * 
  * <pre>
@@ -32,32 +28,30 @@ import javax.xml.bind.annotation.XmlType;
  * </pre>
  *
  */
-@XmlType(name = "ReagentState")
-@XmlEnum
+
 public enum ReagentState {
 
-	@XmlEnumValue("powder") 
 	POWDER("powder"),
-	@XmlEnumValue("nugget") 
+
 	NUGGET("nugget"),
-	@XmlEnumValue("chunk") 
+
 	CHUNK("chunk"),
-	@XmlEnumValue("liquid") 
+
 	LIQUID("liquid"),
-	@XmlEnumValue("solution") 
+
 	SOLUTION("solution"),
-	@XmlEnumValue("gas") 
+
 	GAS("gas");
-	
+
 	static Map<String, ReagentState> values = Arrays.stream(values())
-			.collect(Collectors.toMap(Enum::name, Function.identity()));
-	
+			.collect(Collectors.toMap(ReagentState::value, Function.identity()));
+
 	public static ReagentState fromValue(String v) {
-		ReagentState s = values.get(v);
-		
-		if(s!=null)
+		ReagentState s = values.get(v.toLowerCase());
+
+		if (s != null)
 			return s;
-		
+
 		throw new IllegalArgumentException(v);
 	}
 

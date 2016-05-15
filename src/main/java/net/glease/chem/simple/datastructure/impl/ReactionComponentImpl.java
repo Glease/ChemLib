@@ -2,58 +2,67 @@
 package net.glease.chem.simple.datastructure.impl;
 
 import java.io.Serializable;
+import java.util.Objects;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlIDREF;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
-
+import net.glease.chem.simple.datastructure.Reaction;
 import net.glease.chem.simple.datastructure.ReactionComponent;
 import net.glease.chem.simple.datastructure.ReagentState;
 import net.glease.chem.simple.datastructure.Substance;
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "EquationComponent")
-@XmlSeeAlso({ ReactantImpl.class, ResultantImpl.class })
 public abstract class ReactionComponentImpl implements Serializable, ReactionComponent {
 
 	private final static long serialVersionUID = 1L;
-	@XmlAttribute(name = "mol")
-	@XmlSchemaType(name = "unsignedShort")
+
 	protected int mol = 1;
-	@XmlAttribute(name = "substance", namespace = "http://glease.net/chem/simple/DataStructure", required = true)
-	@XmlIDREF
-	@XmlSchemaType(name = "IDREF")
+
 	protected Substance substance;
-	@XmlAttribute(name = "state")
+
 	protected ReagentState state = ReagentState.POWDER;
+
+	protected Reaction scope;
+
+	@Override
+	public String getId() {
+		return substance.getId();
+	}
+
+	@Override
+	public Reaction scope() {
+		return scope;
+	}
+
+	@Override
+	public void bind(Reaction scope) {
+		if (this.scope != null)
+			this.scope.onUnbind(this);
+		this.scope = scope;
+		if (scope != null)
+			scope.onBind(this);
+	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
+		if (!(obj instanceof ReactionComponent)) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		ReactionComponent other = (ReactionComponent) obj;
+		if (scope == null || scope != other.scope()) {
 			return false;
 		}
-		ReactionComponentImpl other = (ReactionComponentImpl) obj;
-		if (mol != other.mol) {
+		if (mol != other.getMol()) {
 			return false;
 		}
-		if (state != other.state) {
+		if (state != other.getState()) {
 			return false;
 		}
 		if (substance == null) {
-			if (other.substance != null) {
+			if (other.getSubstance() != null) {
 				return false;
 			}
-		} else if (!substance.equals(other.substance)) {
+		} else if (!substance.equals(other.getSubstance())) {
 			return false;
 		}
 		return true;
@@ -61,7 +70,7 @@ public abstract class ReactionComponentImpl implements Serializable, ReactionCom
 
 	@Override
 	public int getMol() {
-			return mol;
+		return mol;
 	}
 
 	@Override
@@ -78,25 +87,26 @@ public abstract class ReactionComponentImpl implements Serializable, ReactionCom
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((scope() == null) ? 0 : scope().hashCode());
 		result = prime * result + mol;
-		result = prime * result + ((state == null) ? 0 : state.hashCode());
-		result = prime * result + ((substance == null) ? 0 : substance.hashCode());
+		result = prime * result + state.hashCode();
+		result = prime * result + substance.hashCode();
 		return result;
 	}
 
 	@Override
-	public void setMol(Integer value) {
+	public void setMol(int value) {
 		this.mol = value;
 	}
 
 	@Override
 	public void setState(ReagentState value) {
-		this.state = value;
+		this.state = Objects.requireNonNull(value);
 	}
 
 	@Override
 	public void setSubstance(Substance value) {
-		this.substance = value;
+		this.substance = Objects.requireNonNull(value);
 	}
 
 	@Override

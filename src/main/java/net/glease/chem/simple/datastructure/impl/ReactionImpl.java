@@ -1,78 +1,42 @@
-
 package net.glease.chem.simple.datastructure.impl;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlIDREF;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
-
-import org.eclipse.jdt.annotation.NonNull;
-
+import net.glease.chem.simple.datastructure.ChemDatabase;
 import net.glease.chem.simple.datastructure.Reactant;
 import net.glease.chem.simple.datastructure.Reaction;
 import net.glease.chem.simple.datastructure.Reagent;
 import net.glease.chem.simple.datastructure.Resultant;
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Equation", propOrder = { "conditionAndCatalystAndReactant" })
 public class ReactionImpl implements Serializable, Reaction {
 
-	@XmlAccessorType(XmlAccessType.FIELD)
-	@XmlType(name = "")
-	public static class CatalystImpl implements Serializable, Reaction.Catalyst {
-
-		private final static long serialVersionUID = 1L;
-		@XmlAttribute(name = "reagent")
-		@XmlIDREF
-		@XmlSchemaType(name = "IDREF")
-		protected Reagent reagent;
-
-		@Override
-		public Reagent getReagent() {
-			return reagent;
-		}
-
-		@Override
-		public void setReagent(Reagent value) {
-			this.reagent = value;
-		}
-
-	}
-
 	private final static long serialVersionUID = 1L;
-	@XmlElement(name = "condition", required = true, type = String.class)
-	@NonNull
-	protected List<String> conditions = new ArrayList<>();
-	@XmlElement(name = "catalyst", required = true, type = ReactionImpl.CatalystImpl.class)
-	@NonNull
-	protected List<Reaction.Catalyst> catalysts = new ArrayList<>();
-	@XmlElement(name = "reactant", required = true, type = ReactantImpl.class)
-	@NonNull
-	protected List<Reactant> reactants = new ArrayList<>();
-	@XmlElement(name = "resultant", required = true, type = ResultantImpl.class)
-	@NonNull
-	protected List<Resultant> resultants = new ArrayList<>();
-	@XmlAttribute(name = "temp", namespace = "http://glease.net/chem/simple/DataStructure")
+
+	protected Set<String> conditions = new HashSet<>();
+
+	protected Set<Reagent> catalysts = new HashSet<>();
+
+	protected Set<Reactant> reactants = new HashSet<>();
+
+	protected Set<Resultant> resultants = new HashSet<>();
+
+	protected String id;
+
+	protected String name;
+
 	protected double temp = 298.15d;
-	@XmlAttribute(name = "pressure")
+
 	protected double pressure = 1.01e+5d;
-	@XmlAttribute(name = "K")
+
 	protected double k = Double.POSITIVE_INFINITY;
-	@XmlAttribute(name = "heat")
+
 	protected double heat = 0;
-	@XmlAttribute(name = "speed", required = true)
+
 	protected double speed;
 
-	@XmlAttribute(name = "solvent")
-	@XmlIDREF
-	@XmlSchemaType(name = "IDREF")
 	protected Reagent solvent;
 
 	@Override
@@ -83,54 +47,23 @@ public class ReactionImpl implements Serializable, Reaction {
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (!(obj instanceof Reaction)) {
 			return false;
 		}
-		ReactionImpl other = (ReactionImpl) obj;
-		if (!catalysts.equals(other.catalysts)) {
+		Reaction other = (Reaction) obj;
+		if (scope() == null || scope() != other.scope()) {
 			return false;
 		}
-		if (!conditions.equals(other.conditions)) {
-			return false;
-		}
-		if (Double.doubleToLongBits(heat) != Double.doubleToLongBits(other.heat)) {
-			return false;
-		}
-		if (Double.doubleToLongBits(k) != Double.doubleToLongBits(other.k)) {
-			return false;
-		}
-		if (Double.doubleToLongBits(pressure) != Double.doubleToLongBits(other.pressure)) {
-			return false;
-		}
-		if (!reactants.equals(other.reactants)) {
-			return false;
-		}
-		if (!resultants.equals(other.resultants)) {
-			return false;
-		}
-		if (solvent == null) {
-			if (other.solvent != null) {
-				return false;
-			}
-		} else if (!solvent.equals(other.solvent)) {
-			return false;
-		}
-		if (Double.doubleToLongBits(speed) != Double.doubleToLongBits(other.speed)) {
-			return false;
-		}
-		if (Double.doubleToLongBits(temp) != Double.doubleToLongBits(other.temp)) {
-			return false;
-		}
-		return true;
+		return !id.equals(other.getId());
 	}
 
 	@Override
-	public List<Reaction.Catalyst> getCatalysts() {
+	public Set<Reagent> getCatalysts() {
 		return catalysts;
 	}
 
 	@Override
-	public List<String> getConditions() {
+	public Set<String> getConditions() {
 		return conditions;
 	}
 
@@ -140,8 +73,18 @@ public class ReactionImpl implements Serializable, Reaction {
 	}
 
 	@Override
+	public String getId() {
+		return id;
+	}
+
+	@Override
 	public double getK() {
 		return k;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	@Override
@@ -150,12 +93,12 @@ public class ReactionImpl implements Serializable, Reaction {
 	}
 
 	@Override
-	public List<Reactant> getReactants() {
+	public Set<Reactant> getReactants() {
 		return reactants;
 	}
 
 	@Override
-	public List<Resultant> getResultants() {
+	public Set<Resultant> getResultants() {
 		return resultants;
 	}
 
@@ -165,7 +108,7 @@ public class ReactionImpl implements Serializable, Reaction {
 	}
 
 	@Override
-	public Double getSpeed() {
+	public double getSpeed() {
 		return speed;
 	}
 
@@ -178,52 +121,67 @@ public class ReactionImpl implements Serializable, Reaction {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((catalysts == null) ? 0 : catalysts.hashCode());
-		result = prime * result + ((conditions == null) ? 0 : conditions.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(heat);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(k);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(pressure);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + ((reactants == null) ? 0 : reactants.hashCode());
-		result = prime * result + ((resultants == null) ? 0 : resultants.hashCode());
-		result = prime * result + ((solvent == null) ? 0 : solvent.hashCode());
-		temp = Double.doubleToLongBits(speed);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(this.temp);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + id.hashCode();
+		ChemDatabase scope = scope();
+		result = prime * result + ((scope == null) ? 0 : scope.hashCode());
 		return result;
 	}
 
+	protected ChemDatabase scope;
+
 	@Override
-	public void setHeat(Double value) {
+	public void bind(ChemDatabase scope) {
+		if (this.scope != null)
+			this.scope.onUnbind(this);
+		this.scope = scope;
+		if (scope != null)
+			scope.onBind(this);
+	}
+
+	@Override
+	public ChemDatabase scope() {
+		return scope;
+	}
+
+	@Override
+	public void setHeat(double value) {
 		this.heat = value;
 	}
 
 	@Override
-	public void setK(Double value) {
+	public void setId(String id) {
+		if (Objects.requireNonNull(id).isEmpty())
+			throw new IllegalArgumentException("empty id");
+		this.id = id;
+	}
+
+	@Override
+	public void setK(double value) {
 		this.k = value;
 	}
 
 	@Override
-	public void setPressure(Double value) {
+	public void setName(String name) {
+		this.name = Objects.requireNonNull(name);
+	}
+
+	@Override
+	public void setPressure(double value) {
 		this.pressure = value;
 	}
 
 	@Override
 	public void setSolvent(Reagent value) {
-		this.solvent = value;
+		this.solvent = Objects.requireNonNull(value);
 	}
 
 	@Override
-	public void setSpeed(Double value) {
+	public void setSpeed(double value) {
 		this.speed = value;
 	}
 
 	@Override
-	public void setTemp(Double value) {
+	public void setTemp(double value) {
 		this.temp = value;
 	}
 

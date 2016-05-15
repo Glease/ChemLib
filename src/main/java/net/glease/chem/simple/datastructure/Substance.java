@@ -1,7 +1,13 @@
 
 package net.glease.chem.simple.datastructure;
 
-import java.util.List;
+import java.util.Set;
+
+import net.glease.chem.simple.scoping.IScope;
+import net.glease.chem.simple.scoping.IScoped;
+import net.glease.chem.simple.scoping.ScopeException;
+
+
 
 /**
  *
@@ -10,18 +16,18 @@ import java.util.List;
  * 
  *
  * <p>
- * Substance complex type的 Java 类。
+ * The Java class of Substance.
  *
  * <p>
- * 以下模式片段指定包含在此类中的预期内容。
+ * The following XML Schema snippet contains the expect content of this class.
  *
  * <pre>
  * &lt;complexType name="Substance">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="atom" type="{http://glease.net/chem/simple/DataStructure}SubstanceContent" maxOccurs="unbounded"/>
- *         &lt;element name="dissovle" maxOccurs="unbounded" minOccurs="0">
+ *         &lt;element name="content" type="{http://glease.net/chem/simple/DataStructure}SubstanceContent" maxOccurs="unbounded"/>
+ *         &lt;element name="dissolve" maxOccurs="unbounded" minOccurs="0">
  *           &lt;complexType>
  *             &lt;complexContent>
  *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
@@ -44,74 +50,16 @@ import java.util.List;
  *
  *
  */
-public interface Substance {
+public interface Substance extends Element<ChemDatabase>, IScope<ChemDatabase, Substance> {
 
 	/**
-	 * <p>
-	 * anonymous complex type的 Java 类。
-	 * 
-	 * <p>
-	 * 以下模式片段指定包含在此类中的预期内容。
-	 * 
-	 * <pre>
-	 * &lt;complexType>
-	 *   &lt;complexContent>
-	 *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-	 *       &lt;attribute ref="{http://glease.net/chem/simple/DataStructure}solvent use="required""/>
-	 *       &lt;attribute name="s2TFunction" use="required" type="{http://glease.net/chem/simple/DataStructure}Expression" />
-	 *     &lt;/restriction>
-	 *   &lt;/complexContent>
-	 * &lt;/complexType>
-	 * </pre>
-	 * 
-	 * 
-	 */
-	public interface Dissovle {
-
-		/**
-		 * 获取s2TFunction属性的值。
-		 * 
-		 * @return possible object is {@link String }
-		 * 
-		 */
-		String getS2TFunction();
-
-		/**
-		 * 获取solvent属性的值。
-		 * 
-		 * @return possible object is {@link Object }
-		 * 
-		 */
-		Reagent getSolvent();
-
-		/**
-		 * 设置s2TFunction属性的值。
-		 * 
-		 * @param value
-		 *            allowed object is {@link String }
-		 * 
-		 */
-		void setS2TFunction(String value);
-
-		/**
-		 * 设置solvent属性的值。
-		 * 
-		 * @param value
-		 *            allowed object is {@link Object }
-		 * 
-		 */
-		void setSolvent(Reagent value);
-
-	}
-
-	/**
-	 * Gets the value of the atom property.
+	 * Gets the value of the content property.
 	 * 
 	 * <p>
 	 * This accessor method returns a reference to the live list, not a
 	 * snapshot. Therefore any modification you make to the returned list will
 	 * be present inside the JAXB object. This is why there is not a
-	 * <CODE>set</CODE> method for the atom property.
+	 * <CODE>set</CODE> method for the content property.
 	 * 
 	 * <p>
 	 * For example, to add a new item, do as follows:
@@ -127,7 +75,31 @@ public interface Substance {
 	 * 
 	 * 
 	 */
-	List<SubstanceContent> getAtom();
+	Set<SubstanceContent> getContent();
+
+	@Override
+	default void onBind(IScoped<Substance> o) {
+		if(o instanceof Dissolve)
+			getDissolve().add((Dissolve) o);
+		else if(o instanceof SubstanceContent)
+			getContent().add((SubstanceContent) o);
+		else 
+			throw new ScopeException("Element not identified.", this, o);
+		IScope.super.onBind(o);
+	}
+
+	@Override
+	default void onUnbind(IScoped<Substance> o) {
+		if(o instanceof Dissolve)
+			if(!getDissolve().remove(o))
+				throw new ScopeException("Not binded to this scope", this, o);
+		else if(o instanceof SubstanceContent)
+			if(!getContent().remove(o))
+				throw new ScopeException("Not binded to this scope", this, o);
+		else
+			throw new ScopeException("Element not identified.", this, o);
+		IScope.super.onUnbind(o);
+	}
 
 	/**
 	 * 
@@ -150,13 +122,13 @@ public interface Substance {
 	CrystalType getCrystal();
 
 	/**
-	 * Gets the value of the dissovle property.
+	 * Gets the value of the dissolve property.
 	 * 
 	 * <p>
 	 * This accessor method returns a reference to the live list, not a
 	 * snapshot. Therefore any modification you make to the returned list will
 	 * be present inside the JAXB object. This is why there is not a
-	 * <CODE>set</CODE> method for the dissovle property.
+	 * <CODE>set</CODE> method for the dissolve property.
 	 * 
 	 * <p>
 	 * For example, to add a new item, do as follows:
@@ -168,19 +140,11 @@ public interface Substance {
 	 * 
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
-	 * {@link Substance.Dissovle }
+	 * {@link Dissolve }
 	 * 
 	 * 
 	 */
-	List<Substance.Dissovle> getDissovle();
-
-	/**
-	 * 获取id属性的值。
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	String getId();
+	Set<Dissolve> getDissolve();
 
 	/**
 	 * 
@@ -193,7 +157,7 @@ public interface Substance {
 	double getMeltPoint();
 
 	/**
-	 * 获取name属性的值。
+	 * Get the value of name.
 	 * 
 	 * @return possible object is {@link String }
 	 * 
@@ -201,7 +165,7 @@ public interface Substance {
 	String getName();
 
 	/**
-	 * 设置boilPoint属性的值。
+	 * Set the value of boilPoint.
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }
@@ -210,25 +174,22 @@ public interface Substance {
 	void setBoilPoint(double value);
 
 	/**
-	 * 设置crystal属性的值。
+	 * Set the value of crystal.
 	 * 
 	 * @param value
 	 *            allowed object is {@link CrystalType }
 	 * 
 	 */
 	void setCrystal(CrystalType value);
-
+	
 	/**
-	 * 设置id属性的值。
-	 * 
-	 * @param value
-	 *            allowed object is {@link String }
+	 * Set the value of id.
 	 * 
 	 */
 	void setId(String value);
 
 	/**
-	 * 设置meltPoint属性的值。
+	 * Set the value of meltPoint.
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }
@@ -237,7 +198,7 @@ public interface Substance {
 	void setMeltPoint(double value);
 
 	/**
-	 * 设置name属性的值。
+	 * Set the value of name.
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }

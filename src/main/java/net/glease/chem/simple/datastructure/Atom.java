@@ -3,10 +3,10 @@ package net.glease.chem.simple.datastructure;
 
 /**
  * <p>
- * Atom complex type的 Java 类。
+ * The Java class of Atom.
  *
  * <p>
- * 以下模式片段指定包含在此类中的预期内容。
+ * The following XML Schema snippet contains the expect content of this class.
  *
  * <pre>
  * &lt;complexType name="Atom">
@@ -23,7 +23,13 @@ package net.glease.chem.simple.datastructure;
  *       &lt;/attribute>
  *       &lt;attribute name="molMass" use="required" type="{http://glease.net/chem/simple/DataStructure}JavaFloat" />
  *       &lt;attribute name="index" use="required" type="{http://www.w3.org/2001/XMLSchema}unsignedByte" />
- *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}ID" />
+ *       &lt;attribute name="id" use="required" >
+ *         &lt;xsd:simpleType>
+ *           &lt;xsd:restriction base="xsd:ID">
+ *             &lt;xsd:pattern value="atom\d{1,3}-\d{1,3}" />
+ *           &lt;/xsd:restriction>
+ *         &lt;/xsd:simpleType>
+ *       &lt;/attribute>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -31,24 +37,24 @@ package net.glease.chem.simple.datastructure;
  *
  *
  */
-public interface Atom {
+public interface Atom extends Element<ChemDatabase> {
 
 	/**
-	 * 获取id属性的值。
-	 * 
-	 * @return possible object is {@link String }
 	 * 
 	 */
-	String getId();
+	@Override
+	default String getId() {
+		return "atom" + getIndex() + "-" + getMolMass();
+	}
 
 	/**
-	 * 获取index属性的值。
+	 * Get the value of index.
 	 * 
 	 */
-	short getIndex();
+	int getIndex();
 
 	/**
-	 * 获取localizedName属性的值。
+	 * Get the value of localizedName.
 	 * 
 	 * @return possible object is {@link String }
 	 * 
@@ -56,7 +62,7 @@ public interface Atom {
 	String getLocalizedName();
 
 	/**
-	 * 获取molMass属性的值。
+	 * Get the value of molMass.
 	 * 
 	 * @return possible object is {@link int }
 	 * 
@@ -64,7 +70,7 @@ public interface Atom {
 	int getMolMass();
 
 	/**
-	 * 获取symbol属性的值。
+	 * Get the value of symbol.
 	 * 
 	 * @return possible object is {@link String }
 	 * 
@@ -72,22 +78,13 @@ public interface Atom {
 	String getSymbol();
 
 	/**
-	 * 设置id属性的值。
-	 * 
-	 * @param value
-	 *            allowed object is {@link String }
+	 * Set the value of index.
 	 * 
 	 */
-	void setId(String value);
+	void setIndex(int value);
 
 	/**
-	 * 设置index属性的值。
-	 * 
-	 */
-	void setIndex(short value);
-
-	/**
-	 * 设置localizedName属性的值。
+	 * Set the value of localizedName.
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }
@@ -96,7 +93,7 @@ public interface Atom {
 	void setLocalizedName(String value);
 
 	/**
-	 * 设置molMass属性的值。
+	 * Set the value of molMass.
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }
@@ -105,7 +102,7 @@ public interface Atom {
 	void setMolMass(int value);
 
 	/**
-	 * 设置symbol属性的值。
+	 * Set the value of symbol.
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }

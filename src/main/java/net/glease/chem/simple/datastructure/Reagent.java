@@ -3,6 +3,8 @@ package net.glease.chem.simple.datastructure;
 
 import java.awt.Color;
 
+
+
 /**
  *
  * Reagent is something you can obtain in the lab, or somewhere else in the real
@@ -13,10 +15,10 @@ import java.awt.Color;
  * 
  *
  * <p>
- * Reagent complex type的 Java 类。
+ * The Java class of Reagent.
  *
  * <p>
- * 以下模式片段指定包含在此类中的预期内容。
+ * The following XML Schema snippet contains the expect content of this class.
  *
  * <pre>
  * &lt;complexType name="Reagent">
@@ -35,23 +37,15 @@ import java.awt.Color;
  *
  *
  */
-public interface Reagent {
+public interface Reagent extends Element<ChemDatabase> {
 
 	/**
-	 * 获取concentration属性的值。
+	 * Get the value of concentration.
 	 * 
 	 * @return possible object is {@link String }
 	 * 
 	 */
-	float getConcentration();
-
-	/**
-	 * 获取id属性的值。
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	String getId();
+	double getConcentration();
 
 	/**
 	 * 
@@ -66,12 +60,12 @@ public interface Reagent {
 	String getName();
 
 	/**
-	 * 获取solvent属性的值。
+	 * Get the value of solvent.
 	 * 
 	 * @return possible object is {@link Object }
 	 * 
 	 */
-	Reagent getSolvent();
+	Substance getSolvent();
 
 	/**
 	 * 
@@ -85,7 +79,7 @@ public interface Reagent {
 	ReagentState getState();
 
 	/**
-	 * 获取substance属性的值。
+	 * Get the value of substance.
 	 * 
 	 * @return possible object is {@link Object }
 	 * 
@@ -93,25 +87,22 @@ public interface Reagent {
 	Substance getSubstance();
 
 	/**
-	 * 设置concentration属性的值。
+	 * Set the value of concentration.
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }
 	 * 
 	 */
-	void setConcentration(Float value);
-
+	void setConcentration(double value);
+	
 	/**
-	 * 设置id属性的值。
-	 * 
-	 * @param value
-	 *            allowed object is {@link String }
+	 * Set the value of id.
 	 * 
 	 */
 	void setId(String value);
 
 	/**
-	 * 设置name属性的值。
+	 * Set the value of name.
 	 * 
 	 * @param value
 	 *            allowed object is {@link String }
@@ -120,16 +111,16 @@ public interface Reagent {
 	void setName(String value);
 
 	/**
-	 * 设置solvent属性的值。
+	 * Set the value of solvent.
 	 * 
 	 * @param value
 	 *            allowed object is {@link Object }
 	 * 
 	 */
-	void setSolvent(Reagent value);
+	void setSolvent(Substance value);
 
 	/**
-	 * 设置state属性的值。
+	 * Set the value of state.
 	 * 
 	 * @param value
 	 *            allowed object is {@link ReagentState }
@@ -138,7 +129,7 @@ public interface Reagent {
 	void setState(ReagentState value);
 
 	/**
-	 * 设置substance属性的值。
+	 * Set the value of substance.
 	 * 
 	 * @param value
 	 *            allowed object is {@link Object }

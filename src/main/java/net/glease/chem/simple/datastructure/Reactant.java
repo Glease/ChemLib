@@ -3,10 +3,10 @@ package net.glease.chem.simple.datastructure;
 
 /**
  * <p>
- * Reactant complex type的 Java 类。
+ * The Java class of Reactant.
  *
  * <p>
- * 以下模式片段指定包含在此类中的预期内容。
+ * The following XML Schema snippet contains the expect content of this class.
  *
  * <pre>
  * &lt;complexType name="Reactant">
@@ -23,20 +23,20 @@ package net.glease.chem.simple.datastructure;
 public interface Reactant extends ReactionComponent {
 
 	/**
-	 * 获取purity属性的值。
+	 * Get the value of purity.
 	 * 
-	 * @return possible object is {@link float }
+	 * @return possible object is {@link double }
 	 * 
 	 */
-	float getPurity();
+	double getPurity();
 
 	/**
-	 * 设置purity属性的值。
+	 * Set the value of purity.
 	 * 
 	 * @param value
-	 *            allowed object is {@link float }
+	 *            allowed object is {@link double }
 	 * 
 	 */
-	void setPurity(Float value);
+	void setPurity(double value);
 
 }

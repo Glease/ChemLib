@@ -2,89 +2,70 @@
 package net.glease.chem.simple.datastructure.impl;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlID;
-import javax.xml.bind.annotation.XmlIDREF;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
+import net.glease.chem.simple.datastructure.ChemDatabase;
 import net.glease.chem.simple.datastructure.CrystalType;
-import net.glease.chem.simple.datastructure.Reagent;
+import net.glease.chem.simple.datastructure.Dissolve;
 import net.glease.chem.simple.datastructure.Substance;
 import net.glease.chem.simple.datastructure.SubstanceContent;
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Substance", propOrder = { "atom", "dissovle" })
 public class SubstanceImpl implements Serializable, Substance {
 
-	@XmlAccessorType(XmlAccessType.FIELD)
-	@XmlType(name = "")
-	public static class DissovleImpl implements Serializable, Substance.Dissovle {
-
-		private final static long serialVersionUID = 1L;
-		@XmlAttribute(name = "solvent", namespace = "http://glease.net/chem/simple/DataStructure", required = true)
-		@XmlIDREF
-		@XmlSchemaType(name = "IDREF")
-		protected Reagent solvent;
-		@XmlAttribute(name = "s2TFunction", required = true)
-		protected String s2TFunction;
-
-		@Override
-		public String getS2TFunction() {
-			return s2TFunction;
-		}
-
-		@Override
-		public Reagent getSolvent() {
-			return solvent;
-		}
-
-		@Override
-		public void setS2TFunction(String value) {
-			this.s2TFunction = value;
-		}
-
-		@Override
-		public void setSolvent(Reagent value) {
-			this.solvent = value;
-		}
-
-	}
-
 	private final static long serialVersionUID = 1L;
-	@XmlElement(required = true, type = SubstanceContentImpl.class)
-	protected List<SubstanceContent> atom;
-	@XmlElement(type = SubstanceImpl.DissovleImpl.class)
-	protected List<Substance.Dissovle> dissovle;
-	@XmlAttribute(name = "name", required = true)
+
+	protected Set<SubstanceContent> content;
+
+	protected Set<Dissolve> dissolve;
+
 	protected String name;
-	@XmlAttribute(name = "meltPoint")
+
 	protected double meltPoint;
-	@XmlAttribute(name = "boilPoint")
+
 	protected double boilPoint;
-	@XmlAttribute(name = "id", required = true)
-	@XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-	@XmlID
-	@XmlSchemaType(name = "ID")
+
 	protected String id;
 
-	@XmlAttribute(name = "crystal")
-	protected CrystalType crystal;
+	protected CrystalType crystal = CrystalType.NONE;
+	
+	protected ChemDatabase scope;
 
 	@Override
-	public List<SubstanceContent> getAtom() {
-		if (atom == null) {
-			atom = new ArrayList<SubstanceContent>();
+	public ChemDatabase scope() {
+		return scope;
+	}
+
+	@Override
+	public void bind(ChemDatabase scope) {
+		if (this.scope != null)
+			this.scope.onUnbind(this);
+		this.scope = scope;
+		if (scope != null)
+			scope.onBind(this);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
 		}
-		return this.atom;
+		if (obj instanceof Substance) {
+			return false;
+		}
+		Substance other = (Substance) obj;
+		if (scope == null || scope!=other.scope()) {
+			return false;
+		}
+		if (id == null) {
+			if (other.getId() != null) {
+				return false;
+			}
+		} else if (!id.equals(other.getId())) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
@@ -93,16 +74,24 @@ public class SubstanceImpl implements Serializable, Substance {
 	}
 
 	@Override
+	public Set<SubstanceContent> getContent() {
+		if (content == null) {
+			content = new HashSet<>();
+		}
+		return this.content;
+	}
+
+	@Override
 	public CrystalType getCrystal() {
 		return crystal;
 	}
 
 	@Override
-	public List<Substance.Dissovle> getDissovle() {
-		if (dissovle == null) {
-			dissovle = new ArrayList<Substance.Dissovle>();
+	public Set<Dissolve> getDissolve() {
+		if (dissolve == null) {
+			dissolve = new HashSet<>();
 		}
-		return this.dissovle;
+		return this.dissolve;
 	}
 
 	@Override
@@ -121,17 +110,28 @@ public class SubstanceImpl implements Serializable, Substance {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((scope() == null) ? 0 : scope().hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
 	public void setBoilPoint(double value) {
 		this.boilPoint = value;
 	}
 
 	@Override
 	public void setCrystal(CrystalType value) {
-		this.crystal = value;
+		this.crystal = Objects.requireNonNull(value);
 	}
 
 	@Override
 	public void setId(String value) {
+		if(Objects.requireNonNull(value).isEmpty())
+			throw new IllegalArgumentException("empty id");
 		this.id = value;
 	}
 
@@ -142,7 +142,44 @@ public class SubstanceImpl implements Serializable, Substance {
 
 	@Override
 	public void setName(String value) {
-		this.name = value;
+		this.name = Objects.requireNonNull(value);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("SubstanceImpl [");
+		if (content != null) {
+			builder.append("content=");
+			builder.append(content);
+			builder.append(", ");
+		}
+		if (dissolve != null) {
+			builder.append("dissolve=");
+			builder.append(dissolve);
+			builder.append(", ");
+		}
+		if (name != null) {
+			builder.append("name=");
+			builder.append(name);
+			builder.append(", ");
+		}
+		builder.append("meltPoint=");
+		builder.append(meltPoint);
+		builder.append(", boilPoint=");
+		builder.append(boilPoint);
+		builder.append(", ");
+		if (id != null) {
+			builder.append("id=");
+			builder.append(id);
+			builder.append(", ");
+		}
+		if (crystal != null) {
+			builder.append("crystal=");
+			builder.append(crystal);
+		}
+		builder.append("]");
+		return builder.toString();
 	}
 
 }

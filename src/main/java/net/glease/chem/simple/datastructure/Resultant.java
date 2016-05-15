@@ -3,10 +3,10 @@ package net.glease.chem.simple.datastructure;
 
 /**
  * <p>
- * Resultant complex type的 Java 类。
+ * The Java class of Resultant.
  *
  * <p>
- * 以下模式片段指定包含在此类中的预期内容。
+ * The following XML Schema snippet contains the expect content of this class.
  *
  * <pre>
  * &lt;complexType name="Resultant">

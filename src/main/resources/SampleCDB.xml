@@ -1,48 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--This is an sample CDB-Simple. The UUID is obtained from UUID.nameUUIDFromBytes("SampleCDB".getBytes(Charset.forName("ISO-8859-1"))) -->
-<database UUID="490a2f37-44fb-3fc5-aebe-9f8c515685b4"
+<!-- This is an sample CDB-Simple. The UUID is obtained from UUID.nameUUIDFromBytes("SampleCDB".getBytes(Charset.forName("ISO-8859-1"))) 
+	Author: glease <glease.wang@outlook.com> -->
+<database uuid="490a2f37-44fb-3fc5-aebe-9f8c515685b4" version="1.0"
+	info="Sample CDB-Simple. Written by glease (glease.wang@outlook.com)."
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://glease.net/chem/simple/DataStructure"
-	xsi:schemaLocation="http://glease.net/chem/simple/DataStructure CDB-Simple.xsd "
-	version="1.0"
-	info="Sample CDB-Simple. Written by glease (glease.wang@outlook.com).">
+	xsi:schemaLocation="http://glease.net/chem/simple/DataStructure CDB-Simple.xsd ">
 	<atoms>
 		<atom index="1" localizedName="Hydrogen" molMass="1" symbol="H"
-			id="a1-1" />
-		<atom index="1" localizedName="Helium" molMass="4" symbol="He"
-			id="a2-4" />
-		<atom index="1" molMass="3" id="a1-3" />
-		<atom index="6" molMass="12" id="a6-12" localizedName="Carbon" />
-		<atom index="8" molMass="16" id="a8-16" localizedName="Oxygen" />
+			id="atom1-1" />
+		<atom index="1" molMass="2" id="atom1-2" />
+		<atom index="1" molMass="3" id="atom1-3" />
+		<atom index="2" localizedName="Helium" molMass="4" symbol="He"
+			id="atom2-4" />
+		<atom index="6" molMass="12" id="atom6-12" localizedName="Carbon" />
+		<atom index="8" molMass="16" id="atom8-16" localizedName="Oxygen" />
 	</atoms>
-	<reactions>
-		<reaction speed="1">
-			<condition>ignition</condition>
-			<reactant purity="0.9" substance="s1" mol="2" />
-			<reactant purity="0.9" substance="s2" />
-			<resultant substance="r3" mol="2" />
-		</reaction>
-	</reactions>
 	<substances>
 		<substance name="Water" id="s1">
-			<atom atom="a8-16" />
-			<dissovle solvent="s2" s2TFunction="100.0" />
+			<atom atom="atom8-16" />
+			<dissolve solvent="s2" s2TFunction="100.0" />
 		</substance>
 		<substance name="C2H5OH" id="s2">
-			<atom atom="a6-12" mol="2" />
-			<atom atom="a1-1" mol="6" />
-			<atom atom="a8-16" />
-			<dissovle s2TFunction="100.0" solvent="s1" />
+			<atom atom="atom6-12" mol="2" />
+			<atom atom="atom1-1" mol="6" />
+			<atom atom="atom8-16" />
+			<dissolve s2TFunction="100.0" solvent="s1" />
 		</substance>
 		<substance name="Hydrogen" id="s3">
-			<atom atom="a1-1" mol="2" />
+			<atom atom="atom1-1" mol="2" />
 		</substance>
 		<substance name="Oxydgren" id="s4">
-			<atom atom="a8-16" mol="2" />
+			<atom atom="atom8-16" mol="2" />
 		</substance>
 	</substances>
 	<reagents>
 		<reagent substance="s3" state="gas" id="r1" />
 		<reagent substance="s4" state="gas" id="r2" />
 		<reagent substance="s1" id="r3" name="Water Vapour" state="gas" />
+		<reagent substance="s2" solvent="s3" concentration="75" id="r4"
+			name="Medical Alcohol" state="solution" />
 	</reagents>
+	<reactions>
+		<reaction speed="1" id="e1" name="">
+			<condition value="ignition" />
+			<reactant purity="0.9" substance="s1" mol="2" />
+			<reactant purity="0.9" substance="s2" />
+			<resultant substance="s3" mol="2" />
+		</reaction>
+	</reactions>
 </database>

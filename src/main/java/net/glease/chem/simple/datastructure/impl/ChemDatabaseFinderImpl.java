@@ -2,8 +2,6 @@ package net.glease.chem.simple.datastructure.impl;
 
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
-import static org.eclipse.jdt.annotation.DefaultLocation.PARAMETER;
-import static org.eclipse.jdt.annotation.DefaultLocation.RETURN_TYPE;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,12 +12,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
-
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 
 import net.glease.chem.simple.datastructure.Atom;
 import net.glease.chem.simple.datastructure.ChemDatabase;
@@ -32,8 +24,6 @@ import net.glease.chem.simple.datastructure.Resultant;
 import net.glease.chem.simple.datastructure.Substance;
 import net.glease.chem.simple.datastructure.SubstanceContent;
 
-@XmlTransient
-@NonNullByDefault({ PARAMETER, RETURN_TYPE })
 public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 
 	static Map<String, ReactionSide> values;
@@ -69,7 +59,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 */
 		@Override
 		public Set<Atom> find() {
-			Stream<Atom> s = db.getAtoms().stream();
+			Stream<Atom> s = db.getAtoms().values().stream();
 			if (index != -1)
 				s.filter(e -> e.getIndex() == index);
 			if (molMass != -1)
@@ -83,17 +73,9 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 * @see net.glease.chem.simple.datastructure.impl.AtomFinder#unique()
 		 */
 		@Override
-		@Nullable
+
 		public Atom unique() {
-			Set<Atom> find = find();
-			switch (find.size()) {
-			case 0:
-				return null;
-			case 1:
-				return find.iterator().next();
-			default:
-				throw new IllegalStateException("multiple results found!");
-			}
+			return unwrap(find());
 		}
 
 		/*
@@ -168,7 +150,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		@Override
 		public ReactionFinder withAllComponents(ReactionComponent... comp) {
 			List<ReactionComponent> rs = Arrays.asList(comp);
-			return match(t -> t.getAllEquationComponents().parallelStream().allMatch(rs::contains));
+			return match(t -> t.getAllReactionComponents().parallelStream().allMatch(rs::contains));
 		}
 
 		/*
@@ -228,7 +210,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		@Override
 		public ReactionFinder withAnyComponents(ReactionComponent... comp) {
 			List<ReactionComponent> rs = Arrays.asList(comp);
-			return match(t -> t.getAllEquationComponents().parallelStream().anyMatch(rs::contains));
+			return match(t -> t.getAllReactionComponents().parallelStream().anyMatch(rs::contains));
 		}
 
 		/*
@@ -333,7 +315,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 */
 		@Override
 		public Set<Reagent> find() {
-			Stream<Reagent> s = db.getReagents().stream();
+			Stream<Reagent> s = db.getReagents().values().stream();
 			if (name != null)
 				s.filter(r -> name.equals(r.getName()));
 			if (s1 != null)
@@ -434,7 +416,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 */
 		@Override
 		public SubstanceFinder containsAny(SubstanceContent... contents) {
-			return match(e -> e.getAtom().stream().anyMatch(Arrays.asList(contents)::contains));
+			return match(e -> e.getContent().stream().anyMatch(Arrays.asList(contents)::contains));
 		}
 
 		/*
@@ -444,11 +426,11 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 */
 		@Override
 		public Set<Substance> find() {
-			Stream<Substance> s = db.getSubstances().parallelStream();
+			Stream<Substance> s = db.getSubstances().values().parallelStream();
 			if (p != null)
 				s.filter(p);
 			if (scs != null)
-				s.filter(a -> a.getAtom().stream().allMatch(scs::contains));
+				s.filter(a -> a.getContent().stream().allMatch(scs::contains));
 			return s.collect(immutableSetCollector());
 		}
 
@@ -475,8 +457,18 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 			throw new IllegalStateException(name + " is already set");
 	}
 
-	@SuppressWarnings("null")
-	private static <T> Collector<T, ?, @NonNull Set<T>> immutableSetCollector() {
+	private static <T> T unwrap(Set<T> set) {
+		switch (set.size()) {
+		case 0:
+			return null;
+		case 1:
+			return set.iterator().next();
+		default:
+			throw new IllegalStateException("multiple results found!");
+		}
+	}
+
+	private static <T> Collector<T, ?, Set<T>> immutableSetCollector() {
 		return collectingAndThen(toSet(), Collections::unmodifiableSet);
 	}
 
