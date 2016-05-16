@@ -7,12 +7,12 @@ public class FactoryNotFoundException extends RuntimeException {
 		super();
 	}
 
-	public FactoryNotFoundException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
 	public FactoryNotFoundException(String message) {
 		super(message);
+	}
+
+	public FactoryNotFoundException(String message, Throwable cause) {
+		super(message, cause);
 	}
 
 	public FactoryNotFoundException(Throwable cause) {

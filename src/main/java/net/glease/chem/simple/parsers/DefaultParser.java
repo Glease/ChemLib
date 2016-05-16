@@ -29,6 +29,11 @@ class DefaultParser implements XMLChemDatabaseParser {
 	}
 
 	@Override
+	public void marshal(ChemDatabase db, XMLStreamWriter out) throws XMLStreamException {
+		new CDBMarshaller(db).marshal(out);
+	}
+
+	@Override
 	public ChemDatabase unmarshal(InputSource in) throws SAXException, IOException {
 		XMLReader reader = XMLReaderFactory.createXMLReader();
 		UnmarshallingHanlder uh = new UnmarshallingHanlder();
@@ -40,11 +45,6 @@ class DefaultParser implements XMLChemDatabaseParser {
 		reader.setEntityResolver(factory.er);
 		reader.parse(in);
 		return uh.get();
-	}
-
-	@Override
-	public void marshal(ChemDatabase db, XMLStreamWriter out) throws XMLStreamException {
-		new CDBMarshaller(db).marshal(out);
 	}
 
 }

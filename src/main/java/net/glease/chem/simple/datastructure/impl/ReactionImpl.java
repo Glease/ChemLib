@@ -1,6 +1,7 @@
 package net.glease.chem.simple.datastructure.impl;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -16,28 +17,29 @@ public class ReactionImpl implements Serializable, Reaction {
 	private final static long serialVersionUID = 1L;
 
 	protected Set<String> conditions = new HashSet<>();
-
 	protected Set<Reagent> catalysts = new HashSet<>();
-
 	protected Set<Reactant> reactants = new HashSet<>();
-
 	protected Set<Resultant> resultants = new HashSet<>();
 
 	protected String id;
-
 	protected String name;
-
 	protected double temp = 298.15d;
-
 	protected double pressure = 1.01e+5d;
-
 	protected double k = Double.POSITIVE_INFINITY;
-
 	protected double heat = 0;
-
 	protected double speed;
-
 	protected Reagent solvent;
+
+	protected ChemDatabase scope;
+
+	@Override
+	public void bind(ChemDatabase scope) {
+		if (this.scope != null)
+			this.scope.onUnbind(this);
+		this.scope = scope;
+		if (scope != null)
+			scope.onBind(this);
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -59,12 +61,12 @@ public class ReactionImpl implements Serializable, Reaction {
 
 	@Override
 	public Set<Reagent> getCatalysts() {
-		return catalysts;
+		return Collections.unmodifiableSet(catalysts);
 	}
 
 	@Override
 	public Set<String> getConditions() {
-		return conditions;
+		return Collections.unmodifiableSet(conditions);
 	}
 
 	@Override
@@ -94,12 +96,12 @@ public class ReactionImpl implements Serializable, Reaction {
 
 	@Override
 	public Set<Reactant> getReactants() {
-		return reactants;
+		return Collections.unmodifiableSet(reactants);
 	}
 
 	@Override
 	public Set<Resultant> getResultants() {
-		return resultants;
+		return Collections.unmodifiableSet(resultants);
 	}
 
 	@Override
@@ -125,17 +127,6 @@ public class ReactionImpl implements Serializable, Reaction {
 		ChemDatabase scope = scope();
 		result = prime * result + ((scope == null) ? 0 : scope.hashCode());
 		return result;
-	}
-
-	protected ChemDatabase scope;
-
-	@Override
-	public void bind(ChemDatabase scope) {
-		if (this.scope != null)
-			this.scope.onUnbind(this);
-		this.scope = scope;
-		if (scope != null)
-			scope.onBind(this);
 	}
 
 	@Override
@@ -189,26 +180,18 @@ public class ReactionImpl implements Serializable, Reaction {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("ReactionImpl [");
-		if (conditions != null) {
-			builder.append("conditions=");
-			builder.append(conditions);
-			builder.append(", ");
-		}
-		if (catalysts != null) {
-			builder.append("catalysts=");
-			builder.append(catalysts);
-			builder.append(", ");
-		}
-		if (reactants != null) {
-			builder.append("reactants=");
-			builder.append(reactants);
-			builder.append(", ");
-		}
-		if (resultants != null) {
-			builder.append("resultants=");
-			builder.append(resultants);
-			builder.append(", ");
-		}
+		builder.append("conditions=");
+		builder.append(conditions);
+		builder.append(", ");
+		builder.append("catalysts=");
+		builder.append(catalysts);
+		builder.append(", ");
+		builder.append("reactants=");
+		builder.append(reactants);
+		builder.append(", ");
+		builder.append("resultants=");
+		builder.append(resultants);
+		builder.append(", ");
 		builder.append("temp=");
 		builder.append(temp);
 		builder.append(", pressure=");

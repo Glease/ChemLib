@@ -12,15 +12,9 @@ public class DissolveImpl implements Serializable, Dissolve {
 	private final static long serialVersionUID = 1L;
 
 	protected Reagent solvent;
-
 	protected String s2TFunction;
 
 	protected Substance scope;
-
-	@Override
-	public Substance scope() {
-		return scope;
-	}
 
 	@Override
 	public void bind(Substance scope) {
@@ -50,6 +44,11 @@ public class DissolveImpl implements Serializable, Dissolve {
 	}
 
 	@Override
+	public String getId() {
+		return solvent.getId();
+	}
+
+	@Override
 	public String getS2TFunction() {
 		return s2TFunction;
 	}
@@ -67,6 +66,11 @@ public class DissolveImpl implements Serializable, Dissolve {
 		result = prime * result + s2TFunction.hashCode();
 		result = prime * result + solvent.hashCode();
 		return result;
+	}
+
+	@Override
+	public Substance scope() {
+		return scope;
 	}
 
 	@Override
@@ -88,11 +92,6 @@ public class DissolveImpl implements Serializable, Dissolve {
 		builder.append(s2TFunction);
 		builder.append("]");
 		return builder.toString();
-	}
-
-	@Override
-	public String getId() {
-		return solvent.getId();
 	}
 
 }

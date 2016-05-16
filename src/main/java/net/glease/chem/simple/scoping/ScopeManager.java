@@ -32,6 +32,11 @@ class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T
 		ids.clear();
 	}
 
+	public void install(BindingPlugin plugin) {
+		if (!plugins.add(plugin))
+			throw new IllegalArgumentException("duplicate plugin: " + plugin);
+	}
+
 	public void onBind(IScoped<T_THIS> o) {
 		IScope<T_PARENT, T_THIS> s = ref.get();
 		if (ref == null) {// Theoretically impossible
@@ -62,10 +67,5 @@ class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T
 		for (BindingPlugin plugin : plugins) {
 			plugin.onUnbind(s, o);
 		}
-	}
-
-	public void install(BindingPlugin plugin) {
-		if (!plugins.add(plugin))
-			throw new IllegalArgumentException("duplicate plugin: " + plugin);
 	}
 }

@@ -14,22 +14,10 @@ public abstract class ReactionComponentImpl implements Serializable, ReactionCom
 	private final static long serialVersionUID = 1L;
 
 	protected int mol = 1;
-
 	protected Substance substance;
-
 	protected ReagentState state = ReagentState.POWDER;
 
 	protected Reaction scope;
-
-	@Override
-	public String getId() {
-		return substance.getId();
-	}
-
-	@Override
-	public Reaction scope() {
-		return scope;
-	}
 
 	@Override
 	public void bind(Reaction scope) {
@@ -69,6 +57,11 @@ public abstract class ReactionComponentImpl implements Serializable, ReactionCom
 	}
 
 	@Override
+	public String getId() {
+		return substance.getId();
+	}
+
+	@Override
 	public int getMol() {
 		return mol;
 	}
@@ -92,6 +85,11 @@ public abstract class ReactionComponentImpl implements Serializable, ReactionCom
 		result = prime * result + state.hashCode();
 		result = prime * result + substance.hashCode();
 		return result;
+	}
+
+	@Override
+	public Reaction scope() {
+		return scope;
 	}
 
 	@Override

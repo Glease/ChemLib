@@ -12,11 +12,25 @@ import net.glease.chem.simple.parsers.CDBParserFactory;
  */
 public interface ParserPlugin {
 	/**
+	 * Get the version info of this {@link NormalizationPlugin}
+	 * 
+	 * @return the version info
+	 */
+	String info();
+
+	/**
 	 * Get target language.
 	 * 
 	 * @return
 	 */
 	String language();
+
+	/**
+	 * Get the name of this {@link NormalizationPlugin}
+	 * 
+	 * @return the name
+	 */
+	String name();
 
 	/**
 	 * Get the vendor info of this {@link NormalizationPlugin}
@@ -31,19 +45,5 @@ public interface ParserPlugin {
 	 * @return the version info
 	 */
 	String version();
-
-	/**
-	 * Get the version info of this {@link NormalizationPlugin}
-	 * 
-	 * @return the version info
-	 */
-	String info();
-
-	/**
-	 * Get the name of this {@link NormalizationPlugin}
-	 * 
-	 * @return the name
-	 */
-	String name();
 
 }

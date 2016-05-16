@@ -108,7 +108,7 @@ class CDBMarshaller {
 			writeAttribute("name", r.getName());
 			ReagentState state = r.getState();
 			if (state != null)
-				writeAttribute("state", state.name());
+				writeAttribute("state", state.value());
 			Substance solvent = r.getSolvent();
 			if (solvent != null)
 				writeAttribute("solvent", solvent.getId());
@@ -157,7 +157,7 @@ class CDBMarshaller {
 				writeAttribute("purity", c.getPurity());
 				ReagentState state = c.getState();
 				if (state != null)
-					writeAttribute("state", state.name());
+					writeAttribute("state", state.value());
 				writeEndElement();
 			}
 
@@ -168,7 +168,7 @@ class CDBMarshaller {
 				writeAttribute("mol", c.getMol());
 				ReagentState state = c.getState();
 				if (state != null)
-					writeAttribute("state", state.name());
+					writeAttribute("state", state.value());
 				writeEndElement();
 			}
 
@@ -182,12 +182,18 @@ class CDBMarshaller {
 		debug("Ended marshaling.");
 	}
 
-	private void writeStartElement(String name) throws XMLStreamException {
-		out.writeStartElement(DEFAULT_NAMESPACE_PREFIX, name, CDB_SIMPLE_NAMESPACE);
+	private void writeAttribute(String name, double value) throws XMLStreamException {
+		if (!Double.isNaN(value))
+			writeAttribute(name, printDouble(value));
+		else
+			warn("NaN found writing " + writing + ": " + name + ". Try normalize first.");
 	}
 
-	private void writeEndElement() throws XMLStreamException {
-		out.writeEndElement();
+	private void writeAttribute(String name, int value) throws XMLStreamException {
+		if (value != -1)
+			writeAttribute(name, printInt(value));
+		else
+			warn("negative found writing " + writing + ": " + name + ". Try normalize first.");
 	}
 
 	private void writeAttribute(String name, String value) throws XMLStreamException {
@@ -199,17 +205,11 @@ class CDBMarshaller {
 			warn("null found writing " + writing + ": " + name + ". Try normalize first.");
 	}
 
-	private void writeAttribute(String name, int value) throws XMLStreamException {
-		if (value != -1)
-			writeAttribute(name, printInt(value));
-		else
-			warn("negative found writing " + writing + ": " + name + ". Try normalize first.");
+	private void writeEndElement() throws XMLStreamException {
+		out.writeEndElement();
 	}
 
-	private void writeAttribute(String name, double value) throws XMLStreamException {
-		if (!Double.isNaN(value))
-			writeAttribute(name, printDouble(value));
-		else
-			warn("NaN found writing " + writing + ": " + name + ". Try normalize first.");
+	private void writeStartElement(String name) throws XMLStreamException {
+		out.writeStartElement(DEFAULT_NAMESPACE_PREFIX, name, CDB_SIMPLE_NAMESPACE);
 	}
 }

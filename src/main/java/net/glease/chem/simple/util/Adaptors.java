@@ -46,9 +46,6 @@ public final class Adaptors {
 		return Collections.unmodifiableMap(holder);
 	}
 
-	private Adaptors() {
-	}
-
 	public static Color readColor(String v) {
 		if (v == null)
 			return null;
@@ -63,5 +60,8 @@ public final class Adaptors {
 
 		String s = PREDEFINED_COLORS_REVERSED.get(v);
 		return s == null ? Integer.toHexString(v.getRGB()) : s;
+	}
+
+	private Adaptors() {
 	}
 }

@@ -7,11 +7,6 @@ import org.xml.sax.SAXParseException;
 enum ReportingErrorHandler implements ErrorHandler {
 	I;
 	@Override
-	public void warning(SAXParseException exception) throws SAXException {
-		ParseLogger.warn(exception);
-	}
-
-	@Override
 	public void error(SAXParseException exception) throws SAXException {
 		ParseLogger.error(exception);
 	}
@@ -19,6 +14,11 @@ enum ReportingErrorHandler implements ErrorHandler {
 	@Override
 	public void fatalError(SAXParseException exception) throws SAXException {
 		ParseLogger.fatal(exception);
+	}
+
+	@Override
+	public void warning(SAXParseException exception) throws SAXException {
+		ParseLogger.warn(exception);
 	}
 
 }

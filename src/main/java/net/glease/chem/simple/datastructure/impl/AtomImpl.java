@@ -10,20 +10,14 @@ import net.glease.chem.simple.datastructure.ChemDatabase;
 public class AtomImpl implements Serializable, Atom {
 
 	private final static long serialVersionUID = 1L;
+	
 	protected String localizedName;
-
 	protected String symbol;
-
 	protected int molMass;
-
 	protected int index;
+	protected double averageMolMass;
 
 	protected ChemDatabase scope;
-
-	@Override
-	public ChemDatabase scope() {
-		return scope;
-	}
 
 	@Override
 	public void bind(ChemDatabase scope) {
@@ -49,6 +43,11 @@ public class AtomImpl implements Serializable, Atom {
 		if (getIndex() != other.getIndex())
 			return false;
 		return getMolMass() == other.getMolMass();
+	}
+
+	@Override
+	public double getAverageMolMass() {
+		return averageMolMass;
 	}
 
 	@Override
@@ -81,6 +80,16 @@ public class AtomImpl implements Serializable, Atom {
 	}
 
 	@Override
+	public ChemDatabase scope() {
+		return scope;
+	}
+
+	@Override
+	public void setAverageMolMass(double averageMolMass) {
+		this.averageMolMass = averageMolMass;
+	}
+
+	@Override
 	public void setIndex(int value) {
 		if (value < 1)
 			throw new IllegalArgumentException(Integer.toString(value));
@@ -103,7 +112,7 @@ public class AtomImpl implements Serializable, Atom {
 
 	@Override
 	public void setSymbol(String value) {
-		if (Objects.requireNonNull(value).isEmpty() || !value.matches("[A-Z][a-z]?"))
+		if (Objects.requireNonNull(value).isEmpty() || !value.matches("^[A-Z][a-z]?$"))
 			throw new IllegalArgumentException(value);
 		this.symbol = value;
 	}

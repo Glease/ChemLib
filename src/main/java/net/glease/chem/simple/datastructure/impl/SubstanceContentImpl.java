@@ -13,20 +13,9 @@ public class SubstanceContentImpl implements Serializable, SubstanceContent {
 	private final static long serialVersionUID = 1L;
 
 	protected Atom atom;
-
 	protected int mol = 1;
 	
 	protected Substance scope;
-
-	@Override
-	public String getId() {
-		return atom.getId();
-	}
-
-	@Override
-	public Substance scope() {
-		return scope;
-	}
 
 	@Override
 	public void bind(Substance scope) {
@@ -68,6 +57,11 @@ public class SubstanceContentImpl implements Serializable, SubstanceContent {
 	}
 
 	@Override
+	public String getId() {
+		return atom.getId();
+	}
+
+	@Override
 	public int getMol() {
 		return mol;
 	}
@@ -80,6 +74,11 @@ public class SubstanceContentImpl implements Serializable, SubstanceContent {
 		result = prime * result + ((atom == null) ? 0 : atom.hashCode());
 		result = prime * result + mol;
 		return result;
+	}
+
+	@Override
+	public Substance scope() {
+		return scope;
 	}
 
 	@Override

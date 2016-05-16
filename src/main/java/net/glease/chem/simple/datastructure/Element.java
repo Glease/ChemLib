@@ -7,6 +7,7 @@ import net.glease.chem.simple.scoping.IScoped;
  * An element with given scope of type <i>T</i>.
  * 
  * @author glease
+ * @since 1.0
  * @param <T>
  *            scope type
  */

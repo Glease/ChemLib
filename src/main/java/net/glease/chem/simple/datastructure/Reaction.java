@@ -11,75 +11,47 @@ import net.glease.chem.simple.scoping.ScopeException;
 
 /**
  * <p>
- * The Java class of Equation.
- *
- * <p>
- * The following XML Schema snippet contains the expect content of this class.
- *
- * <pre>
- * &lt;complexType name="Equation">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence maxOccurs="unbounded">
- *         &lt;element name="condition" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="catalyst" maxOccurs="unbounded" minOccurs="0">
- *           &lt;complexType>
- *             &lt;complexContent>
- *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *                 &lt;attribute name="reagent" type="{http://www.w3.org/2001/XMLSchema}IDREF" />
- *               &lt;/restriction>
- *             &lt;/complexContent>
- *           &lt;/complexType>
- *         &lt;/element>
- *         &lt;element name="reactant" type="{http://glease.net/chem/simple/DataStructure}Reactant" maxOccurs="unbounded"/>
- *         &lt;element name="resultant" type="{http://glease.net/chem/simple/DataStructure}Resultant" maxOccurs="unbounded"/>
- *       &lt;/sequence>
- *       &lt;attribute ref="{http://glease.net/chem/simple/DataStructure}temp"/>
- *       &lt;attribute name="pressure" type="{http://glease.net/chem/simple/DataStructure}Positivedouble" default="1.01e+5" />
- *       &lt;attribute name="K" type="{http://glease.net/chem/simple/DataStructure}Positivedouble" default="INF" />
- *       &lt;attribute name="heat" type="{http://glease.net/chem/simple/DataStructure}Javadouble" default="0" />
- *       &lt;attribute name="speed" use="required" type="{http://glease.net/chem/simple/DataStructure}Positivedouble" />
- *       &lt;attribute name="solvent" type="{http://www.w3.org/2001/XMLSchema}IDREF" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- *
+ * The Java class of Reaction. Reaction represents a real chemical reaction, in
+ * a very particular state. The {@link Reaction} only tells that such reaction
+ * will happen if variables are just exactly as given. TODO enhance javadoc
+ * 
+ * @author glease
+ * @since 1.0
  *
  */
 public interface Reaction extends Element<ChemDatabase>, IScope<ChemDatabase, Reaction> {
 
-	Set<Reagent> getCatalysts();
-
-	Set<String> getConditions();
-
+	/**
+	 * Get a new set containing all {@link ReactionComponent reactants and resultants} in this
+	 * {@link Reaction}. The set is modifiable and is <b> only a snapshot of current
+	 * {@link Reaction}</b>, i.e. any further modification both to the returned set and
+	 *  this {@link Reaction} won't interfere with each other.
+	 * 
+	 * @return possible object is {@link Set&lt;Reagent> }
+	 */
 	default Set<ReactionComponent> getAllReactionComponents() {
 		return Stream.concat(getResultants().stream(), getReactants().stream()).collect(Collectors.toSet());
 	}
 
-	@Override
-	default void onBind(IScoped<Reaction> o) {
-		if(o instanceof Reactant)
-			getReactants().add((Reactant) o);
-		else if(o instanceof Resultant)
-			getResultants().add((Resultant) o);
-		else
-			throw new ScopeException("Element not identified.", this, o);
-		IScope.super.onBind(o);
-	}
+	/**
+	 * Get a set containing all {@link Reagent catalysts} in this
+	 * {@link Reaction}. The set is unmodifiable. Addition/removal to this set
+	 * should be done with {@link IScoped#bind(IScope) bind(this)} or
+	 * {@link IScoped#bind(IScope) bind(null)}.
+	 * 
+	 * @return possible object is {@link Set&lt;Reagent> }
+	 */
+	Set<Reagent> getCatalysts();
 
-	@Override
-	default void onUnbind(IScoped<Reaction> o) {
-		if(o instanceof Reactant)
-			if(!getReactants().remove(o))
-				throw new ScopeException("Not binded to this scope", this, o);
-		else if(o instanceof Resultant)
-			if(!getResultants().remove(o))
-				throw new ScopeException("Not binded to this scope", this, o);
-		else
-			throw new ScopeException("Element not identified.", this, o);
-		IScope.super.onUnbind(o);
-	}
+	/**
+	 * Get a set containing all {@link String conditions} in this
+	 * {@link Reaction}. The set is unmodifiable. Addition/removal to this set
+	 * should be done with {@link IScoped#bind(IScope) bind(this)} or
+	 * {@link IScoped#bind(IScope) bind(null)}.
+	 * 
+	 * @return possible object is {@link Set&lt;String> }
+	 */
+	Set<String> getConditions();
 
 	/**
 	 * 
@@ -89,7 +61,7 @@ public interface Reaction extends Element<ChemDatabase>, IScope<ChemDatabase, Re
 	 * kJ.
 	 * 
 	 * 
-	 * @return possible object is {@link String }
+	 * @return possible object is {@link double }
 	 * 
 	 */
 	double getHeat();
@@ -99,7 +71,7 @@ public interface Reaction extends Element<ChemDatabase>, IScope<ChemDatabase, Re
 	 * Default to INF which means this reaction is an irreversible reaction.
 	 * 
 	 * 
-	 * @return possible object is {@link String }
+	 * @return possible object is {@link double }
 	 * 
 	 */
 	double getK();
@@ -115,19 +87,35 @@ public interface Reaction extends Element<ChemDatabase>, IScope<ChemDatabase, Re
 	/**
 	 * Get the value of pressure.
 	 * 
-	 * @return possible object is {@link String }
+	 * @return possible object is {@link double }
 	 * 
 	 */
 	double getPressure();
 
+	/**
+	 * Get a set containing all {@link Reactant reactants} in this
+	 * {@link Reaction}. The set is unmodifiable. Addition/removal to this set
+	 * should be done with {@link IScoped#bind(IScope) bind(this)} or
+	 * {@link IScoped#bind(IScope) bind(null)}.
+	 * 
+	 * @return possible object is {@link Set&lt;Reactant> }
+	 */
 	Set<Reactant> getReactants();
 
+	/**
+	 * Get a set containing all {@link Resultant resultants} in this
+	 * {@link Reaction}. The set is unmodifiable. Addition/removal to this set
+	 * should be done with {@link IScoped#bind(IScope) bind(this)} or
+	 * {@link IScoped#bind(IScope) bind(null)}.
+	 * 
+	 * @return possible object is {@link Set&lt;Resultant> }
+	 */
 	Set<Resultant> getResultants();
 
 	/**
 	 * Get the value of solvent.
 	 * 
-	 * @return possible object is {@link Object }
+	 * @return possible object is {@link Reagent }
 	 * 
 	 */
 	Reagent getSolvent();
@@ -135,7 +123,7 @@ public interface Reaction extends Element<ChemDatabase>, IScope<ChemDatabase, Re
 	/**
 	 * Get the value of speed.
 	 * 
-	 * @return possible object is {@link String }
+	 * @return possible object is {@link double }
 	 * 
 	 */
 	double getSpeed();
@@ -145,16 +133,40 @@ public interface Reaction extends Element<ChemDatabase>, IScope<ChemDatabase, Re
 	 * Represents a temperature, measured in K, not Censils
 	 * 
 	 * 
-	 * @return possible object is {@link String }
+	 * @return possible object is {@link double }
 	 * 
 	 */
 	double getTemp();
+
+	@Override
+	default void onBind(IScoped<Reaction> o) {
+		if (o instanceof Reactant)
+			getReactants().add((Reactant) o);
+		else if (o instanceof Resultant)
+			getResultants().add((Resultant) o);
+		else
+			throw new ScopeException("Element not identified.", this, o);
+		IScope.super.onBind(o);
+	}
+
+	@Override
+	default void onUnbind(IScoped<Reaction> o) {
+		if (o instanceof Reactant)
+			if (!getReactants().remove(o))
+				throw new ScopeException("Not binded to this scope", this, o);
+			else if (o instanceof Resultant)
+				if (!getResultants().remove(o))
+					throw new ScopeException("Not binded to this scope", this, o);
+				else
+					throw new ScopeException("Element not identified.", this, o);
+		IScope.super.onUnbind(o);
+	}
 
 	/**
 	 * Set the value of heat.
 	 * 
 	 * @param value
-	 *            allowed object is {@link String }
+	 *            allowed object is {@link double }
 	 * 
 	 */
 	void setHeat(double value);
@@ -162,6 +174,8 @@ public interface Reaction extends Element<ChemDatabase>, IScope<ChemDatabase, Re
 	/**
 	 * Set the value of id.
 	 * 
+	 * @param value
+	 *            allowed object is {@link String }
 	 */
 	void setId(String value);
 
@@ -169,7 +183,7 @@ public interface Reaction extends Element<ChemDatabase>, IScope<ChemDatabase, Re
 	 * Set the value of k.
 	 * 
 	 * @param value
-	 *            allowed object is {@link String }
+	 *            allowed object is {@link double }
 	 * 
 	 */
 	void setK(double value);
@@ -182,12 +196,12 @@ public interface Reaction extends Element<ChemDatabase>, IScope<ChemDatabase, Re
 	 * 
 	 */
 	void setName(String value);
-	
+
 	/**
 	 * Set the value of pressure.
 	 * 
 	 * @param value
-	 *            allowed object is {@link String }
+	 *            allowed object is {@link double }
 	 * 
 	 */
 	void setPressure(double value);
@@ -196,7 +210,7 @@ public interface Reaction extends Element<ChemDatabase>, IScope<ChemDatabase, Re
 	 * Set the value of solvent.
 	 * 
 	 * @param value
-	 *            allowed object is {@link Object }
+	 *            allowed object is {@link Reagent }
 	 * 
 	 */
 	void setSolvent(Reagent value);
@@ -205,7 +219,7 @@ public interface Reaction extends Element<ChemDatabase>, IScope<ChemDatabase, Re
 	 * Set the value of speed.
 	 * 
 	 * @param value
-	 *            allowed object is {@link String }
+	 *            allowed object is {@link double }
 	 * 
 	 */
 	void setSpeed(double value);
@@ -214,7 +228,7 @@ public interface Reaction extends Element<ChemDatabase>, IScope<ChemDatabase, Re
 	 * Set the value of temp.
 	 * 
 	 * @param value
-	 *            allowed object is {@link String }
+	 *            allowed object is {@link double }
 	 * 
 	 */
 	void setTemp(double value);

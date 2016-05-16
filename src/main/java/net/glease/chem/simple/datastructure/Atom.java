@@ -3,44 +3,27 @@ package net.glease.chem.simple.datastructure;
 
 /**
  * <p>
- * The Java class of Atom.
+ * The Java class of Atom. Atom is just a certain kind of real atom. Most of the
+ * properties of this class must be filled before coming out of the factory,
+ * except those could be inferred from other existing atoms. If inference
+ * failed, an exception should be thrown (like {@link NormalizationException}
+ * during the {@link ChemDatabase#normalize()}).
  *
- * <p>
- * The following XML Schema snippet contains the expect content of this class.
- *
- * <pre>
- * &lt;complexType name="Atom">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="localizedName" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="symbol">
- *         &lt;simpleType>
- *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *             &lt;minLength value="1"/>
- *             &lt;maxLength value="2"/>
- *           &lt;/restriction>
- *         &lt;/simpleType>
- *       &lt;/attribute>
- *       &lt;attribute name="molMass" use="required" type="{http://glease.net/chem/simple/DataStructure}JavaFloat" />
- *       &lt;attribute name="index" use="required" type="{http://www.w3.org/2001/XMLSchema}unsignedByte" />
- *       &lt;attribute name="id" use="required" >
- *         &lt;xsd:simpleType>
- *           &lt;xsd:restriction base="xsd:ID">
- *             &lt;xsd:pattern value="atom\d{1,3}-\d{1,3}" />
- *           &lt;/xsd:restriction>
- *         &lt;/xsd:simpleType>
- *       &lt;/attribute>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- *
- *
+ * @author glease
+ * @since 1.0
  */
 public interface Atom extends Element<ChemDatabase> {
 
 	/**
+	 * Get the value of average mol mass. Can be inferred.
 	 * 
+	 */
+	double getAverageMolMass();
+
+	/**
+	 * Automatically generate an ID for the atom in the scope. It should
+	 * effectively be {@code "atom" + getIndex() + "-" + getMolMass()} in all
+	 * cases.
 	 */
 	@Override
 	default String getId() {
@@ -54,7 +37,7 @@ public interface Atom extends Element<ChemDatabase> {
 	int getIndex();
 
 	/**
-	 * Get the value of localizedName.
+	 * Get the value of localizedName. Can be inferred.
 	 * 
 	 * @return possible object is {@link String }
 	 * 
@@ -70,12 +53,18 @@ public interface Atom extends Element<ChemDatabase> {
 	int getMolMass();
 
 	/**
-	 * Get the value of symbol.
+	 * Get the value of symbol. Can be inferred.
 	 * 
 	 * @return possible object is {@link String }
 	 * 
 	 */
 	String getSymbol();
+
+	/**
+	 * Set the value of average mol mass.
+	 * 
+	 */
+	void setAverageMolMass(double value);
 
 	/**
 	 * Set the value of index.

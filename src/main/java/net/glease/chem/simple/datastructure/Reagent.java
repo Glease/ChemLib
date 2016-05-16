@@ -1,9 +1,6 @@
-
 package net.glease.chem.simple.datastructure;
 
 import java.awt.Color;
-
-
 
 /**
  *
@@ -14,35 +11,23 @@ import java.awt.Color;
  * solvent, state, etc., while substance never has such kind of states.
  * 
  *
- * <p>
- * The Java class of Reagent.
- *
- * <p>
- * The following XML Schema snippet contains the expect content of this class.
- *
- * <pre>
- * &lt;complexType name="Reagent">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}ID" />
- *       &lt;attribute name="name" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute ref="{http://glease.net/chem/simple/DataStructure}substance use="required""/>
- *       &lt;attribute ref="{http://glease.net/chem/simple/DataStructure}solvent"/>
- *       &lt;attribute name="concentration" type="{http://glease.net/chem/simple/DataStructure}Percentage" default="100" />
- *       &lt;attribute name="state" type="{http://glease.net/chem/simple/DataStructure}ReagentState" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- *
- *
+ * @author glease
+ * @since 1.0
  */
 public interface Reagent extends Element<ChemDatabase> {
 
 	/**
+	 * Get the value of color.
+	 * 
+	 * @return possible object is {@link Color }
+	 * 
+	 */
+	Color getColor();
+
+	/**
 	 * Get the value of concentration.
 	 * 
-	 * @return possible object is {@link String }
+	 * @return possible object is {@link double }
 	 * 
 	 */
 	double getConcentration();
@@ -62,7 +47,7 @@ public interface Reagent extends Element<ChemDatabase> {
 	/**
 	 * Get the value of solvent.
 	 * 
-	 * @return possible object is {@link Object }
+	 * @return possible object is {@link Substance }
 	 * 
 	 */
 	Substance getSolvent();
@@ -81,23 +66,35 @@ public interface Reagent extends Element<ChemDatabase> {
 	/**
 	 * Get the value of substance.
 	 * 
-	 * @return possible object is {@link Object }
+	 * @return possible object is {@link Substance }
 	 * 
 	 */
 	Substance getSubstance();
 
 	/**
+	 * Get the value of concentration.
+	 * 
+	 * @param value
+	 *            allowed object is {@link Color }
+	 * 
+	 */
+
+	void setColor(Color color);
+
+	/**
 	 * Set the value of concentration.
 	 * 
 	 * @param value
-	 *            allowed object is {@link String }
+	 *            allowed object is {@link double }
 	 * 
 	 */
 	void setConcentration(double value);
-	
+
 	/**
 	 * Set the value of id.
 	 * 
+	 * @param value
+	 *            allowed object is {@link String }
 	 */
 	void setId(String value);
 
@@ -114,7 +111,7 @@ public interface Reagent extends Element<ChemDatabase> {
 	 * Set the value of solvent.
 	 * 
 	 * @param value
-	 *            allowed object is {@link Object }
+	 *            allowed object is {@link Substance }
 	 * 
 	 */
 	void setSolvent(Substance value);
@@ -132,13 +129,9 @@ public interface Reagent extends Element<ChemDatabase> {
 	 * Set the value of substance.
 	 * 
 	 * @param value
-	 *            allowed object is {@link Object }
+	 *            allowed object is {@link Substance }
 	 * 
 	 */
 	void setSubstance(Substance value);
-
-	void setColor(Color color);
-
-	Color getColor();
 
 }

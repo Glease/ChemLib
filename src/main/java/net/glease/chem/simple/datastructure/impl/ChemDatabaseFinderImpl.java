@@ -1,7 +1,6 @@
 package net.glease.chem.simple.datastructure.impl;
 
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,22 +24,6 @@ import net.glease.chem.simple.datastructure.Substance;
 import net.glease.chem.simple.datastructure.SubstanceContent;
 
 public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
-
-	static Map<String, ReactionSide> values;
-
-	static {
-		try {
-			Class.forName(ReactionSide.class.getName());
-		} catch (ClassNotFoundException e) {
-			throw new Error();
-		}
-	}
-
-	public static void setReactionSideValues(Map<String, ReactionSide> values) {
-		if (ChemDatabaseFinderImpl.values != null)
-			throw new IllegalStateException("Illegal state!");
-		ChemDatabaseFinderImpl.values = values;
-	}
 
 	public class AtomFinderImpl implements AtomFinder {
 
@@ -452,9 +435,29 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		}
 	}
 
+	static Map<String, ReactionSide> values;
+
+	static {
+		try {
+			Class.forName(ReactionSide.class.getName());
+		} catch (ClassNotFoundException e) {
+			throw new Error();
+		}
+	}
+
 	private static void checkState(int i, String name) {
 		if (i != -1)
 			throw new IllegalStateException(name + " is already set");
+	}
+
+	private static <T> Collector<T, ?, Set<T>> immutableSetCollector() {
+		return collectingAndThen(toSet(), Collections::unmodifiableSet);
+	}
+
+	public static void setReactionSideValues(Map<String, ReactionSide> values) {
+		if (ChemDatabaseFinderImpl.values != null)
+			throw new IllegalStateException("Illegal state!");
+		ChemDatabaseFinderImpl.values = values;
 	}
 
 	private static <T> T unwrap(Set<T> set) {
@@ -466,10 +469,6 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		default:
 			throw new IllegalStateException("multiple results found!");
 		}
-	}
-
-	private static <T> Collector<T, ?, Set<T>> immutableSetCollector() {
-		return collectingAndThen(toSet(), Collections::unmodifiableSet);
 	}
 
 	private static int validate(int i, String name) {

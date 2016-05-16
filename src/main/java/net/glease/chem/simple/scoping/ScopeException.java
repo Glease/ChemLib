@@ -18,11 +18,11 @@ public class ScopeException extends RuntimeException {
 		this.issuer = issuer;
 	}
 
-	public IScope<?, ?> getScope() {
-		return scope;
-	}
-
 	public IScoped<?> getIssuer() {
 		return issuer;
+	}
+
+	public IScope<?, ?> getScope() {
+		return scope;
 	}
 }

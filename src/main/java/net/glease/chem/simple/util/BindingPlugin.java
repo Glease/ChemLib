@@ -5,7 +5,19 @@ import net.glease.chem.simple.scoping.IScope;
 import net.glease.chem.simple.scoping.IScoped;
 
 public interface BindingPlugin {
-	Class<? extends ChemDatabaseComponent> target();
+	/**
+	 * Get the version info of this {@link BindingPlugin}
+	 * 
+	 * @return the version info
+	 */
+	String info();
+
+	/**
+	 * Get the name of this {@link BindingPlugin}
+	 * 
+	 * @return the name
+	 */
+	String name();
 
 	/**
 	 * Invoked immediately after {@link IScope#onBind(IScoped) T.onBind()}. If
@@ -31,6 +43,8 @@ public interface BindingPlugin {
 	 */
 	<T extends IScope<?, T>> void onUnbind(IScope<?, T> scope, IScoped<T> elem);
 
+	Class<? extends ChemDatabaseComponent> target();
+
 	/**
 	 * Get the vendor info of this {@link BindingPlugin}
 	 * 
@@ -44,18 +58,4 @@ public interface BindingPlugin {
 	 * @return the version info
 	 */
 	String version();
-
-	/**
-	 * Get the version info of this {@link BindingPlugin}
-	 * 
-	 * @return the version info
-	 */
-	String info();
-
-	/**
-	 * Get the name of this {@link BindingPlugin}
-	 * 
-	 * @return the name
-	 */
-	String name();
 }

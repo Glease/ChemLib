@@ -2,25 +2,21 @@ package net.glease.chem.simple.datastructure;
 
 /**
  * <p>
- * The Java class of anonymous.
+ * Dissolve could be think of a row of data in a database.
  * 
- * <p>
- * The following XML Schema snippet contains the expect content of this class.
- * 
- * <pre>
- * &lt;complexType>
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute ref="{http://glease.net/chem/simple/DataStructure}solvent use="required""/>
- *       &lt;attribute name="s2TFunction" use="required" type="{http://glease.net/chem/simple/DataStructure}Expression" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
+ * @author glease
+ * @since 1.0
  * 
  */
 public interface Dissolve extends Element<Substance> {
+
+	/**
+	 * Should be always effectively the same as {@code getSolvent().getId()}.
+	 */
+	@Override
+	default String getId() {
+		return getSolvent().getId();
+	}
 
 	/**
 	 * Get the value of s2TFunction.
@@ -33,15 +29,10 @@ public interface Dissolve extends Element<Substance> {
 	/**
 	 * Get the value of solvent.
 	 * 
-	 * @return possible object is {@link Object }
+	 * @return possible object is {@link Reagent }
 	 * 
 	 */
 	Reagent getSolvent();
-	
-	@Override
-	default String getId() {
-		return getSolvent().getId();
-	}
 
 	/**
 	 * Set the value of s2TFunction.
@@ -56,7 +47,7 @@ public interface Dissolve extends Element<Substance> {
 	 * Set the value of solvent.
 	 * 
 	 * @param value
-	 *            allowed object is {@link Object }
+	 *            allowed object is {@link Reagent }
 	 * 
 	 */
 	void setSolvent(Reagent value);

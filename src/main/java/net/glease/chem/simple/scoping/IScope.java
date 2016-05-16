@@ -40,7 +40,12 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 		}
 
 		@Override
-		public ROOT scope() {
+		public void bind(ROOT parent) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public String getId() {
 			throw new UnsupportedOperationException();
 		}
 
@@ -55,14 +60,13 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 		}
 
 		@Override
-		public void bind(ROOT parent) {
+		public ROOT scope() {
 			throw new UnsupportedOperationException();
 		}
+	}
 
-		@Override
-		public String getId() {
-			throw new UnsupportedOperationException();
-		}
+	default void accept(BindingPlugin plugin) {
+		ScopeManager.get(this).install(plugin);
 	}
 
 	/**
@@ -84,7 +88,7 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 	default void onBind(IScoped<T_THIS> o) {
 		ScopeManager.get(this).onBind(o);
 	}
-
+	
 	/**
 	 * Called upon {@link IScoped#bind(IScope) o.bind(this)}.
 	 * {@link #onBind(IScoped) newScope.onBind(o)} aren't called yet.
@@ -100,9 +104,5 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 	 */
 	default void onUnbind(IScoped<T_THIS> o) {
 		ScopeManager.get(this).onUnbind(o);
-	}
-	
-	default void accept(BindingPlugin plugin) {
-		ScopeManager.get(this).install(plugin);
 	}
 }

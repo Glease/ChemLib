@@ -3,27 +3,17 @@ package net.glease.chem.simple.datastructure;
 
 /**
  * <p>
- * The Java class of EquationComponent.
- *
- * <p>
- * The following XML Schema snippet contains the expect content of this class.
- *
- * <pre>
- * &lt;complexType name="ReactionComponent">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="mol" type="{http://www.w3.org/2001/XMLSchema}unsignedShort" default="1" />
- *       &lt;attribute ref="{http://glease.net/chem/simple/DataStructure}substance use="required""/>
- *       &lt;attribute name="state" type="{http://glease.net/chem/simple/DataStructure}ReagentState" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- *
+ * The Java class of EquationComponent. Common super interface of {@link Reactant}
+ * and {@link Resultant}. Directly implementing/extending this is prohibited.
+ * @author glease
+ * @since 1.0
  *
  */
 public interface ReactionComponent extends Element<Reaction> {
 
+	/**
+	 * Should be always effectively the same as {@code getSubstance().getId()}.
+	 */
 	@Override
 	default String getId() {
 		return getSubstance().getId();
@@ -32,7 +22,7 @@ public interface ReactionComponent extends Element<Reaction> {
 	/**
 	 * Get the value of mol.
 	 * 
-	 * @return possible object is {@link Integer }
+	 * @return possible object is {@link int }
 	 * 
 	 */
 	int getMol();
@@ -48,7 +38,7 @@ public interface ReactionComponent extends Element<Reaction> {
 	/**
 	 * Get the value of substance.
 	 * 
-	 * @return possible object is {@link Object }
+	 * @return possible object is {@link Substance }
 	 * 
 	 */
 	Substance getSubstance();
@@ -57,7 +47,7 @@ public interface ReactionComponent extends Element<Reaction> {
 	 * Set the value of mol.
 	 * 
 	 * @param value
-	 *            allowed object is {@link Integer }
+	 *            allowed object is {@link int }
 	 * 
 	 */
 	void setMol(int value);
@@ -75,7 +65,7 @@ public interface ReactionComponent extends Element<Reaction> {
 	 * Set the value of substance.
 	 * 
 	 * @param value
-	 *            allowed object is {@link Object }
+	 *            allowed object is {@link Substance }
 	 * 
 	 */
 	void setSubstance(Substance value);

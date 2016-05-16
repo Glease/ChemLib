@@ -18,17 +18,10 @@ public class ReagentImpl implements Serializable, net.glease.chem.simple.datastr
 	protected Substance substance;
 	protected Substance solvent;
 	protected double concentration = 100d;
-
 	protected ReagentState state;
-
 	protected Color color;
-	
-	protected ChemDatabase scope;
 
-	@Override
-	public ChemDatabase scope() {
-		return scope;
-	}
+	protected ChemDatabase scope;
 
 	@Override
 	public void bind(ChemDatabase scope) {
@@ -40,16 +33,6 @@ public class ReagentImpl implements Serializable, net.glease.chem.simple.datastr
 	}
 
 	@Override
-	public Color getColor() {
-		return color;
-	}
-
-	@Override
-	public void setColor(Color value) {
-		this.color = Objects.requireNonNull(value);
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
@@ -58,10 +41,15 @@ public class ReagentImpl implements Serializable, net.glease.chem.simple.datastr
 			return false;
 		}
 		Reagent other = (Reagent) obj;
-		if (scope!=other.scope()) {
+		if (scope != other.scope()) {
 			return false;
 		}
 		return id.equals(other.getId());
+	}
+
+	@Override
+	public Color getColor() {
+		return color;
 	}
 
 	@Override
@@ -99,8 +87,18 @@ public class ReagentImpl implements Serializable, net.glease.chem.simple.datastr
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((scope() == null) ? 0 : scope().hashCode());
-		result = prime * result +  id.hashCode();
+		result = prime * result + id.hashCode();
 		return result;
+	}
+
+	@Override
+	public ChemDatabase scope() {
+		return scope;
+	}
+
+	@Override
+	public void setColor(Color value) {
+		this.color = Objects.requireNonNull(value);
 	}
 
 	@Override
@@ -110,7 +108,7 @@ public class ReagentImpl implements Serializable, net.glease.chem.simple.datastr
 
 	@Override
 	public void setId(String value) {
-		if(Objects.requireNonNull(value).isEmpty())
+		if (Objects.requireNonNull(value).isEmpty())
 			throw new IllegalArgumentException("empty id");
 		this.id = value;
 	}
@@ -144,11 +142,9 @@ public class ReagentImpl implements Serializable, net.glease.chem.simple.datastr
 			builder.append(name);
 			builder.append(", ");
 		}
-		if (substance != null) {
-			builder.append("substance=");
-			builder.append(substance);
-			builder.append(", ");
-		}
+		builder.append("substance=");
+		builder.append(substance);
+		builder.append(", ");
 		if (solvent != null) {
 			builder.append("solvent=");
 			builder.append(solvent);

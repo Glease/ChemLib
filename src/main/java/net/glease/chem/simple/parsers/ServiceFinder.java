@@ -13,33 +13,9 @@ import java.util.function.Supplier;
  * @param <S>
  */
 final class ServiceFinder<S> implements Iterable<S> {
-	private final String systemPropertyName;
-	private final String configName;
-	private final String configPropertyName;
-	private final ClassLoader cl;
-	private final Class<S> clazz;
-	private final Supplier<S> defaultService;
-	private final boolean endlessDefault;
-
-	public ServiceFinder(String systemPropertyName, String configName, String configPropertyName, ClassLoader cl,
-			Class<S> clazz, Supplier<S> defaultService, boolean endlessDefault) {
-		super();
-		this.systemPropertyName = systemPropertyName;
-		this.configName = configName;
-		this.configPropertyName = configPropertyName;
-		this.cl = cl;
-		this.clazz = clazz;
-		sl = ServiceLoader.load(this.clazz, this.cl);
-		this.defaultService = defaultService;
-		this.endlessDefault = endlessDefault;
-		reload();
+	private enum Finding {
+		SYSTEM_PROPERTY, CONFIG_PROPERTY, SERVICE, DEFAULT;
 	}
-
-	private S system;
-	private S config;
-	private ServiceLoader<S> sl;
-	private boolean[] valid = new boolean[2];
-
 	private final class LazyIter implements Iterator<S> {
 		private Iterator<S> backing;
 		private Finding state;
@@ -94,30 +70,53 @@ final class ServiceFinder<S> implements Iterable<S> {
 			}
 		}
 	}
+	private final String systemPropertyName;
+	private final String configName;
+	private final String configPropertyName;
+	private final ClassLoader cl;
+	private final Class<S> clazz;
 
-	private enum Finding {
-		SYSTEM_PROPERTY, CONFIG_PROPERTY, SERVICE, DEFAULT;
+	private final Supplier<S> defaultService;
+
+	private final boolean endlessDefault;
+	private S system;
+	private S config;
+	private ServiceLoader<S> sl;
+
+	private boolean[] valid = new boolean[2];
+
+	public ServiceFinder(String systemPropertyName, String configName, String configPropertyName, ClassLoader cl,
+			Class<S> clazz, Supplier<S> defaultService, boolean endlessDefault) {
+		super();
+		this.systemPropertyName = systemPropertyName;
+		this.configName = configName;
+		this.configPropertyName = configPropertyName;
+		this.cl = cl;
+		this.clazz = clazz;
+		sl = ServiceLoader.load(this.clazz, this.cl);
+		this.defaultService = defaultService;
+		this.endlessDefault = endlessDefault;
+		reload();
 	}
 
-	void reload() {
-		valid[0] = tryLoadSystem();
-		valid[1] = tryLoadConfig();
-		sl.reload();
+	S find(Predicate<S> filter) {
+		LazyIter iter = iterator();
+		while (iter.hasNext()) {
+			S s = iter.next();
+			if (filter.test(s))
+				return s;
+		}
+		return null;
 	}
 
-	private boolean tryLoadConfig() {
-		if (configName == null)
-			return false;
-		config = load(cl.getResourceAsStream(configName), cl);
-		return config != null;
+	ClassLoader getClassLoader() {
+		ClassLoader ccl = Thread.currentThread().getContextClassLoader();
+		return ccl == null ? ClassLoader.getSystemClassLoader() : ccl;
 	}
 
-	private boolean tryLoadSystem() {
-		if (systemPropertyName == null)
-			return false;
-		String s = System.getProperty(systemPropertyName);
-		system = s == null ? null : load(s, cl);
-		return system != null;
+	@Override
+	public LazyIter iterator() {
+		return new LazyIter();
 	}
 
 	private S load(InputStream url, ClassLoader cl) {
@@ -142,23 +141,24 @@ final class ServiceFinder<S> implements Iterable<S> {
 		}
 	}
 
-	ClassLoader getClassLoader() {
-		ClassLoader ccl = Thread.currentThread().getContextClassLoader();
-		return ccl == null ? ClassLoader.getSystemClassLoader() : ccl;
+	void reload() {
+		valid[0] = tryLoadSystem();
+		valid[1] = tryLoadConfig();
+		sl.reload();
 	}
 
-	S find(Predicate<S> filter) {
-		LazyIter iter = iterator();
-		while (iter.hasNext()) {
-			S s = iter.next();
-			if (filter.test(s))
-				return s;
-		}
-		return null;
+	private boolean tryLoadConfig() {
+		if (configName == null)
+			return false;
+		config = load(cl.getResourceAsStream(configName), cl);
+		return config != null;
 	}
 
-	@Override
-	public LazyIter iterator() {
-		return new LazyIter();
+	private boolean tryLoadSystem() {
+		if (systemPropertyName == null)
+			return false;
+		String s = System.getProperty(systemPropertyName);
+		system = s == null ? null : load(s, cl);
+		return system != null;
 	}
 }

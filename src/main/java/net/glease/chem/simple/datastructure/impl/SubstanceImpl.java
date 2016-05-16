@@ -2,6 +2,7 @@
 package net.glease.chem.simple.datastructure.impl;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -16,26 +17,16 @@ public class SubstanceImpl implements Serializable, Substance {
 
 	private final static long serialVersionUID = 1L;
 
-	protected Set<SubstanceContent> content;
-
-	protected Set<Dissolve> dissolve;
+	protected Set<SubstanceContent> content = new HashSet<>();
+	protected Set<Dissolve> dissolve = new HashSet<>();
 
 	protected String name;
-
 	protected double meltPoint;
-
 	protected double boilPoint;
-
 	protected String id;
-
 	protected CrystalType crystal = CrystalType.NONE;
-	
-	protected ChemDatabase scope;
 
-	@Override
-	public ChemDatabase scope() {
-		return scope;
-	}
+	protected ChemDatabase scope;
 
 	@Override
 	public void bind(ChemDatabase scope) {
@@ -55,7 +46,7 @@ public class SubstanceImpl implements Serializable, Substance {
 			return false;
 		}
 		Substance other = (Substance) obj;
-		if (scope == null || scope!=other.scope()) {
+		if (scope == null || scope != other.scope()) {
 			return false;
 		}
 		if (id == null) {
@@ -75,10 +66,7 @@ public class SubstanceImpl implements Serializable, Substance {
 
 	@Override
 	public Set<SubstanceContent> getContent() {
-		if (content == null) {
-			content = new HashSet<>();
-		}
-		return this.content;
+		return Collections.unmodifiableSet(content);
 	}
 
 	@Override
@@ -88,10 +76,7 @@ public class SubstanceImpl implements Serializable, Substance {
 
 	@Override
 	public Set<Dissolve> getDissolve() {
-		if (dissolve == null) {
-			dissolve = new HashSet<>();
-		}
-		return this.dissolve;
+		return Collections.unmodifiableSet(dissolve);
 	}
 
 	@Override
@@ -119,6 +104,11 @@ public class SubstanceImpl implements Serializable, Substance {
 	}
 
 	@Override
+	public ChemDatabase scope() {
+		return scope;
+	}
+
+	@Override
 	public void setBoilPoint(double value) {
 		this.boilPoint = value;
 	}
@@ -130,7 +120,7 @@ public class SubstanceImpl implements Serializable, Substance {
 
 	@Override
 	public void setId(String value) {
-		if(Objects.requireNonNull(value).isEmpty())
+		if (Objects.requireNonNull(value).isEmpty())
 			throw new IllegalArgumentException("empty id");
 		this.id = value;
 	}
@@ -149,16 +139,12 @@ public class SubstanceImpl implements Serializable, Substance {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SubstanceImpl [");
-		if (content != null) {
-			builder.append("content=");
-			builder.append(content);
-			builder.append(", ");
-		}
-		if (dissolve != null) {
-			builder.append("dissolve=");
-			builder.append(dissolve);
-			builder.append(", ");
-		}
+		builder.append("content=");
+		builder.append(content);
+		builder.append(", ");
+		builder.append("dissolve=");
+		builder.append(dissolve);
+		builder.append(", ");
 		if (name != null) {
 			builder.append("name=");
 			builder.append(name);
@@ -169,11 +155,9 @@ public class SubstanceImpl implements Serializable, Substance {
 		builder.append(", boilPoint=");
 		builder.append(boilPoint);
 		builder.append(", ");
-		if (id != null) {
-			builder.append("id=");
-			builder.append(id);
-			builder.append(", ");
-		}
+		builder.append("id=");
+		builder.append(id);
+		builder.append(", ");
 		if (crystal != null) {
 			builder.append("crystal=");
 			builder.append(crystal);

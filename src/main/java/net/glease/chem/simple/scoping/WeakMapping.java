@@ -18,6 +18,72 @@ import java.util.function.Function;
 class WeakMapping<K, V> {
 
 	/**
+	 * The entries in this hash table extend WeakReference, using its main ref
+	 * field as the key.
+	 */
+	private static class Entry<K, V> extends WeakReference<Object> implements Map.Entry<K, V> {
+		V value;
+		final int hash;
+		Entry<K, V> next;
+
+		/**
+		 * Creates new entry.
+		 */
+		Entry(Object key, V value, ReferenceQueue<Object> queue, int hash, Entry<K, V> next) {
+			super(key, queue);
+			this.value = value;
+			this.hash = hash;
+			this.next = next;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (!(o instanceof Map.Entry))
+				return false;
+			Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+			K k1 = getKey();
+			Object k2 = e.getKey();
+			if (k1 == k2 || (k1 != null && k1.equals(k2))) {
+				V v1 = getValue();
+				Object v2 = e.getValue();
+				if (v1 == v2 || (v1 != null && v1.equals(v2)))
+					return true;
+			}
+			return false;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public K getKey() {
+			return (K) get();
+		}
+
+		@Override
+		public V getValue() {
+			return value;
+		}
+
+		@Override
+		public int hashCode() {
+			K k = getKey();
+			V v = getValue();
+			return Objects.hashCode(k) ^ Objects.hashCode(v);
+		}
+
+		@Override
+		public V setValue(V newValue) {
+			V oldValue = value;
+			value = newValue;
+			return oldValue;
+		}
+
+		@Override
+		public String toString() {
+			return getKey() + "=" + getValue();
+		}
+	}
+
+	/**
 	 * The default initial capacity -- MUST be a power of two.
 	 */
 	private static final int DEFAULT_INITIAL_CAPACITY = 16;
@@ -33,6 +99,20 @@ class WeakMapping<K, V> {
 	 * The load factor used when none specified in constructor.
 	 */
 	private static final float DEFAULT_LOAD_FACTOR = 0.75f;
+
+	/**
+	 * Checks for reference-equality of x and y.
+	 */
+	private static boolean eq(Object x, Object y) {
+		return x == y;
+	}
+
+	/**
+	 * Returns index for hash code h.
+	 */
+	private static int indexFor(int h, int length) {
+		return h & (length - 1);
+	}
 
 	/**
 	 * The table, resized as necessary. Length MUST Always be a power of two.
@@ -61,10 +141,32 @@ class WeakMapping<K, V> {
 
 	private final Consumer<? super V> removalListener;
 
-	@SuppressWarnings("unchecked")
-	private Entry<K, V>[] newTable(int n) {
-		return (Entry<K, V>[]) new Entry<?, ?>[n];
+	/**
+	 * Constructs a new, empty <tt>WeakMapping</tt> with the default initial
+	 * capacity (16) and load factor (0.75).
+	 */
+	public WeakMapping() {
+		this(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, null);
 	}
+
+	public WeakMapping(Consumer<? super V> removalListener) {
+		this(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, removalListener);
+	}
+
+	/**
+	 * Constructs a new, empty <tt>WeakMapping</tt> with the given initial
+	 * capacity and the default load factor (0.75).
+	 *
+	 * @param initialCapacity
+	 *            The initial capacity of the <tt>WeakMapping</tt>
+	 * @throws IllegalArgumentException
+	 *             if the initial capacity is negative
+	 */
+	public WeakMapping(int initialCapacity) {
+		this(initialCapacity, DEFAULT_LOAD_FACTOR, null);
+	}
+
+	// internal utilities
 
 	/**
 	 * Constructs a new, empty <tt>WeakMapping</tt> with the given initial
@@ -100,61 +202,42 @@ class WeakMapping<K, V> {
 	}
 
 	/**
-	 * Constructs a new, empty <tt>WeakMapping</tt> with the given initial
-	 * capacity and the default load factor (0.75).
+	 * Removes all of the mappings from this map. The map will be empty after
+	 * this call returns.
+	 */
+	public void clear() {
+		Object x;
+		while ((x=queue.poll()) != null) {
+			@SuppressWarnings("unchecked")
+			Entry<K, V> e = (Entry<K, V>) x;
+			removalListener.accept(e.value);
+		}
+
+		for (int i = 0; i < table.length; i++) {
+			removalListener.accept(table[i].value);
+			table[i] = null;
+		}
+		
+		size = 0;
+
+		while ((x=queue.poll()) != null) {
+			@SuppressWarnings("unchecked")
+			Entry<K, V> e = (Entry<K, V>) x;
+			removalListener.accept(e.value);
+		}
+	}
+
+	/**
+	 * Returns <tt>true</tt> if this map contains a mapping for the specified
+	 * key.
 	 *
-	 * @param initialCapacity
-	 *            The initial capacity of the <tt>WeakMapping</tt>
-	 * @throws IllegalArgumentException
-	 *             if the initial capacity is negative
+	 * @param key
+	 *            The key whose presence in this map is to be tested
+	 * @return <tt>true</tt> if there is a mapping for <tt>key</tt>;
+	 *         <tt>false</tt> otherwise
 	 */
-	public WeakMapping(int initialCapacity) {
-		this(initialCapacity, DEFAULT_LOAD_FACTOR, null);
-	}
-
-	/**
-	 * Constructs a new, empty <tt>WeakMapping</tt> with the default initial
-	 * capacity (16) and load factor (0.75).
-	 */
-	public WeakMapping() {
-		this(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, null);
-	}
-
-	public WeakMapping(Consumer<? super V> removalListener) {
-		this(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, removalListener);
-	}
-
-	// internal utilities
-
-	/**
-	 * Checks for reference-equality of x and y.
-	 */
-	private static boolean eq(Object x, Object y) {
-		return x == y;
-	}
-
-	/**
-	 * Retrieve object hash code and applies a supplemental hash function to the
-	 * result hash, which defends against poor quality hash functions. This is
-	 * critical because HashMap uses power-of-two length hash tables, that
-	 * otherwise encounter collisions for hashCodes that do not differ in lower
-	 * bits.
-	 */
-	private final int hash(Object k) {
-		int h = k.hashCode();
-
-		// This function ensures that hashCodes that differ only by
-		// constant multiples at each bit position have a bounded
-		// number of collisions (approximately 8 at default load factor).
-		h ^= (h >>> 20) ^ (h >>> 12);
-		return h ^ (h >>> 7) ^ (h >>> 4);
-	}
-
-	/**
-	 * Returns index for hash code h.
-	 */
-	private static int indexFor(int h, int length) {
-		return h & (length - 1);
+	public boolean containsKey(Object key) {
+		return getEntry(key) != null;
 	}
 
 	/**
@@ -187,14 +270,6 @@ class WeakMapping<K, V> {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Returns the table after first expunging stale entries.
-	 */
-	private Entry<K, V>[] getTable() {
-		expungeStaleEntries();
-		return table;
 	}
 
 	/**
@@ -231,19 +306,6 @@ class WeakMapping<K, V> {
 	}
 
 	/**
-	 * Returns <tt>true</tt> if this map contains a mapping for the specified
-	 * key.
-	 *
-	 * @param key
-	 *            The key whose presence in this map is to be tested
-	 * @return <tt>true</tt> if there is a mapping for <tt>key</tt>;
-	 *         <tt>false</tt> otherwise
-	 */
-	public boolean containsKey(Object key) {
-		return getEntry(key) != null;
-	}
-
-	/**
 	 * Returns the entry associated with the specified key in this map. Returns
 	 * null if the map contains no mapping for this key.
 	 */
@@ -256,6 +318,36 @@ class WeakMapping<K, V> {
 		while (e != null && !(e.hash == h && eq(k, e.get())))
 			e = e.next;
 		return e;
+	}
+
+	/**
+	 * Returns the table after first expunging stale entries.
+	 */
+	private Entry<K, V>[] getTable() {
+		expungeStaleEntries();
+		return table;
+	}
+
+	/**
+	 * Retrieve object hash code and applies a supplemental hash function to the
+	 * result hash, which defends against poor quality hash functions. This is
+	 * critical because HashMap uses power-of-two length hash tables, that
+	 * otherwise encounter collisions for hashCodes that do not differ in lower
+	 * bits.
+	 */
+	private final int hash(Object k) {
+		int h = k.hashCode();
+
+		// This function ensures that hashCodes that differ only by
+		// constant multiples at each bit position have a bounded
+		// number of collisions (approximately 8 at default load factor).
+		h ^= (h >>> 20) ^ (h >>> 12);
+		return h ^ (h >>> 7) ^ (h >>> 4);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Entry<K, V>[] newTable(int n) {
+		return (Entry<K, V>[]) new Entry<?, ?>[n];
 	}
 
 	/**
@@ -353,98 +445,6 @@ class WeakMapping<K, V> {
 				}
 				e = next;
 			}
-		}
-	}
-
-	/**
-	 * Removes all of the mappings from this map. The map will be empty after
-	 * this call returns.
-	 */
-	public void clear() {
-		Object x;
-		while ((x=queue.poll()) != null) {
-			@SuppressWarnings("unchecked")
-			Entry<K, V> e = (Entry<K, V>) x;
-			removalListener.accept(e.value);
-		}
-
-		for (int i = 0; i < table.length; i++) {
-			removalListener.accept(table[i].value);
-			table[i] = null;
-		}
-		
-		size = 0;
-
-		while ((x=queue.poll()) != null) {
-			@SuppressWarnings("unchecked")
-			Entry<K, V> e = (Entry<K, V>) x;
-			removalListener.accept(e.value);
-		}
-	}
-
-	/**
-	 * The entries in this hash table extend WeakReference, using its main ref
-	 * field as the key.
-	 */
-	private static class Entry<K, V> extends WeakReference<Object> implements Map.Entry<K, V> {
-		V value;
-		final int hash;
-		Entry<K, V> next;
-
-		/**
-		 * Creates new entry.
-		 */
-		Entry(Object key, V value, ReferenceQueue<Object> queue, int hash, Entry<K, V> next) {
-			super(key, queue);
-			this.value = value;
-			this.hash = hash;
-			this.next = next;
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		public K getKey() {
-			return (K) get();
-		}
-
-		@Override
-		public V getValue() {
-			return value;
-		}
-
-		@Override
-		public V setValue(V newValue) {
-			V oldValue = value;
-			value = newValue;
-			return oldValue;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (!(o instanceof Map.Entry))
-				return false;
-			Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
-			K k1 = getKey();
-			Object k2 = e.getKey();
-			if (k1 == k2 || (k1 != null && k1.equals(k2))) {
-				V v1 = getValue();
-				Object v2 = e.getValue();
-				if (v1 == v2 || (v1 != null && v1.equals(v2)))
-					return true;
-			}
-			return false;
-		}
-
-		@Override
-		public int hashCode() {
-			K k = getKey();
-			V v = getValue();
-			return Objects.hashCode(k) ^ Objects.hashCode(v);
-		}
-
-		@Override
-		public String toString() {
-			return getKey() + "=" + getValue();
 		}
 	}
 

@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import net.glease.chem.simple.datastructure.ChemDatabaseFinder.ReactionSide;
 import net.glease.chem.simple.datastructure.impl.ChemDatabaseFinderImpl;
 
 public interface ChemDatabaseFinder {

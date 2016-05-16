@@ -1,6 +1,13 @@
 package net.glease.chem.simple.datastructure;
 
-public final class NormalizationException extends Exception {
+/**
+ * Indicates that there is something wrong during the normalization, like
+ * failure of inference, unexpected exceptions, etc..
+ * @author glease
+ * @since 1.0
+ *
+ */
+public class NormalizationException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 

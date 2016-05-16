@@ -10,22 +10,8 @@ import java.util.stream.Collectors;
  * <p>
  * The Java class of ReagentState.
  *
- * <p>
- * The following XML Schema snippet contains the expect content of this class.
- * <p>
- * 
- * <pre>
- * &lt;simpleType name="ReagentState">
- *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *     &lt;enumeration value="powder"/>
- *     &lt;enumeration value="nugget"/>
- *     &lt;enumeration value="chunk"/>
- *     &lt;enumeration value="liquid"/>
- *     &lt;enumeration value="solution"/>
- *     &lt;enumeration value="gas"/>
- *   &lt;/restriction>
- * &lt;/simpleType>
- * </pre>
+ * @author glease
+ * @since 1.0
  *
  */
 

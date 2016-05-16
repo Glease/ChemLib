@@ -9,15 +9,25 @@ import net.glease.chem.simple.scoping.IScoped;
 import net.glease.chem.simple.scoping.ScopeException;
 import net.glease.chem.simple.util.NormalizationPlugin;
 
+/**
+ * ChemDatabase represents a set of chemical data. Clients should invoke
+ * {@link #normalize()} after getting a fresh {@link ChemDatabase} unmarshaled
+ * and before marshaling a {@link ChemDatabase}
+ * 
+ * @author glease
+ * @since 1.0
+ */
 public interface ChemDatabase extends IScope<IScope.ROOT, ChemDatabase>, ChemDatabaseComponent {
 
 	/**
-	 * @return <code>null</code> only
+	 * Install a new {@link NormalizationPlugin} into this {@link ChemDatabase}.
+	 * Multiple {@link NormalizationPlugin} of the same class (i.e.
+	 * {@code a.getClass() == b.getClass()}) should be allowed, unless they are
+	 * equal (i.e. {@code a == b}).
+	 * 
+	 * @param plugin
 	 */
-	@Override
-	default IScope.ROOT scope() {
-		return null;
-	}
+	void accept(NormalizationPlugin plugin);
 
 	/**
 	 * Do nothing.
@@ -25,6 +35,40 @@ public interface ChemDatabase extends IScope<IScope.ROOT, ChemDatabase>, ChemDat
 	@Override
 	default void bind(net.glease.chem.simple.scoping.IScope.ROOT cdb) {
 	}
+
+	/**
+	 * Two {@link ChemDatabase}s are considered <i>value-equal</i> if all their
+	 * properties are <i>value-equal</i>.
+	 * <p>
+	 * {@inheritDoc}
+	 * 
+	 * @param obj
+	 *            the reference object with which to compare.
+	 * @return <code>true</code> if this object is the same as the obj argument;
+	 *         <code>false</code> otherwise.
+	 * @see #hashCode()
+	 */
+	@Override
+	boolean equals(Object obj);
+
+	/**
+	 * Create a new {@link ChemDatabaseFinder} to find various component in this
+	 * {@link ChemDatabase}. Not synchronized.
+	 * 
+	 * @return
+	 */
+	ChemDatabaseFinder find();
+
+	/**
+	 * Get a map containing all {@link Atom}s in this {@link ChemDatabase}
+	 * indexed with {@link Atom#getId()}. The map is unmodifiable.
+	 * Addition/removal to this map should be done with
+	 * {@link IScoped#bind(IScope) bind(this)} or {@link IScoped#bind(IScope)
+	 * bind(null)}.
+	 * 
+	 * @return possible object is {@link Map&lt;String, Reagent> }
+	 */
+	Map<String, Atom> getAtoms();
 
 	/**
 	 * All implementation should act identical to this:
@@ -37,6 +81,91 @@ public interface ChemDatabase extends IScope<IScope.ROOT, ChemDatabase>, ChemDat
 	default String getId() {
 		return new StringBuilder().append('[').append(getUUID()).append("]:").append(getVersion()).toString();
 	}
+
+	/**
+	 * 
+	 * @return
+	 * @see #setInfo(String)
+	 */
+	String getInfo();
+
+	/**
+	 * Get a set containing all {@link Reagent}s in this {@link ChemDatabase}.
+	 * The set is unmodifiable. It is a set because the reaction id doesn't
+	 * matters. Addition/removal to this set should be done with
+	 * {@link IScoped#bind(IScope) bind(this)} or {@link IScoped#bind(IScope)
+	 * bind(null)}.
+	 * 
+	 * @return possible object is {@link Set&lt;Reaction> }
+	 */
+	Set<Reaction> getReactions();
+
+	/**
+	 * Get a map containing all {@link Reagent}s in this {@link ChemDatabase}
+	 * indexed with {@link Reagent#getId()}. The map is unmodifiable.
+	 * Addition/removal to this map should be done with
+	 * {@link IScoped#bind(IScope) bind(this)} or {@link IScoped#bind(IScope)
+	 * bind(null)}.
+	 * 
+	 * @return possible object is {@link Map&lt;String, Reagent> }
+	 */
+	Map<String, Reagent> getReagents();
+
+	/**
+	 * Get a map containing all {@link Substance}s in this {@link ChemDatabase}
+	 * indexed with {@link Substance#getId()}. The map is unmodifiable.
+	 * Addition/removal to this map should be done with
+	 * {@link IScoped#bind(IScope) bind(this)} or {@link IScoped#bind(IScope)
+	 * bind(null)}.
+	 * 
+	 * @return possible object is {@link Map&lt;String, Substance> }
+	 */
+	Map<String, Substance> getSubstances();
+
+	/**
+	 * Get the field UUID of type UUID.
+	 * 
+	 * @return possible object is {@link UUID }
+	 * @see
+	 */
+	UUID getUUID();
+
+	/**
+	 * 
+	 * @return
+	 * @see #setVersion(String)
+	 */
+	String getVersion();
+
+	/**
+	 * Two {@link ChemDatabase}s are considered <i>value-equal</i> if their
+	 * {@link #getUUID()} and {@link #getVersion()} both return identical value.
+	 * <p>
+	 * {@inheritDoc}
+	 * 
+	 * @return a hash code value for this object.
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 * @see java.lang.System#identityHashCode
+	 */
+	@Override
+	int hashCode();
+
+	/**
+	 * Perform various tasks that normalize this database into a standard,
+	 * nothing omitted one. It will return <code>false</code> immediately if an
+	 * value is omitted but can't be substituted, leaving everything previously
+	 * done just there, as there won't be any damage theoretically.
+	 * <p>
+	 * Currently, it will
+	 * <ul>
+	 * <li>Add all atoms omitted symbols, localizedNames.
+	 * </ul>
+	 * 
+	 * @return <code>true</code> if normalization completed normally,
+	 *         <code>false</code> if normalization found some errors
+	 * @throws NormalizationException
+	 */
+	void normalize() throws NormalizationException;
 
 	/**
 	 * Implementations should properly store the given {@code o} into
@@ -98,105 +227,12 @@ public interface ChemDatabase extends IScope<IScope.ROOT, ChemDatabase>, ChemDat
 	}
 
 	/**
-	 * Two {@link ChemDatabase}s are considered <i>value-equal</i> if all their
-	 * properties are <i>value-equal</i>.
-	 * <p>
-	 * {@inheritDoc}
-	 * 
-	 * @param obj
-	 *            the reference object with which to compare.
-	 * @return <code>true</code> if this object is the same as the obj argument;
-	 *         <code>false</code> otherwise.
-	 * @see #hashCode()
+	 * @return <code>null</code> only
 	 */
 	@Override
-	boolean equals(Object obj);
-
-	ChemDatabaseFinder find();
-
-	/**
-	 * Get a map containing all {@link Atom}s in this {@link ChemDatabase}
-	 * indexed with {@link Atom#getId()}. The map is unmodifiable.
-	 * 
-	 * @return possible object is {@link Map<String, Reagent> }
-	 */
-	Map<String, Atom> getAtoms();
-
-	/**
-	 * Get a map containing all {@link Reagent}s in this {@link ChemDatabase}
-	 * indexed with {@link Reagent#getId()}. The map is unmodifiable.
-	 * 
-	 * @return possible object is {@link Map<String, Reagent> }
-	 */
-	Set<Reaction> getReactions();
-
-	/**
-	 * 
-	 * @return
-	 * @see #setInfo(String)
-	 */
-	String getInfo();
-
-	/**
-	 * Get a map containing all {@link Reagent}s in this {@link ChemDatabase}
-	 * indexed with {@link Reagent#getId()}. The map is unmodifiable.
-	 * 
-	 * @return possible object is {@link Map<String, Reagent> }
-	 */
-	Map<String, Reagent> getReagents();
-
-	/**
-	 * Get a map containing all {@link Substance}s in this {@link ChemDatabase}
-	 * indexed with {@link Substance#getId()}. The map is unmodifiable.
-	 * 
-	 * @return possible object is {@link Map<String, Substance> }
-	 */
-	Map<String, Substance> getSubstances();
-
-	/**
-	 * Get the field UUID of type UUID.
-	 * 
-	 * @return possible object is {@link UUID }
-	 * @see
-	 */
-	UUID getUUID();
-
-	/**
-	 * 
-	 * @return
-	 * @see #setVersion(String)
-	 */
-	String getVersion();
-
-	/**
-	 * Two {@link ChemDatabase}s are considered <i>value-equal</i> if their
-	 * {@link #getUUID()} and {@link #getVersion()} both return identical value.
-	 * <p>
-	 * {@inheritDoc}
-	 * 
-	 * @return a hash code value for this object.
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 * @see java.lang.System#identityHashCode
-	 */
-	@Override
-	int hashCode();
-
-	/**
-	 * Perform various tasks that normalize this database into a standard,
-	 * nothing omitted one. It will return <code>false</code> immediately if an
-	 * value is omitted but can't be substituted, leaving everything previously
-	 * done just there, as there won't be any damage theoretically.
-	 * <p>
-	 * Currently, it will
-	 * <ul>
-	 * <li>Add all atoms omitted symbols, localizedNames.
-	 * </ul>
-	 * 
-	 * @return <code>true</code> if normalization completed normally,
-	 *         <code>false</code> if normalization found some errors
-	 * @throws NormalizationException
-	 */
-	void normalize() throws NormalizationException;
+	default IScope.ROOT scope() {
+		return null;
+	}
 
 	/**
 	 * 
@@ -223,15 +259,5 @@ public interface ChemDatabase extends IScope<IScope.ROOT, ChemDatabase>, ChemDat
 	 * @param value
 	 */
 	void setVersion(String value);
-
-	/**
-	 * Install a new {@link NormalizationPlugin} into this {@link ChemDatabase}.
-	 * Multiple {@link NormalizationPlugin} of the same class (i.e.
-	 * {@code a.getClass() == b.getClass()}) should be allowed, unless they are
-	 * equal (i.e. {@code a == b}).
-	 * 
-	 * @param plugin
-	 */
-	void accept(NormalizationPlugin plugin);
 
 }

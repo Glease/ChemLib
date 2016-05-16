@@ -31,32 +31,6 @@ import net.glease.chem.simple.datastructure.ChemDatabase;
  */
 public interface XMLChemDatabaseParser {
 
-	default ChemDatabase unmarshal(String xml) throws SAXException {
-		try {
-			return unmarshal(new StringReader(xml));
-		} catch (IOException e) {
-			throw new RuntimeException("impossible", e);
-		}
-	}
-
-	default ChemDatabase unmarshal(File in) throws SAXException, IOException {
-		return unmarshal(new FileReader(in));
-	}
-
-	default ChemDatabase unmarshal(InputStream in) throws SAXException, IOException {
-		return unmarshal(new InputSource(in));
-	}
-
-	default ChemDatabase unmarshal(Reader in) throws SAXException, IOException {
-		return unmarshal(new InputSource(in));
-	}
-
-	default ChemDatabase unmarshal(URL in) throws SAXException, IOException {
-		return unmarshal(new InputSource(in.openStream()));
-	}
-
-	ChemDatabase unmarshal(InputSource in) throws SAXException, IOException;
-
 	default String marshal(ChemDatabase db) throws XMLStreamException {
 		StringWriter sw = new StringWriter(100);
 		marshal(db, sw);
@@ -76,5 +50,31 @@ public interface XMLChemDatabaseParser {
 	}
 
 	void marshal(ChemDatabase db, XMLStreamWriter out) throws XMLStreamException;
+
+	default ChemDatabase unmarshal(File in) throws SAXException, IOException {
+		return unmarshal(new FileReader(in));
+	}
+
+	ChemDatabase unmarshal(InputSource in) throws SAXException, IOException;
+
+	default ChemDatabase unmarshal(InputStream in) throws SAXException, IOException {
+		return unmarshal(new InputSource(in));
+	}
+
+	default ChemDatabase unmarshal(Reader in) throws SAXException, IOException {
+		return unmarshal(new InputSource(in));
+	}
+
+	default ChemDatabase unmarshal(String xml) throws SAXException {
+		try {
+			return unmarshal(new StringReader(xml));
+		} catch (IOException e) {
+			throw new RuntimeException("impossible", e);
+		}
+	}
+
+	default ChemDatabase unmarshal(URL in) throws SAXException, IOException {
+		return unmarshal(new InputSource(in.openStream()));
+	}
 
 }

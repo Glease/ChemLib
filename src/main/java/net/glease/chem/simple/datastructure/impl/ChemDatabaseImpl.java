@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,96 +24,25 @@ public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 
 	private final static long serialVersionUID = 1L;
 
+	private static boolean hasContent(String s) {
+		return s != null && !s.isEmpty();
+	}
+
 	protected Map<String, Substance> substances = new HashMap<>();
-
 	protected Set<Reaction> reactions = new HashSet<>();
-
 	protected Map<String, Atom> atoms = new HashMap<>();
-
 	protected Map<String, Reagent> reagents = new HashMap<>();
 
 	protected Set<NormalizationPlugin> plugins = Collections.newSetFromMap(new IdentityHashMap<>());
 
 	protected UUID uuid;
-
 	protected String version;
-
 	protected String info;
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof ChemDatabase)) {
-			return false;
-		}
-		ChemDatabase other = (ChemDatabase) obj;
-		if (!uuid.equals(other.getUUID())) {
-			return false;
-		}
-		return version.equals(other.getVersion());
-	}
-
-	@Override
-	public ChemDatabaseFinder find() {
-		return new ChemDatabaseFinderImpl(this);
-	}
-
-	@Override
-	public Map<String, Atom> getAtoms() {
-		return atoms;
-	}
-
-	@Override
-	public Set<Reaction> getReactions() {
-		return reactions;
-	}
-
-	@Override
-	public String getInfo() {
-		return info;
-	}
-
-	@Override
-	public Map<String, Reagent> getReagents() {
-		return reagents;
-	}
-
-	@Override
-	public Map<String, Substance> getSubstances() {
-		return substances;
-	}
-
-	@Override
-	public UUID getUUID() {
-		return uuid;
-	}
-
-	@Override
-	public String getVersion() {
-		return version;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
-		result = prime * result + ((version == null) ? 0 : version.hashCode());
-		return result;
-	}
-
-	@Override
-	public final void normalize() throws NormalizationException {
-		addMissingAtomAttributes();
-		for (NormalizationPlugin plugin : plugins) {
-			plugin.normalize(this);
-		}
-	}
-
-	private static boolean hasContent(String s) {
-		return s != null && !s.isEmpty();
+	public void accept(NormalizationPlugin plugin) {
+		if (!plugins.add(plugin))
+			throw new IllegalArgumentException("duplicate plugin: " + plugin);
 	}
 
 	private void addMissingAtomAttributes() throws NormalizationException {
@@ -156,17 +86,91 @@ public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof ChemDatabase)) {
+			return false;
+		}
+		ChemDatabase other = (ChemDatabase) obj;
+		if (!uuid.equals(other.getUUID())) {
+			return false;
+		}
+		return version.equals(other.getVersion());
+	}
+
+	@Override
+	public ChemDatabaseFinder find() {
+		return new ChemDatabaseFinderImpl(this);
+	}
+
+	@Override
+	public Map<String, Atom> getAtoms() {
+		return Collections.unmodifiableMap(atoms);
+	}
+
+	@Override
+	public String getInfo() {
+		return info;
+	}
+
+	@Override
+	public Set<Reaction> getReactions() {
+		return Collections.unmodifiableSet(reactions);
+	}
+
+	@Override
+	public Map<String, Reagent> getReagents() {
+		return Collections.unmodifiableMap(reagents);
+	}
+
+	@Override
+	public Map<String, Substance> getSubstances() {
+		return Collections.unmodifiableMap(substances);
+	}
+
+	@Override
+	public UUID getUUID() {
+		return uuid;
+	}
+
+	@Override
+	public String getVersion() {
+		return version;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
+		result = prime * result + ((version == null) ? 0 : version.hashCode());
+		return result;
+	}
+
+	@Override
+	public final void normalize() throws NormalizationException {
+		addMissingAtomAttributes();
+		for (NormalizationPlugin plugin : plugins) {
+			plugin.normalize(this);
+		}
+	}
+
+	@Override
 	public void setInfo(String value) {
 		this.info = value;
 	}
 
 	@Override
 	public void setUUID(UUID value) {
-		this.uuid = value;
+		this.uuid = Objects.requireNonNull(value);
 	}
 
 	@Override
 	public void setVersion(String value) {
+		if(Objects.requireNonNull(value).isEmpty())
+			throw new IllegalArgumentException("empty version");
 		this.version = value;
 	}
 
@@ -194,28 +198,18 @@ public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 			builder.append(reagents);
 			builder.append(", ");
 		}
-		if (uuid != null) {
-			builder.append("uuid=");
-			builder.append(uuid);
-			builder.append(", ");
-		}
-		if (version != null) {
-			builder.append("version=");
-			builder.append(version);
-			builder.append(", ");
-		}
+		builder.append("uuid=");
+		builder.append(uuid);
+		builder.append(", ");
+		builder.append("version=");
+		builder.append(version);
+		builder.append(", ");
 		if (info != null) {
 			builder.append("info=");
 			builder.append(info);
 		}
 		builder.append("]");
 		return builder.toString();
-	}
-
-	@Override
-	public void accept(NormalizationPlugin plugin) {
-		if (!plugins.add(plugin))
-			throw new IllegalArgumentException("duplicate plugin: " + plugin);
 	}
 
 }

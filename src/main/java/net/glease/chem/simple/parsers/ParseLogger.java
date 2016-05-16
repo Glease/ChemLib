@@ -11,8 +11,6 @@ import org.apache.logging.log4j.message.MessageFactory;
 final class ParseLogger {
 	static final Logger log = LogManager.getLogger(DefaultParser.class);
 	static final Marker SETUP = MarkerManager.getMarker("Setup");
-	private ParseLogger() {
-	}
 	public static void catching(Level level, Throwable t) {
 		log.catching(level, t);
 	}
@@ -112,9 +110,6 @@ final class ParseLogger {
 	public static void exit() {
 		log.exit();
 	}
-	public <R> R exit(R result) {
-		return log.exit(result);
-	}
 	public static void fatal(Marker marker, Message msg) {
 		log.fatal(marker, msg);
 	}
@@ -157,12 +152,6 @@ final class ParseLogger {
 	public static void fatal(String message, Throwable t) {
 		log.fatal(message, t);
 	}
-	public MessageFactory getMessageFactory() {
-		return log.getMessageFactory();
-	}
-	public String getName() {
-		return log.getName();
-	}
 	public static void info(Marker marker, Message msg) {
 		log.info(marker, msg);
 	}
@@ -204,48 +193,6 @@ final class ParseLogger {
 	}
 	public static void info(String message, Throwable t) {
 		log.info(message, t);
-	}
-	public boolean isDebugEnabled() {
-		return log.isDebugEnabled();
-	}
-	public boolean isDebugEnabled(Marker marker) {
-		return log.isDebugEnabled(marker);
-	}
-	public boolean isEnabled(Level level) {
-		return log.isEnabled(level);
-	}
-	public boolean isEnabled(Level level, Marker marker) {
-		return log.isEnabled(level, marker);
-	}
-	public boolean isErrorEnabled() {
-		return log.isErrorEnabled();
-	}
-	public boolean isErrorEnabled(Marker marker) {
-		return log.isErrorEnabled(marker);
-	}
-	public boolean isFatalEnabled() {
-		return log.isFatalEnabled();
-	}
-	public boolean isFatalEnabled(Marker marker) {
-		return log.isFatalEnabled(marker);
-	}
-	public boolean isInfoEnabled() {
-		return log.isInfoEnabled();
-	}
-	public boolean isInfoEnabled(Marker marker) {
-		return log.isInfoEnabled(marker);
-	}
-	public boolean isTraceEnabled() {
-		return log.isTraceEnabled();
-	}
-	public boolean isTraceEnabled(Marker marker) {
-		return log.isTraceEnabled(marker);
-	}
-	public boolean isWarnEnabled() {
-		return log.isWarnEnabled();
-	}
-	public boolean isWarnEnabled(Marker marker) {
-		return log.isWarnEnabled(marker);
 	}
 	public static void log(Level level, Marker marker, Message msg) {
 		log.log(level, marker, msg);
@@ -294,12 +241,6 @@ final class ParseLogger {
 	}
 	public static void printf(Level level, String format, Object... params) {
 		log.printf(level, format, params);
-	}
-	public <T extends Throwable> T throwing(Level level, T t) {
-		return log.throwing(level, t);
-	}
-	public <T extends Throwable> T throwing(T t) {
-		return log.throwing(t);
 	}
 	public static void trace(Marker marker, Message msg) {
 		log.trace(marker, msg);
@@ -384,6 +325,65 @@ final class ParseLogger {
 	}
 	public static void warn(String message, Throwable t) {
 		log.warn(message, t);
+	}
+	private ParseLogger() {
+	}
+	public <R> R exit(R result) {
+		return log.exit(result);
+	}
+	public MessageFactory getMessageFactory() {
+		return log.getMessageFactory();
+	}
+	public String getName() {
+		return log.getName();
+	}
+	public boolean isDebugEnabled() {
+		return log.isDebugEnabled();
+	}
+	public boolean isDebugEnabled(Marker marker) {
+		return log.isDebugEnabled(marker);
+	}
+	public boolean isEnabled(Level level) {
+		return log.isEnabled(level);
+	}
+	public boolean isEnabled(Level level, Marker marker) {
+		return log.isEnabled(level, marker);
+	}
+	public boolean isErrorEnabled() {
+		return log.isErrorEnabled();
+	}
+	public boolean isErrorEnabled(Marker marker) {
+		return log.isErrorEnabled(marker);
+	}
+	public boolean isFatalEnabled() {
+		return log.isFatalEnabled();
+	}
+	public boolean isFatalEnabled(Marker marker) {
+		return log.isFatalEnabled(marker);
+	}
+	public boolean isInfoEnabled() {
+		return log.isInfoEnabled();
+	}
+	public boolean isInfoEnabled(Marker marker) {
+		return log.isInfoEnabled(marker);
+	}
+	public boolean isTraceEnabled() {
+		return log.isTraceEnabled();
+	}
+	public boolean isTraceEnabled(Marker marker) {
+		return log.isTraceEnabled(marker);
+	}
+	public boolean isWarnEnabled() {
+		return log.isWarnEnabled();
+	}
+	public boolean isWarnEnabled(Marker marker) {
+		return log.isWarnEnabled(marker);
+	}
+	public <T extends Throwable> T throwing(Level level, T t) {
+		return log.throwing(level, t);
+	}
+	public <T extends Throwable> T throwing(T t) {
+		return log.throwing(t);
 	}
 
 }

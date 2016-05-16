@@ -193,6 +193,14 @@ class UnmarshallingHanlder implements ContentHandler {
 		((Reaction) parent).getCatalysts().add(instance.getReagents().get(set.get("reagent")));
 	}
 
+	private void readCDBInfos() {
+		ChemDatabaseImpl i = instance = new ChemDatabaseImpl();
+		
+		set.set("uuid", i::setUUID, UUID::fromString);
+		set.set("info", i::setInfo);
+		set.set("version", i::setVersion);
+	}
+
 	private void readCondition() throws SAXParseException {
 		if (!(parent instanceof Reaction))
 			throw new SAXParseException(
@@ -387,14 +395,6 @@ class UnmarshallingHanlder implements ContentHandler {
 		} catch (Exception e) {
 			throw new SAXParseException("Unexpected exception", locator, e);
 		}
-	}
-
-	private void readCDBInfos() {
-		ChemDatabaseImpl i = instance = new ChemDatabaseImpl();
-		
-		set.set("uuid", i::setUUID, UUID::fromString);
-		set.set("info", i::setInfo);
-		set.set("version", i::setVersion);
 	}
 
 	@Override

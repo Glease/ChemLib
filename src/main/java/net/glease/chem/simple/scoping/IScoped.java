@@ -91,26 +91,6 @@ import net.glease.chem.simple.scoping.IScope.ROOT;
  */
 public interface IScoped<T_SCOPE extends IScope<?, T_SCOPE>> {
 	/**
-	 * Some how get an ID for this element. It could be explicitly set ID, or an
-	 * generated value based on various internal data. Non-null. Empty
-	 * {@link String} permitted for the sake of simplicity, but that's really
-	 * not recommended.
-	 * 
-	 * @return an non-null id.
-	 */
-	String getId();
-
-	/**
-	 * Get the scope this element binds to. May be <code>null</code>. a
-	 * <code>null</code> scope means scope undefined, not something else, like
-	 * the default scope. Two elements whose scopes are both undefined shouldn't
-	 * be considered in the same scope.
-	 * 
-	 * @return the scope. non-null
-	 */
-	T_SCOPE scope();
-
-	/**
 	 * Bind this element to a given scope. May be <code>null</code>. a
 	 * <code>null</code> scope means scope undefined, not something else, like
 	 * the default scope. Two elements whose scopes are both undefined shouldn't
@@ -138,5 +118,25 @@ public interface IScoped<T_SCOPE extends IScope<?, T_SCOPE>> {
 	 *             {@link IScoped} is malicious and requires human moderation.
 	 */
 	void bind(T_SCOPE scope);
+
+	/**
+	 * Some how get an ID for this element. It could be explicitly set ID, or an
+	 * generated value based on various internal data. Non-null. Empty
+	 * {@link String} permitted for the sake of simplicity, but that's really
+	 * not recommended.
+	 * 
+	 * @return an non-null id.
+	 */
+	String getId();
+
+	/**
+	 * Get the scope this element binds to. May be <code>null</code>. a
+	 * <code>null</code> scope means scope undefined, not something else, like
+	 * the default scope. Two elements whose scopes are both undefined shouldn't
+	 * be considered in the same scope.
+	 * 
+	 * @return the scope. non-null
+	 */
+	T_SCOPE scope();
 
 }
