@@ -5,13 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.WeakHashMap;
-import java.util.function.Supplier;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 
@@ -103,65 +98,27 @@ public abstract class CDBParserFactory {
 
 	public static final String XML_ENTITY_RESOLVER_NAME = "xml.entityResolver";
 	public static final String XML_ERROR_HANDLER_NAME = "xml.errorHandler";
+
 	public static final String XML_FEATURE_PREFIX = "xml.feature:";
 	public static final String XML_PROPERTY_PREFIX = "xml.property:";
 
-	private static final Logger log = LogManager.getLogger(CDBParserFactory.class);
-
-	private static Map<ClassLoader, Map<String, Set<Supplier<CDBParserFactory>>>> factories = new WeakHashMap<>();
-	private static Set<ClassLoader> initiazed = Collections.newSetFromMap(new WeakHashMap<>());
-
-	private static ClassLoader getCurrentClassLoader() {
-		ClassLoader ccl = Thread.currentThread().getContextClassLoader();
-		return ccl == null ? CDBParserFactory.class.getClassLoader() : ccl;
-	}
-
-	private static void init(Map<String, Set<Supplier<CDBParserFactory>>> currentFactories) {
-		String s = System.getProperty(FACTORY_PROPERTY);
-		if (s != null) {
-			try {
-				Supplier<CDBParserFactory> n = () -> {
-					try {
-						return (CDBParserFactory) Class.forName(s).newInstance();
-					} catch (Exception e1) {
-						throw new RuntimeException(e1);
-					}
-				};
-				CDBParserFactory instance = n.get();
-				putFactory(currentFactories, instance);
-			} catch (RuntimeException e) {
-				log.warn("System property-specified CDBParserFactory can't be loaded: ",
-						e.getCause() == null ? e : e.getCause());
-			}
-		}
-
-		ServiceLoader<CDBParserFactory> sl = ServiceLoader.load(CDBParserFactory.class);
-		sl.forEach(i -> putFactory(currentFactories, i));
+	private static ClassLoader getContextClassLoader() {
+		return Thread.currentThread().getContextClassLoader();
 	}
 
 	public static CDBParserFactory newInstance() {
-		ClassLoader cl = getCurrentClassLoader();
-		Map<String, Set<Supplier<CDBParserFactory>>> currentFactories = factories.computeIfAbsent(cl,
-				k -> new HashMap<>());
+		ClassLoader cl = getContextClassLoader();
 
-		if (initiazed.contains(cl)) {
-			init(currentFactories);
-		}
-
-		return currentFactories.isEmpty() ? new DefaultFactory()
-				: (CDBParserFactory) currentFactories.values().iterator().next().iterator().next().get();
+		return new ServiceFinder<>(FACTORY_PROPERTY, null, null, cl, CDBParserFactory.class, DefaultFactory::new, false)
+				.find(f -> true);
 	}
 
 	public static CDBParserFactory newInstance(ClassLoader cl) {
-		Map<String, Set<Supplier<CDBParserFactory>>> currentFactories = factories
-				.computeIfAbsent(Objects.requireNonNull(cl, "cl"), k -> new HashMap<>());
+		if (cl == null)
+			cl = getContextClassLoader();
 
-		if (initiazed.contains(cl)) {
-			init(currentFactories);
-		}
-
-		return currentFactories.isEmpty() ? new DefaultFactory()
-				: (CDBParserFactory) currentFactories.values().iterator().next().iterator().next().get();
+		return new ServiceFinder<>(FACTORY_PROPERTY, null, null, cl, CDBParserFactory.class, DefaultFactory::new, false)
+				.find(f -> true);
 	}
 
 	/**
@@ -171,18 +128,10 @@ public abstract class CDBParserFactory {
 	public static CDBParserFactory newInstance(ClassLoader cl, String language) {
 		if (language == null)
 			throw new NullPointerException("language");
-		if (language.isEmpty())
-			language = LANGUAGE_XML;
+		String l = language.isEmpty() ? LANGUAGE_XML : language;
 
-		Map<String, Set<Supplier<CDBParserFactory>>> currentFactories = factories
-				.computeIfAbsent(Objects.requireNonNull(cl, "cl"), k -> new HashMap<>());
-
-		if (initiazed.contains(cl)) {
-			init(currentFactories);
-		}
-
-		return currentFactories.isEmpty() ? new DefaultFactory()
-				: (CDBParserFactory) currentFactories.get(language).iterator().next().get();
+		return new ServiceFinder<>(FACTORY_PROPERTY, null, null, cl, CDBParserFactory.class, DefaultFactory::new, false)
+				.find(f -> f.isLanguageSupported(l));
 	}
 
 	/**
@@ -192,18 +141,11 @@ public abstract class CDBParserFactory {
 	public static CDBParserFactory newInstance(String language) {
 		if (language == null)
 			throw new NullPointerException("language");
-		if (language.isEmpty())
-			language = LANGUAGE_XML;
-		ClassLoader cl = getCurrentClassLoader();
-		Map<String, Set<Supplier<CDBParserFactory>>> currentFactories = factories.computeIfAbsent(cl,
-				k -> new HashMap<>());
+		String l = language.isEmpty() ? LANGUAGE_XML : language;
+		ClassLoader cl = getContextClassLoader();
 
-		if (initiazed.contains(cl)) {
-			init(currentFactories);
-		}
-
-		return currentFactories.isEmpty() ? new DefaultFactory()
-				: (CDBParserFactory) currentFactories.get(language).iterator().next().get();
+		return new ServiceFinder<>(FACTORY_PROPERTY, null, null, cl, CDBParserFactory.class, DefaultFactory::new, false)
+				.find(f -> f.isLanguageSupported(l));
 	}
 
 	/**
@@ -214,26 +156,13 @@ public abstract class CDBParserFactory {
 	public static CDBParserFactory newInstance(String name, ClassLoader cl) {
 		if (name == null || name.isEmpty())
 			throw new IllegalArgumentException("name");
-		Map<String, Set<Supplier<CDBParserFactory>>> currentFactories = factories
-				.computeIfAbsent(Objects.requireNonNull(cl, "classloader"), k -> new HashMap<>());
-
-		Supplier<CDBParserFactory> n = () -> {
-			try {
-				return (CDBParserFactory) Class.forName(name).newInstance();
-			} catch (Exception e1) {
-				throw new RuntimeException(e1);
-			}
-		};
-		CDBParserFactory instance = n.get();
-		putFactory(currentFactories, instance);
-
-		return currentFactories.isEmpty() ? new DefaultFactory()
-				: (CDBParserFactory) currentFactories.values().iterator().next().iterator().next().get();
-	}
-
-	private static void putFactory(Map<String, Set<Supplier<CDBParserFactory>>> currentFactories, CDBParserFactory i) {
-		i.getSupportedLanguage().stream().map(String::toLowerCase)
-				.map(d -> currentFactories.computeIfAbsent(d, k -> new HashSet<>())).forEach(e -> e.add(() -> i));
+		Objects.requireNonNull(cl, "classloader");
+		try {
+			return (CDBParserFactory) Class.forName(name, false, cl).newInstance();
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			throw new FactoryNotFoundException(
+					String.format("Can't instantiate factory %s with classloader %s", name, cl), e);
+		}
 	}
 
 	public final Object getProperty(String name) {
@@ -283,8 +212,8 @@ public abstract class CDBParserFactory {
 
 	protected abstract Object newParser0(String language);
 
-	public final DatabaseParser newXMLParser() {
-		return (DatabaseParser) newParser(LANGUAGE_XML);
+	public final XMLChemDatabaseParser newXMLParser() {
+		return (XMLChemDatabaseParser) newParser(LANGUAGE_XML);
 	}
 
 	public final void setProperty(String name, Object value) {

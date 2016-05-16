@@ -18,7 +18,7 @@ import net.glease.chem.simple.parsers.CDBParserFactory.DefaultFactory;
  * @author glease
  *
  */
-class DefaultParser implements DatabaseParser {
+class DefaultParser implements XMLChemDatabaseParser {
 	static final String CDB_SIMPLE_NAMESPACE = "http://glease.net/chem/simple/DataStructure";
 
 	static final String DEFAULT_NAMESPACE_PREFIX = "cdbs";

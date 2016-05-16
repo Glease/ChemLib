@@ -5,7 +5,7 @@ import java.io.StringWriter;
 
 import net.glease.chem.simple.datastructure.ChemDatabase;
 import net.glease.chem.simple.parsers.CDBParserFactory;
-import net.glease.chem.simple.parsers.DatabaseParser;
+import net.glease.chem.simple.parsers.XMLChemDatabaseParser;
 
 /**
  * This test is naive, silly, ugly and not automatic, but I'm lazy...
@@ -16,7 +16,7 @@ import net.glease.chem.simple.parsers.DatabaseParser;
 public class TestJAXB {
 
 	public static void main(String[] args) throws Throwable {
-		DatabaseParser p = CDBParserFactory.newInstance(CDBParserFactory.LANGUAGE_XML).newXMLParser();
+		XMLChemDatabaseParser p = CDBParserFactory.newInstance(CDBParserFactory.LANGUAGE_XML).newXMLParser();
 
 		File in = new File(System.getProperty("user.dir"), "./target/classes/SampleCDB.xml");
 

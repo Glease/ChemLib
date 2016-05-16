@@ -29,7 +29,7 @@ import net.glease.chem.simple.datastructure.ChemDatabase;
  * @author glease
  *
  */
-public interface DatabaseParser {
+public interface XMLChemDatabaseParser {
 
 	default ChemDatabase unmarshal(String xml) throws SAXException {
 		try {
