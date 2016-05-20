@@ -2,7 +2,6 @@ package net.glease.chem.simple.parsers;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -14,21 +13,7 @@ import net.glease.chem.simple.util.ParserPlugin;
 
 public abstract class CDBParserFactory {
 	static final class DefaultFactory extends CDBParserFactory {
-		private static final Set<String> DEFAULT_SUPPORTED_LANGUAGE = get();
-		private static final Set<String> DEFAULT_SUPPORTED_PROPERTY = get2();
-
-		private static Set<String> get() {
-			return Collections.singleton(LANGUAGE_XML);
-		}
-
-		private static Set<String> get2() {
-			Set<String> s = new HashSet<>();
-			s.add(XML_ENTITY_RESOLVER_NAME);
-			s.add(XML_ERROR_HANDLER_NAME);
-			s.add(XML_FEATURE_PREFIX);
-			s.add(XML_PROPERTY_PREFIX);
-			return Collections.unmodifiableSet(s);
-		}
+		private static final Set<String> DEFAULT_SUPPORTED_LANGUAGE = Collections.singleton(LANGUAGE_XML);
 
 		EntityResolver er;
 		ErrorHandler eh = ReportingErrorHandler.I;
@@ -38,18 +23,19 @@ public abstract class CDBParserFactory {
 		private Map<String, Object> ps = new HashMap<>();
 
 		@Override
-		public Object getProperty0(String name) {
+		protected Object getProperty0(String name) {
 			switch (Objects.requireNonNull(name, "name")) {
 			case XML_ENTITY_RESOLVER_NAME:
 				return er;
 			case XML_ERROR_HANDLER_NAME:
 				return eh;
-			case XML_PROPERTY_PREFIX:
-				return ps.get(name.substring(XML_PROPERTY_PREFIX.length()));
-			case XML_FEATURE_PREFIX:
-				return fs.get(name.substring(XML_FEATURE_PREFIX.length()));
 			default:
-				throw new Error();
+				if (name.startsWith(XML_PROPERTY_PREFIX)) {
+					return ps.get(name);
+				} else if (name.startsWith(XML_FEATURE_PREFIX)) {
+					return fs.get(name);
+				} else
+					throw new Error();
 			}
 		}
 
@@ -59,19 +45,22 @@ public abstract class CDBParserFactory {
 		}
 
 		@Override
-		public Set<String> getSupportedProperty() {
-			return DEFAULT_SUPPORTED_PROPERTY;
+		public boolean isPropertySupported(String name) {
+			return XML_ENTITY_RESOLVER_NAME.equals(Objects.requireNonNull(name))
+					|| XML_FEATURE_PREFIX.equals(name)
+					|| name.startsWith(XML_PROPERTY_PREFIX)
+					|| name.startsWith(XML_FEATURE_PREFIX);
 		}
 
 		@Override
-		public Object newParser0(String language) {
+		protected Object newParser0(String language) {
 			if ("xml".equalsIgnoreCase(language))
 				return new DefaultParser(this);
 			throw new UnsupportedOperationException("default implementation only support xml");
 		}
 
 		@Override
-		public void setProperty0(String name, Object value) {
+		protected void setProperty0(String name, Object value) {
 			switch (Objects.requireNonNull(name, "name")) {
 			case XML_ENTITY_RESOLVER_NAME:
 				er = (EntityResolver) value;
@@ -79,14 +68,13 @@ public abstract class CDBParserFactory {
 			case XML_ERROR_HANDLER_NAME:
 				eh = (ErrorHandler) value;
 				break;
-			case XML_PROPERTY_PREFIX:
-				ps.put(name, value);
-				break;
-			case XML_FEATURE_PREFIX:
-				fs.put(name, (Boolean) value);
-				break;
 			default:
-				throw new Error();
+				if (name.startsWith(XML_PROPERTY_PREFIX)) {
+					ps.put(name, value);
+				} else if (name.startsWith(XML_FEATURE_PREFIX)) {
+					fs.put(name, (Boolean) value);
+				} else
+					throw new Error();
 			}
 		}
 	}
@@ -96,11 +84,41 @@ public abstract class CDBParserFactory {
 	public static final String LANGUAGE_JSON = "json";
 	public static final String LANGUAGE_XML = "xml";
 
+	/**
+	 * Implementation should return
+	 * {@code Pattern.quote(JSON_FEATURE_PREFIX) + ".+"} on invocation of
+	 * {@link #getSupportedProperty()},
+	 */
+	public static final String JSON_FEATURE_PREFIX = "json.feature:";
+	/**
+	 * Implementation should return
+	 * {@code Pattern.quote(JSON_FEATURE_PREFIX) + ".+"} on invocation of
+	 * {@link #getSupportedProperty()},
+	 */
+	public static final String JSON_PROPERTY_PREFIX = "json.property:";
+
 	public static final String XML_ENTITY_RESOLVER_NAME = "xml.entityResolver";
 	public static final String XML_ERROR_HANDLER_NAME = "xml.errorHandler";
 
+	/**
+	 * Implementation should return
+	 * {@code Pattern.quote(XML_FEATURE_PREFIX) + ".+"} on invocation of
+	 * {@link #getSupportedProperty()},
+	 */
 	public static final String XML_FEATURE_PREFIX = "xml.feature:";
+	/**
+	 * Implementation should return
+	 * {@code Pattern.quote(XML_PROPERTY_PREFIX) + ".+"} on invocation of
+	 * {@link #getSupportedProperty()},
+	 */
 	public static final String XML_PROPERTY_PREFIX = "xml.property:";
+
+	/**
+	 * Implementations are recommended, but not required to use this as default
+	 * name space prefix when unmarshaling to an XML document.
+	 */
+	static final String XML_DEFAULT_NAMESPACE_PREFIX = "cdbs";
+	public static final String XML_NAMESPACE = "http://glease.net/chem/simple/DataStructure";
 
 	private static ClassLoader getContextClassLoader() {
 		return Thread.currentThread().getContextClassLoader();
@@ -166,7 +184,7 @@ public abstract class CDBParserFactory {
 	}
 
 	public final Object getProperty(String name) {
-		if (getSupportedProperty().contains(Objects.requireNonNull(name, "name")))
+		if (isPropertySupported(name))
 			return getProperty0(name);
 		else
 			throw new IllegalArgumentException("Unsupported property: " + name);
@@ -175,18 +193,12 @@ public abstract class CDBParserFactory {
 	protected abstract Object getProperty0(String name);
 
 	/**
-	 * Case insensitive. All non-null and non-empty.
+	 * Case insensitive. All non-null and non-empty. Value returned shouldn't be
+	 * changed overtime.
 	 * 
 	 * @return
 	 */
 	public abstract Set<String> getSupportedLanguage();
-
-	/**
-	 * All non-null and non-empty.
-	 * 
-	 * @return
-	 */
-	public abstract Set<String> getSupportedProperty();
 
 	/**
 	 * @param plugin
@@ -200,9 +212,7 @@ public abstract class CDBParserFactory {
 		return getSupportedLanguage().contains(name);
 	}
 
-	public final boolean isPropertySupported(String name) {
-		return getSupportedProperty().contains(name);
-	}
+	public abstract boolean isPropertySupported(String name);
 
 	public final Object newParser(String language) {
 		if (getSupportedLanguage().contains(Objects.requireNonNull(language, "language")))
@@ -217,7 +227,7 @@ public abstract class CDBParserFactory {
 	}
 
 	public final void setProperty(String name, Object value) {
-		if (getSupportedProperty().contains(Objects.requireNonNull(name, "name")))
+		if (isPropertySupported(name))
 			setProperty0(name, value);
 		else
 			throw new IllegalArgumentException("Unsupported property: " + name);

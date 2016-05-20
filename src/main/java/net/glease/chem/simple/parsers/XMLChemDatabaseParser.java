@@ -12,14 +12,24 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 
+import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import net.glease.chem.simple.datastructure.ChemDatabase;
+import net.glease.chem.simple.util.ReaderWriterPair;
 
 /**
  * Marshal or unmarshal a {@link ChemDatabase} instance. This class should be
@@ -31,41 +41,86 @@ import net.glease.chem.simple.datastructure.ChemDatabase;
  */
 public interface XMLChemDatabaseParser {
 
-	default String marshal(ChemDatabase db) throws XMLStreamException {
+	default String marshal(ChemDatabase db) throws CDBParseException {
 		StringWriter sw = new StringWriter(100);
 		marshal(db, sw);
 		return sw.toString();
 	}
 
-	default void marshal(ChemDatabase db, File out) throws XMLStreamException, IOException {
+	default void marshal(ChemDatabase db, File out) throws CDBParseException, IOException {
 		marshal(db, new FileWriter(out));
 	}
 
-	default void marshal(ChemDatabase db, OutputStream out) throws XMLStreamException {
-		marshal(db, XMLOutputFactory.newFactory().createXMLStreamWriter(out));
+	default void marshal(ChemDatabase db, OutputStream out) throws CDBParseException {
+		try {
+			marshal(db, XMLOutputFactory.newFactory().createXMLStreamWriter(out));
+		} catch (XMLStreamException | FactoryConfigurationError e) {
+			throw new CDBParseException("can't create XMLStreamWriter with given output", e);
+		}
 	}
 
-	default void marshal(ChemDatabase db, Writer out) throws XMLStreamException {
+	default void marshal(ChemDatabase db, Writer out) throws CDBParseException {
+		try {
 		marshal(db, XMLOutputFactory.newFactory().createXMLStreamWriter(out));
+	} catch (XMLStreamException | FactoryConfigurationError e) {
+		throw new CDBParseException("can't create XMLStreamWriter with given output", e);
+	}
+	}
+	
+	default void marshal(ChemDatabase db, Result out) throws CDBParseException {
+		Transformer t;
+		try {
+			t = TransformerFactory.newInstance().newTransformer();
+		} catch (TransformerConfigurationException | TransformerFactoryConfigurationError e) {
+			throw new CDBParseException("can't create javax.transform.Transformer!", e);
+		}
+		ReaderWriterPair p = ReaderWriterPair.create();
+		marshal(db, p.getRw());
+		try {
+			t.transform(new StreamSource(p.getWr()), out);
+		} catch (TransformerException e) {
+			throw new CDBParseException(e);
+		}
 	}
 
-	void marshal(ChemDatabase db, XMLStreamWriter out) throws XMLStreamException;
+	void marshal(ChemDatabase db, XMLStreamWriter out) throws CDBParseException;
 
-	default ChemDatabase unmarshal(File in) throws SAXException, IOException {
+	default ChemDatabase unmarshal(File in) throws CDBParseException, IOException {
 		return unmarshal(new FileReader(in));
 	}
 
-	ChemDatabase unmarshal(InputSource in) throws SAXException, IOException;
+	ChemDatabase unmarshal(InputSource in) throws CDBParseException, IOException;
 
-	default ChemDatabase unmarshal(InputStream in) throws SAXException, IOException {
+	default ChemDatabase unmarshal(InputStream in) throws CDBParseException, IOException {
 		return unmarshal(new InputSource(in));
 	}
 
-	default ChemDatabase unmarshal(Reader in) throws SAXException, IOException {
+	default ChemDatabase unmarshal(Source in) throws CDBParseException {
+		Transformer t;
+		try {
+			t = TransformerFactory.newInstance().newTransformer();
+		} catch (TransformerConfigurationException | TransformerFactoryConfigurationError e) {
+			throw new CDBParseException("can't create javax.transform.Transformer!", e);
+		}
+		ReaderWriterPair p = ReaderWriterPair.create();
+		StreamResult r = new StreamResult(p.getRw());
+		try {
+			t.transform(in, r);
+		} catch (TransformerException e) {
+			throw new CDBParseException("can't transform given input into a stream of character",e);
+		}
+		try {
+			return unmarshal(p.getWr());
+		} catch (IOException e) {
+			throw new RuntimeException("impossible", e);
+		}
+	}
+	
+	default ChemDatabase unmarshal(Reader in) throws CDBParseException, IOException {
 		return unmarshal(new InputSource(in));
 	}
 
-	default ChemDatabase unmarshal(String xml) throws SAXException {
+	default ChemDatabase unmarshal(String xml) throws CDBParseException {
 		try {
 			return unmarshal(new StringReader(xml));
 		} catch (IOException e) {
@@ -73,7 +128,7 @@ public interface XMLChemDatabaseParser {
 		}
 	}
 
-	default ChemDatabase unmarshal(URL in) throws SAXException, IOException {
+	default ChemDatabase unmarshal(URL in) throws CDBParseException, IOException {
 		return unmarshal(new InputSource(in.openStream()));
 	}
 

@@ -1,7 +1,6 @@
 package net.glease.chem.simple.parsers;
 
 import static javax.xml.bind.DatatypeConverter.*;
-import static net.glease.chem.simple.parsers.DefaultParser.*;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -127,7 +126,7 @@ class UnmarshallingHanlder implements ContentHandler {
 
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if (parsing && CDB_SIMPLE_NAMESPACE.equals(uri))
+		if (parsing && CDBParserFactory.XML_NAMESPACE.equals(uri))
 			switch (localName) {
 			case "substance":
 			case "reagent":
@@ -341,7 +340,7 @@ class UnmarshallingHanlder implements ContentHandler {
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-		if (!parsing || !CDB_SIMPLE_NAMESPACE.equals(uri))
+		if (!parsing || !CDBParserFactory.XML_NAMESPACE.equals(uri))
 			return;
 
 		set.setAtts(atts);
@@ -399,7 +398,7 @@ class UnmarshallingHanlder implements ContentHandler {
 
 	@Override
 	public void startPrefixMapping(String prefix, String uri) throws SAXException {
-		if (CDB_SIMPLE_NAMESPACE.equals(uri)) {
+		if (CDBParserFactory.XML_NAMESPACE.equals(uri)) {
 			parsing = true;
 			this.prefix = prefix;
 		}

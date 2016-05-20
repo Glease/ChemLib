@@ -1,7 +1,6 @@
 package net.glease.chem.simple.parsers;
 
 import static javax.xml.bind.DatatypeConverter.*;
-import static net.glease.chem.simple.parsers.DefaultParser.*;
 import static net.glease.chem.simple.parsers.ParseLogger.*;
 
 import java.util.Comparator;
@@ -36,7 +35,7 @@ class CDBMarshaller {
 		debug("Start marshaling");
 
 		out.writeStartDocument();
-		out.setPrefix("cdbs", CDB_SIMPLE_NAMESPACE);
+		out.setPrefix("cdbs", CDBParserFactory.XML_NAMESPACE);
 		writeStartElement("database");
 
 		writing = "database";
@@ -210,6 +209,6 @@ class CDBMarshaller {
 	}
 
 	private void writeStartElement(String name) throws XMLStreamException {
-		out.writeStartElement(DEFAULT_NAMESPACE_PREFIX, name, CDB_SIMPLE_NAMESPACE);
+		out.writeStartElement(CDBParserFactory.XML_DEFAULT_NAMESPACE_PREFIX, name, CDBParserFactory.XML_NAMESPACE);
 	}
 }
