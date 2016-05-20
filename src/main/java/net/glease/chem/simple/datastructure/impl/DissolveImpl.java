@@ -1,5 +1,8 @@
 package net.glease.chem.simple.datastructure.impl;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -94,4 +97,13 @@ public class DissolveImpl implements Serializable, Dissolve {
 		return builder.toString();
 	}
 
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+		out.writeObject(scope());
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		bind((Substance) in.readObject());
+	}
 }

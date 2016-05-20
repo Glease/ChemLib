@@ -1,16 +1,20 @@
 
 package net.glease.chem.simple.datastructure.impl;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import net.glease.chem.simple.datastructure.Reactant;
+import net.glease.chem.simple.datastructure.Reaction;
 
 public class ReactantImpl extends ReactionComponentImpl implements Serializable, Reactant {
 
 	private final static long serialVersionUID = 1L;
 
 	protected double purity = 100d;
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -72,4 +76,13 @@ public class ReactantImpl extends ReactionComponentImpl implements Serializable,
 		return builder.toString();
 	}
 
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+		out.writeObject(scope());
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		bind((Reaction) in.readObject());
+	}
 }

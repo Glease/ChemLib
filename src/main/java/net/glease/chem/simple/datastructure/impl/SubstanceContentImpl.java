@@ -1,6 +1,9 @@
 
 package net.glease.chem.simple.datastructure.impl;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -14,7 +17,7 @@ public class SubstanceContentImpl implements Serializable, SubstanceContent {
 
 	protected Atom atom;
 	protected int mol = 1;
-	
+
 	protected Substance scope;
 
 	@Override
@@ -35,7 +38,7 @@ public class SubstanceContentImpl implements Serializable, SubstanceContent {
 			return false;
 		}
 		SubstanceContent other = (SubstanceContent) obj;
-		if (scope == null || scope!=other.scope()) {
+		if (scope == null || scope != other.scope()) {
 			return false;
 		}
 		if (atom == null) {
@@ -102,4 +105,13 @@ public class SubstanceContentImpl implements Serializable, SubstanceContent {
 		return builder.toString();
 	}
 
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+		out.writeObject(scope());
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		bind((Substance) in.readObject());
+	}
 }

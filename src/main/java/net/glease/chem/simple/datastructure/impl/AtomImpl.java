@@ -1,6 +1,9 @@
 
 package net.glease.chem.simple.datastructure.impl;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -10,7 +13,7 @@ import net.glease.chem.simple.datastructure.ChemDatabase;
 public class AtomImpl implements Serializable, Atom {
 
 	private final static long serialVersionUID = 1L;
-	
+
 	protected String localizedName;
 	protected String symbol;
 	protected int molMass;
@@ -143,4 +146,13 @@ public class AtomImpl implements Serializable, Atom {
 		return builder.toString();
 	}
 
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+		out.writeObject(scope());
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		bind((ChemDatabase) in.readObject());
+	}
 }

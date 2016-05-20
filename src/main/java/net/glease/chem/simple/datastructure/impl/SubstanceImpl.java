@@ -1,6 +1,9 @@
 
 package net.glease.chem.simple.datastructure.impl;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
@@ -166,4 +169,13 @@ public class SubstanceImpl implements Serializable, Substance {
 		return builder.toString();
 	}
 
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+		out.writeObject(scope());
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		bind((ChemDatabase) in.readObject());
+	}
 }

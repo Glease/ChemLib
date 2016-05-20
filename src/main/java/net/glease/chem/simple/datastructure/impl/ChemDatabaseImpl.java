@@ -169,7 +169,7 @@ public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 
 	@Override
 	public void setVersion(String value) {
-		if(Objects.requireNonNull(value).isEmpty())
+		if (Objects.requireNonNull(value).isEmpty())
 			throw new IllegalArgumentException("empty version");
 		this.version = value;
 	}

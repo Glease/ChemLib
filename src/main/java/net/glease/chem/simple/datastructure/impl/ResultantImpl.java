@@ -1,8 +1,12 @@
 
 package net.glease.chem.simple.datastructure.impl;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import net.glease.chem.simple.datastructure.Reaction;
 import net.glease.chem.simple.datastructure.Resultant;
 
 public class ResultantImpl extends ReactionComponentImpl implements Serializable, Resultant {
@@ -40,7 +44,7 @@ public class ResultantImpl extends ReactionComponentImpl implements Serializable
 		}
 		return true;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -48,7 +52,7 @@ public class ResultantImpl extends ReactionComponentImpl implements Serializable
 		result = prime * result + super.hashCode();
 		return result;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -66,6 +70,16 @@ public class ResultantImpl extends ReactionComponentImpl implements Serializable
 		}
 		builder.append("]");
 		return builder.toString();
+	}
+
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+		out.writeObject(scope());
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		bind((Reaction) in.readObject());
 	}
 
 }
