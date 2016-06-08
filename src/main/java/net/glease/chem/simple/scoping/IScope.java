@@ -65,7 +65,7 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 		}
 	}
 
-	default void accept(BindingPlugin plugin) {
+	default void install(BindingPlugin plugin) {
 		ScopeManager.get(this).install(plugin);
 	}
 
