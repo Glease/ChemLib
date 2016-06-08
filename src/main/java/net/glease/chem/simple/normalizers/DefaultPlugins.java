@@ -1,12 +1,17 @@
 package net.glease.chem.simple.normalizers;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.glease.chem.simple.datastructure.Atom;
 import net.glease.chem.simple.datastructure.ChemDatabase;
+import net.glease.chem.simple.datastructure.Element;
 import net.glease.chem.simple.datastructure.NormalizationException;
 import net.glease.chem.simple.util.LazyInitializer;
 
@@ -16,20 +21,32 @@ public final class DefaultPlugins {
 
 	private static final LazyInitializer<NormalizationPlugin> atom = LazyInitializer
 			.create(() -> new BuiltInNormalizationPlugin("AtomAttribute", DefaultPlugins::atomNormalize));
+	private static final LazyInitializer<NormalizationPlugin> idConflict = LazyInitializer
+			.create(() -> new BuiltInNormalizationPlugin("IDConflictVerifier", DefaultPlugins::idConflictVerifier));
+	private static final LazyInitializer<NormalizationPlugin> idReserved = LazyInitializer
+			.create(() -> new BuiltInNormalizationPlugin("IDReservedVerifier", DefaultPlugins::idConflictVerifier));
 
 	public static NormalizationPlugin createSimple(String info, String name, String vendor, String version,
 			NormalizationFunction func) {
 		return new SimpleNormalizationPlugin(info, name, vendor, version, func);
 	}
 
+	public static NormalizationPlugin getAtomMissingAttributeNormalizer() {
+		return atom.get();
+	}
+
+	public static NormalizationPlugin getIDConflictVerifier() {
+		return idConflict.get();
+	}
+
+	public static NormalizationPlugin getIDReservedVerifier() {
+		return idReserved.get();
+	}
+
 	private static boolean hasContent(String s) {
 		return s != null && !s.isEmpty();
 	}
 
-	public static NormalizationPlugin getAtomMissingAttributeNormalizer() {
-		return atom.get();
-	}
-	
 	private static void atomNormalize(ChemDatabase d) throws NormalizationException {
 
 		Map<Integer, String> symbols = new HashMap<>();
@@ -62,13 +79,62 @@ public final class DefaultPlugins {
 				if (hasContent(s))
 					atom.setSymbol(s);
 				else
-					throw new NormalizationException(
-							String.format("Atom indexed %d has no declared Symbol!", index));
+					throw new NormalizationException(String.format("Atom indexed %d has no declared Symbol!", index));
 			}
 			if (!hasContent(atom.getLocalizedName())) {
 				s = names.get(index);
 				atom.setLocalizedName(hasContent(s) ? s : atom.getSymbol());
 			}
 		}
+	}
+
+	private static void idConflictVerifier(ChemDatabase d) throws NormalizationException {
+		Map<String, List<?>> conflicts = Stream
+				.concat(parallelStream(d.getAtoms()),
+						Stream.concat(parallelStream(d.getSubstances()),
+								Stream.concat(parallelStream(d.getReagents()), d.getReactions().parallelStream())))
+				.map(e -> new AbstractMap.SimpleEntry<>(e.getId(), e))
+				.collect(Collectors.groupingBy(AbstractMap.SimpleEntry::getKey,
+						Collectors.mapping(Map.Entry::getValue, Collectors.toList())))
+				.entrySet().parallelStream().filter(e -> e.getValue().size() > 1)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+		if (conflicts.isEmpty())
+			return;
+
+		throw new IDConflictException(conflicts);
+	}
+
+	private static final LazyInitializer<Set<String>> reservedNames = LazyInitializer.create(() -> {
+		Set<String> s = new HashSet<>();
+		s.add("atom");
+		return s;
+	});
+
+	static void reservedIdVerifier(ChemDatabase d) throws NormalizationException {
+		Map<String, Set<Element<?>>> reserved = new HashMap<>();
+
+		for (String s : reservedNames.get()) {
+			Set<Element<?>> atom = reserved(d, s);
+			if (!atom.isEmpty())
+				reserved.put(s, atom);
+		}
+
+		if (!reserved.isEmpty())
+			throw new IDReservedException(reserved);
+	}
+
+	private static HashSet<Element<?>> reserved(ChemDatabase d, String n) {
+		return Stream
+				.concat(parallelStream(d.getSubstances()),
+						Stream.concat(parallelStream(d.getReagents()), d.getReactions().parallelStream()))
+				.collect(HashSet::new, (s, e) -> {
+					if (e.getId().startsWith(n))
+						s.add(e);
+				}, HashSet::addAll);
+	}
+
+	private static <V> Stream<V> parallelStream(Map<?, V> m) {
+		return m.values().parallelStream();
 	}
 }

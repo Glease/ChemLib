@@ -1,7 +1,5 @@
 package net.glease.chem.simple.scoping;
 
-import net.glease.chem.simple.util.BindingPlugin;
-
 /**
  * While all four methods have default implementation, clients are still
  * suggested to properly provide local implementations.
@@ -22,6 +20,7 @@ import net.glease.chem.simple.util.BindingPlugin;
  *            its parent {@link IScope} type.
  * @param <T_THIS>
  *            its type.
+ * @since 0.1
  */
 public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T_PARENT, T_THIS>>
 		extends IScoped<T_PARENT> {
@@ -65,7 +64,7 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 		}
 	}
 
-	default void install(BindingPlugin plugin) {
+	default void install(BindingPlugin<T_THIS> plugin) {
 		ScopeManager.get(this).install(plugin);
 	}
 
@@ -82,13 +81,13 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 	 * @throws ScopeException
 	 *             if this {@link IScope} deny such action. If thrown, it should
 	 *             be guaranteed that no observable state change happens to this
-	 *             {@link IScope} unless the {@link IScope} thinks the given 
+	 *             {@link IScope} unless the {@link IScope} thinks the given
 	 *             {@link IScoped} is malicious and require human moderation.
 	 */
 	default void onBind(IScoped<T_THIS> o) {
 		ScopeManager.get(this).onBind(o);
 	}
-	
+
 	/**
 	 * Called upon {@link IScoped#bind(IScope) o.bind(this)}.
 	 * {@link #onBind(IScoped) newScope.onBind(o)} aren't called yet.
@@ -99,7 +98,7 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 	 * @throws ScopeException
 	 *             if this {@link IScope} deny such action. If thrown, it should
 	 *             be guaranteed that no observable state change happens to this
-	 *             {@link IScope} unless the {@link IScope} thinks the given 
+	 *             {@link IScope} unless the {@link IScope} thinks the given
 	 *             {@link IScoped} is malicious and require human moderation.
 	 */
 	default void onUnbind(IScoped<T_THIS> o) {

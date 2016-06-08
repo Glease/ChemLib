@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  * The Java class of ReagentState.
  *
  * @author glease
- * @since 1.0
+ * @since 0.1
  *
  */
 

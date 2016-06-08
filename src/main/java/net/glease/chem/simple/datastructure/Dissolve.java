@@ -5,7 +5,7 @@ package net.glease.chem.simple.datastructure;
  * Dissolve could be think of a row of data in a database.
  * 
  * @author glease
- * @since 1.0
+ * @since 0.1
  * 
  */
 public interface Dissolve extends Element<Substance> {

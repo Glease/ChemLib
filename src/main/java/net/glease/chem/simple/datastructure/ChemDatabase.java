@@ -15,7 +15,7 @@ import net.glease.chem.simple.scoping.ScopeException;
  * and before marshaling a {@link ChemDatabase}
  * 
  * @author glease
- * @since 1.0
+ * @since 0.1
  */
 public interface ChemDatabase extends IScope<IScope.ROOT, ChemDatabase>, ChemDatabaseComponent {
 

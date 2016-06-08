@@ -12,7 +12,7 @@ import net.glease.chem.simple.scoping.ScopeException;
  * textbook, like you know there is something called Carbon Dioxide.
  *
  * @author glease
- * @since 1.0
+ * @since 0.1
  *
  */
 public interface Substance extends Element<ChemDatabase>, IScope<ChemDatabase, Substance> {

@@ -7,7 +7,7 @@ package net.glease.chem.simple.datastructure;
  *
  * 
  * @author glease
- * @since 1.0
+ * @since 0.1
  *
  */
 public enum CrystalType {

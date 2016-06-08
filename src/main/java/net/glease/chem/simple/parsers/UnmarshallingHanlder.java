@@ -1,10 +1,12 @@
 package net.glease.chem.simple.parsers;
 
-import static javax.xml.bind.DatatypeConverter.*;
+import static javax.xml.bind.DatatypeConverter.parseDouble;
+import static javax.xml.bind.DatatypeConverter.parseInt;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
@@ -37,6 +39,8 @@ import net.glease.chem.simple.datastructure.impl.ReagentImpl;
 import net.glease.chem.simple.datastructure.impl.ResultantImpl;
 import net.glease.chem.simple.datastructure.impl.SubstanceContentImpl;
 import net.glease.chem.simple.datastructure.impl.SubstanceImpl;
+import net.glease.chem.simple.scoping.BindingPlugin;
+import net.glease.chem.simple.scoping.IScope;
 import net.glease.chem.simple.util.Adaptors;
 
 class UnmarshallingHanlder implements ContentHandler {
@@ -106,11 +110,24 @@ class UnmarshallingHanlder implements ContentHandler {
 
 	private int reactionId = 0;
 
-	UnmarshallingHanlder() {
+	private final Map<Class<? extends IScope<?, ?>>, Set<BindingPlugin<?>>> bindings;
+
+	UnmarshallingHanlder(Map<Class<? extends IScope<?, ?>>, Set<BindingPlugin<?>>> bindings) {
+		this.bindings = bindings;
 	}
 
 	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException {
+	}
+
+	private <T extends IScope<?, T>> void addBindingPlugins(T o) {
+		// f**k you java generics!
+		// bindings.get(o.getClass()).forEach(o::install);
+		for (BindingPlugin<?> pp : bindings.get(o.getClass())) {
+			@SuppressWarnings("unchecked")
+			BindingPlugin<T> p = (BindingPlugin<T>) pp;
+			o.install(p);
+		}
 	}
 
 	private ReagentImpl createDummyReagent(String id) {
@@ -194,7 +211,9 @@ class UnmarshallingHanlder implements ContentHandler {
 
 	private void readCDBInfos() {
 		ChemDatabaseImpl i = instance = new ChemDatabaseImpl();
-		
+
+		addBindingPlugins(i);
+
 		set.set("uuid", i::setUUID, UUID::fromString);
 		set.set("info", i::setInfo);
 		set.set("version", i::setVersion);
@@ -241,6 +260,8 @@ class UnmarshallingHanlder implements ContentHandler {
 					"Illegal nested element, expecting reactions but found " + getCurrentParentTypeName(), locator);
 
 		Reaction e = new ReactionImpl();
+
+		addBindingPlugins(e);
 
 		set.set("speed", e::setSpeed);
 		set.set("K", e::setK);
@@ -300,6 +321,8 @@ class UnmarshallingHanlder implements ContentHandler {
 					"Illegal nested element, expecting substances but found " + getCurrentParentTypeName(), locator);
 
 		Substance s = new SubstanceImpl();
+
+		addBindingPlugins(s);
 
 		set.set("id", s::setId);
 		set.set("name", s::setName);

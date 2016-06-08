@@ -16,7 +16,7 @@ import net.glease.chem.simple.scoping.ScopeException;
  * will happen if variables are just exactly as given. TODO enhance javadoc
  * 
  * @author glease
- * @since 1.0
+ * @since 0.1
  *
  */
 public interface Reaction extends Element<ChemDatabase>, IScope<ChemDatabase, Reaction> {

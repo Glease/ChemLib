@@ -7,8 +7,6 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import net.glease.chem.simple.util.BindingPlugin;
-
 class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T_PARENT, T_THIS>> {
 	static WeakMapping<IScope<?, ?>, ScopeManager<?, ?>> instances = new WeakMapping<>(ScopeManager::clear);
 
@@ -20,7 +18,7 @@ class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T
 
 	private final WeakReference<IScope<T_PARENT, T_THIS>> ref;
 	private final Map<String, IScoped<T_THIS>> ids = new HashMap<>();
-	private final Set<BindingPlugin> plugins = Collections.newSetFromMap(new IdentityHashMap<>());
+	private final Set<BindingPlugin<T_THIS>> plugins = Collections.newSetFromMap(new IdentityHashMap<>());
 
 	T_PARENT parent;
 
@@ -32,7 +30,7 @@ class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T
 		ids.clear();
 	}
 
-	public void install(BindingPlugin plugin) {
+	public void install(BindingPlugin<T_THIS> plugin) {
 		if (!plugins.add(plugin))
 			throw new IllegalArgumentException("duplicate plugin: " + plugin);
 	}
@@ -48,7 +46,7 @@ class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T
 		if (old != o && old != null)
 			throw new DuplicateElementInScopeException(old, o, s, id);
 		ids.put(id, o);
-		for (BindingPlugin plugin : plugins) {
+		for (BindingPlugin<T_THIS> plugin : plugins) {
 			plugin.onBind(s, o);
 		}
 	}
@@ -64,7 +62,7 @@ class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T
 		if (old != o)
 			throw new ScopeException("Not bind to this scope", s, o);
 		ids.remove(id);
-		for (BindingPlugin plugin : plugins) {
+		for (BindingPlugin<T_THIS> plugin : plugins) {
 			plugin.onUnbind(s, o);
 		}
 	}

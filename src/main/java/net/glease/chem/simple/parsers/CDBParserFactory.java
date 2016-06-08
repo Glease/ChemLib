@@ -2,14 +2,13 @@ package net.glease.chem.simple.parsers;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
-
-import net.glease.chem.simple.util.ParserPlugin;
 
 public abstract class CDBParserFactory {
 	static final class DefaultFactory extends CDBParserFactory {
@@ -18,9 +17,9 @@ public abstract class CDBParserFactory {
 		EntityResolver er;
 		ErrorHandler eh = ReportingErrorHandler.I;
 
-		private Map<String, Boolean> fs = new HashMap<>();
+		Map<String, Boolean> fs = new HashMap<>();
 
-		private Map<String, Object> ps = new HashMap<>();
+		Map<String, Object> ps = new HashMap<>();
 
 		@Override
 		protected Object getProperty0(String name) {
@@ -46,9 +45,9 @@ public abstract class CDBParserFactory {
 
 		@Override
 		public boolean isPropertySupported(String name) {
-			return XML_ENTITY_RESOLVER_NAME.equals(Objects.requireNonNull(name))
+			return XML_ENTITY_RESOLVER_NAME.equals(Objects.requireNonNull(name)) 
 					|| XML_FEATURE_PREFIX.equals(name)
-					|| name.startsWith(XML_PROPERTY_PREFIX)
+					|| name.startsWith(XML_PROPERTY_PREFIX) 
 					|| name.startsWith(XML_FEATURE_PREFIX);
 		}
 
@@ -84,40 +83,20 @@ public abstract class CDBParserFactory {
 	public static final String LANGUAGE_JSON = "json";
 	public static final String LANGUAGE_XML = "xml";
 
-	/**
-	 * Implementation should return
-	 * {@code Pattern.quote(JSON_FEATURE_PREFIX) + ".+"} on invocation of
-	 * {@link #getSupportedProperty()},
-	 */
 	public static final String JSON_FEATURE_PREFIX = "json.feature:";
-	/**
-	 * Implementation should return
-	 * {@code Pattern.quote(JSON_FEATURE_PREFIX) + ".+"} on invocation of
-	 * {@link #getSupportedProperty()},
-	 */
 	public static final String JSON_PROPERTY_PREFIX = "json.property:";
 
 	public static final String XML_ENTITY_RESOLVER_NAME = "xml.entityResolver";
 	public static final String XML_ERROR_HANDLER_NAME = "xml.errorHandler";
 
-	/**
-	 * Implementation should return
-	 * {@code Pattern.quote(XML_FEATURE_PREFIX) + ".+"} on invocation of
-	 * {@link #getSupportedProperty()},
-	 */
 	public static final String XML_FEATURE_PREFIX = "xml.feature:";
-	/**
-	 * Implementation should return
-	 * {@code Pattern.quote(XML_PROPERTY_PREFIX) + ".+"} on invocation of
-	 * {@link #getSupportedProperty()},
-	 */
 	public static final String XML_PROPERTY_PREFIX = "xml.property:";
 
 	/**
 	 * Implementations are recommended, but not required to use this as default
 	 * name space prefix when unmarshaling to an XML document.
 	 */
-	static final String XML_DEFAULT_NAMESPACE_PREFIX = "cdbs";
+	public static final String XML_DEFAULT_NAMESPACE_PREFIX = "cdbs";
 	public static final String XML_NAMESPACE = "http://glease.net/chem/simple/DataStructure";
 
 	private static ClassLoader getContextClassLoader() {
@@ -200,12 +179,21 @@ public abstract class CDBParserFactory {
 	 */
 	public abstract Set<String> getSupportedLanguage();
 
+	protected final Set<ParserPlugin> plugins = new LinkedHashSet<>();
+
 	/**
+	 * Add a {@link ParserPlugin} to a internal set. The given plugin will be
+	 * injected into the parsers created by this {@link CDBParserFactory}
+	 * <i>afterwards</i>.
+	 * <p>
+	 * Default implementation just add given plugin to a internal
+	 * {@link LinkedHashSet}.
+	 * 
 	 * @param plugin
 	 *            the plugin to be injected into this {@link CDBParserFactory}.
 	 */
 	public void inject(ParserPlugin plugin) {
-		throw new UnsupportedOperationException("this implementation supports no plugin");
+		plugins.add(plugin);
 	}
 
 	public final boolean isLanguageSupported(String name) {

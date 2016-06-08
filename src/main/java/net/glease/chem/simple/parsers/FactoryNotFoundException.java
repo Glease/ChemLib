@@ -1,5 +1,11 @@
 package net.glease.chem.simple.parsers;
 
+/**
+ * Signals a requested {@link CDBParserFactory} can't be found.
+ * 
+ * @author glease
+ * @since 0.1
+ */
 public class FactoryNotFoundException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 

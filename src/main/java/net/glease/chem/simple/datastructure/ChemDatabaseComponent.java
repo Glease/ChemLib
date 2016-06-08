@@ -5,7 +5,7 @@ package net.glease.chem.simple.datastructure;
  * structure.
  * 
  * @author glease
- * @since 1.0
+ * @since 0.1
  *
  */
 public interface ChemDatabaseComponent {

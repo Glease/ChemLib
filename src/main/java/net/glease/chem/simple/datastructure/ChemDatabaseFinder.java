@@ -4,15 +4,28 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import net.glease.chem.simple.datastructure.ChemDatabaseFinder.ReactionSide;
 import net.glease.chem.simple.datastructure.impl.ChemDatabaseFinderImpl;
 
+/**
+ * Provide a fluent API to find various item in a given {@link ChemDatabase}.
+ * 
+ * @author glease
+ * @since 0.1
+ */
 public interface ChemDatabaseFinder {
-	interface AtomFinder {
+	interface Finder<E> {
+		Set<E> parallelFind();
+		
+		Set<E> find();
 
-		Set<Atom> find();
+		Finder<E> where(Predicate<E> filter);
+	}
+
+	interface AtomFinder extends Finder<Atom> {
 
 		/**
 		 * If you are confident that you are looking for only one {@link Atom},
@@ -21,7 +34,7 @@ public interface ChemDatabaseFinder {
 		 * 
 		 * @return the content you want, or <code>null</code> if not found.
 		 * @throws IllegalStateException
-		 *             if multiple results are found.
+		 *             if multiple results ar e found.
 		 */
 
 		Atom unique();
@@ -30,11 +43,11 @@ public interface ChemDatabaseFinder {
 
 		AtomFinder withMolMass(int molMass);
 
+		@Override
+		AtomFinder where(Predicate<Atom> filter);
 	}
 
-	interface ReactionFinder {
-
-		Set<Reaction> find();
+	interface ReactionFinder extends Finder<Reaction> {
 
 		ReactionFinder withAllCatalysts(Reagent... catalysts);
 
@@ -76,6 +89,8 @@ public interface ChemDatabaseFinder {
 
 		ReactionFinder withSubstance(ReactionSide side, Substance s);
 
+		@Override
+		ReactionFinder where(Predicate<Reaction> filter);
 	}
 
 	enum ReactionSide {
@@ -125,9 +140,7 @@ public interface ChemDatabaseFinder {
 		abstract Set<? extends ReactionComponent> get0(Reaction e);
 	}
 
-	interface ReagentFinder {
-
-		Set<Reagent> find();
+	interface ReagentFinder extends Finder<Reagent> {
 
 		ReagentFinder withName(String s);
 
@@ -137,23 +150,25 @@ public interface ChemDatabaseFinder {
 
 		ReagentFinder withSubstance(Substance s);
 
+		@Override
+		ReagentFinder where(Predicate<Reagent> filter);
 	}
 
-	interface SubstanceFinder {
+	interface SubstanceFinder extends Finder<Substance> {
 
 		SubstanceFinder containsAll(SubstanceContent... contents);
 
 		SubstanceFinder containsAny(SubstanceContent... contents);
 
-		Set<Substance> find();
-
 		SubstanceFinder withName(String name);
 
+		@Override
+		SubstanceFinder where(Predicate<Substance> filter);
 	}
 
 	AtomFinder findAtom();
 
-	ReactionFinder findEquation();
+	ReactionFinder findReaction();
 
 	ReagentFinder findReagent();
 

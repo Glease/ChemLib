@@ -12,7 +12,7 @@ import java.awt.Color;
  * 
  *
  * @author glease
- * @since 1.0
+ * @since 0.1
  */
 public interface Reagent extends Element<ChemDatabase> {
 

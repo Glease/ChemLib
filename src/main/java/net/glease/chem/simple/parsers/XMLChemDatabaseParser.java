@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PipedReader;
+import java.io.PipedWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -29,7 +31,6 @@ import javax.xml.transform.stream.StreamSource;
 import org.xml.sax.InputSource;
 
 import net.glease.chem.simple.datastructure.ChemDatabase;
-import net.glease.chem.simple.util.ReaderWriterPair;
 
 /**
  * Marshal or unmarshal a {@link ChemDatabase} instance. This class should be
@@ -37,7 +38,7 @@ import net.glease.chem.simple.util.ReaderWriterPair;
  * responsibility to synchronize the {@link ChemDatabase} being marshaled.
  * 
  * @author glease
- *
+ * @since 0.1
  */
 public interface XMLChemDatabaseParser {
 
@@ -61,12 +62,12 @@ public interface XMLChemDatabaseParser {
 
 	default void marshal(ChemDatabase db, Writer out) throws CDBParseException {
 		try {
-		marshal(db, XMLOutputFactory.newFactory().createXMLStreamWriter(out));
-	} catch (XMLStreamException | FactoryConfigurationError e) {
-		throw new CDBParseException("can't create XMLStreamWriter with given output", e);
+			marshal(db, XMLOutputFactory.newFactory().createXMLStreamWriter(out));
+		} catch (XMLStreamException | FactoryConfigurationError e) {
+			throw new CDBParseException("can't create XMLStreamWriter with given output", e);
+		}
 	}
-	}
-	
+
 	default void marshal(ChemDatabase db, Result out) throws CDBParseException {
 		Transformer t;
 		try {
@@ -74,10 +75,16 @@ public interface XMLChemDatabaseParser {
 		} catch (TransformerConfigurationException | TransformerFactoryConfigurationError e) {
 			throw new CDBParseException("can't create javax.transform.Transformer!", e);
 		}
-		ReaderWriterPair p = ReaderWriterPair.create();
-		marshal(db, p.getRw());
+		PipedReader pr = new PipedReader();
+		PipedWriter pw;
 		try {
-			t.transform(new StreamSource(p.getWr()), out);
+			pw = new PipedWriter(pr);
+		} catch (IOException e) {
+			throw new CDBParseException("can't create java.io.PipedWriter! this is impossible", e);
+		}
+		marshal(db, pw);
+		try {
+			t.transform(new StreamSource(pr), out);
 		} catch (TransformerException e) {
 			throw new CDBParseException(e);
 		}
@@ -102,20 +109,26 @@ public interface XMLChemDatabaseParser {
 		} catch (TransformerConfigurationException | TransformerFactoryConfigurationError e) {
 			throw new CDBParseException("can't create javax.transform.Transformer!", e);
 		}
-		ReaderWriterPair p = ReaderWriterPair.create();
-		StreamResult r = new StreamResult(p.getRw());
+		PipedReader pr = new PipedReader();
+		PipedWriter pw;
+		try {
+			pw = new PipedWriter(pr);
+		} catch (IOException e) {
+			throw new CDBParseException("can't create java.io.PipedWriter! this is impossible", e);
+		}
+		StreamResult r = new StreamResult(pw);
 		try {
 			t.transform(in, r);
 		} catch (TransformerException e) {
-			throw new CDBParseException("can't transform given input into a stream of character",e);
+			throw new CDBParseException("can't transform given input into a stream of character", e);
 		}
 		try {
-			return unmarshal(p.getWr());
+			return unmarshal(pr);
 		} catch (IOException e) {
 			throw new RuntimeException("impossible", e);
 		}
 	}
-	
+
 	default ChemDatabase unmarshal(Reader in) throws CDBParseException, IOException {
 		return unmarshal(new InputSource(in));
 	}

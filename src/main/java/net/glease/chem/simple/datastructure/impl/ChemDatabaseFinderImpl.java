@@ -1,6 +1,7 @@
 package net.glease.chem.simple.datastructure.impl;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,12 +43,22 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 */
 		@Override
 		public Set<Atom> find() {
-			Stream<Atom> s = db.getAtoms().values().stream();
+			return find(db.getAtoms().values().stream());
+		}
+
+		private Set<Atom> find(Stream<Atom> s) {
 			if (index != -1)
 				s.filter(e -> e.getIndex() == index);
 			if (molMass != -1)
 				s.filter(e -> e.getMolMass() == molMass);
-			return s.filter(p).collect(immutableSetCollector());
+			if (p != null)
+				s.filter(p);
+			return s.collect(immutableSetCollector());
+		}
+
+		@Override
+		public Set<Atom> parallelFind() {
+			return find(db.getAtoms().values().parallelStream());
 		}
 
 		/*
@@ -59,6 +70,12 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 
 		public Atom unique() {
 			return unwrap(find());
+		}
+
+		@Override
+		public AtomFinder where(Predicate<Atom> filter) {
+			p = p.and(filter);
+			return this;
 		}
 
 		/*
@@ -102,11 +119,20 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 */
 		@Override
 		public Set<Reaction> find() {
-			return db.getReactions().parallelStream().filter(p == null ? e -> true : p)
-					.collect(immutableSetCollector());
+			return find(db.getReactions().stream());
 		}
 
-		private ReactionFinder match(Predicate<Reaction> next) {
+		private Set<Reaction> find(Stream<Reaction> s) {
+			return s.filter(p == null ? e -> true : p).collect(immutableSetCollector());
+		}
+
+		@Override
+		public Set<Reaction> parallelFind() {
+			return find(db.getReactions().parallelStream());
+		}
+
+		@Override
+		public ReactionFinder where(Predicate<Reaction> next) {
 			p = p == null ? next : p.and(next);
 			return this;
 		}
@@ -120,7 +146,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		@Override
 		public ReactionFinder withAllCatalysts(Reagent... catalysts) {
 			List<Reagent> l = Arrays.asList(catalysts);
-			return match(e -> e.getCatalysts().containsAll(l));
+			return where(e -> e.getCatalysts().containsAll(l));
 		}
 
 		/*
@@ -133,7 +159,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		@Override
 		public ReactionFinder withAllComponents(ReactionComponent... comp) {
 			List<ReactionComponent> rs = Arrays.asList(comp);
-			return match(t -> t.getAllReactionComponents().parallelStream().allMatch(rs::contains));
+			return where(t -> t.getAllReactionComponents().parallelStream().allMatch(rs::contains));
 		}
 
 		/*
@@ -145,7 +171,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		@Override
 		public ReactionFinder withAllConditions(String... conditions) {
 			List<String> l = Arrays.asList(conditions);
-			return match(e -> e.getConditions().containsAll(l));
+			return where(e -> e.getConditions().containsAll(l));
 		}
 
 		/*
@@ -159,7 +185,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 			if (ss.size() == 0)
 				return this;
 
-			return match(t -> {
+			return where(t -> {
 				for (ReactionSide rs : values.values()) {
 					Set<Substance> s = ss.get(rs);
 					if (s.isEmpty())
@@ -180,7 +206,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		@Override
 		public ReactionFinder withAnyCatalysts(Reagent... catalysts) {
 			List<Reagent> l = Arrays.asList(catalysts);
-			return match(e -> e.getCatalysts().stream().anyMatch(l::contains));
+			return where(e -> e.getCatalysts().stream().anyMatch(l::contains));
 		}
 
 		/*
@@ -193,7 +219,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		@Override
 		public ReactionFinder withAnyComponents(ReactionComponent... comp) {
 			List<ReactionComponent> rs = Arrays.asList(comp);
-			return match(t -> t.getAllReactionComponents().parallelStream().anyMatch(rs::contains));
+			return where(t -> t.getAllReactionComponents().parallelStream().anyMatch(rs::contains));
 		}
 
 		/*
@@ -205,7 +231,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		@Override
 		public ReactionFinder withAnyConditions(String... conditions) {
 			List<String> l = Arrays.asList(conditions);
-			return match(e -> e.getConditions().stream().anyMatch(l::contains));
+			return where(e -> e.getConditions().stream().anyMatch(l::contains));
 		}
 
 		/*
@@ -219,7 +245,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 			if (ss.size() == 0)
 				return this;
 
-			return match(t -> {
+			return where(t -> {
 				for (ReactionSide rs : values.values()) {
 					Set<Substance> s = ss.get(rs);
 					if (s.isEmpty())
@@ -240,7 +266,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 */
 		@Override
 		public ReactionFinder withCatalyst(Reagent catalyst) {
-			return match(e -> e.getCatalysts().contains(catalyst));
+			return where(e -> e.getCatalysts().contains(catalyst));
 		}
 
 		/*
@@ -251,7 +277,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 */
 		@Override
 		public ReactionFinder withComponent(ReactionComponent comp) {
-			return match(comp instanceof Resultant ? e -> e.getResultants().contains(comp)
+			return where(comp instanceof Resultant ? e -> e.getResultants().contains(comp)
 					: e -> e.getReactants().contains(comp));
 		}
 
@@ -263,7 +289,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 */
 		@Override
 		public ReactionFinder withCondition(String condition) {
-			return match(e -> e.getConditions().contains(condition));
+			return where(e -> e.getConditions().contains(condition));
 		}
 
 		/*
@@ -276,7 +302,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 */
 		@Override
 		public ReactionFinder withSubstance(ReactionSide side, Substance s) {
-			return match(t -> side.get(t).stream().anyMatch(r -> s.equals(r.getSubstance())));
+			return where(t -> side.get(t).stream().anyMatch(r -> s.equals(r.getSubstance())));
 		}
 	}
 
@@ -286,6 +312,8 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		private Substance s2;
 		private String name;
 		private ReagentState state;
+
+		Predicate<Reagent> p;
 
 		private ReagentFinderImpl() {
 			super();
@@ -298,7 +326,10 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 */
 		@Override
 		public Set<Reagent> find() {
-			Stream<Reagent> s = db.getReagents().values().stream();
+			return find(db.getReagents().values().stream());
+		}
+
+		private Set<Reagent> find(Stream<Reagent> s) {
 			if (name != null)
 				s.filter(r -> name.equals(r.getName()));
 			if (s1 != null)
@@ -307,8 +338,20 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 				s.filter(r -> s2.equals(r.getSolvent()));
 			if (state != null)
 				s.filter(r -> state.equals(r.getState()));
-
+			if (p != null)
+				s.filter(p);
 			return s.collect(immutableSetCollector());
+		}
+
+		@Override
+		public Set<Reagent> parallelFind() {
+			return find(db.getReagents().values().parallelStream());
+		}
+
+		@Override
+		public ReagentFinder where(Predicate<Reagent> filter) {
+			p = p == null ? filter : p.and(filter);
+			return this;
 		}
 
 		/*
@@ -399,7 +442,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 */
 		@Override
 		public SubstanceFinder containsAny(SubstanceContent... contents) {
-			return match(e -> e.getContent().stream().anyMatch(Arrays.asList(contents)::contains));
+			return where(e -> e.getContent().stream().anyMatch(Arrays.asList(contents)::contains));
 		}
 
 		/*
@@ -409,7 +452,10 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 */
 		@Override
 		public Set<Substance> find() {
-			Stream<Substance> s = db.getSubstances().values().parallelStream();
+			return find(db.getSubstances().values().stream());
+		}
+
+		private Set<Substance> find(Stream<Substance> s) {
 			if (p != null)
 				s.filter(p);
 			if (scs != null)
@@ -417,7 +463,13 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 			return s.collect(immutableSetCollector());
 		}
 
-		private SubstanceFinder match(Predicate<Substance> next) {
+		@Override
+		public Set<Substance> parallelFind() {
+			return find(db.getSubstances().values().parallelStream());
+		}
+
+		@Override
+		public SubstanceFinder where(Predicate<Substance> next) {
 			p = p == null ? next : p.and(next);
 			return this;
 		}
@@ -431,7 +483,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 */
 		@Override
 		public SubstanceFinder withName(String name) {
-			return match(s -> s.getName().equals(name));
+			return where(s -> s.getName().equals(name));
 		}
 	}
 
@@ -503,7 +555,7 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 	 * ()
 	 */
 	@Override
-	public ReactionFinder findEquation() {
+	public ReactionFinder findReaction() {
 		return new EquationFinderImpl();
 	}
 

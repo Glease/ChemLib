@@ -1,10 +1,15 @@
-package net.glease.chem.simple.util;
+package net.glease.chem.simple.scoping;
 
-import net.glease.chem.simple.datastructure.ChemDatabaseComponent;
-import net.glease.chem.simple.scoping.IScope;
-import net.glease.chem.simple.scoping.IScoped;
-
-public interface BindingPlugin {
+/**
+ * Define a plugin to be installed on {@link IScope IScopes}.
+ * 
+ * @author glease
+ *
+ * @param <T>
+ *            the type of scope this {@link BindingPlugin} is designed for
+ * @since 0.1
+ */
+public interface BindingPlugin<T extends IScope<?, T>> {
 	/**
 	 * Get the version info of this {@link BindingPlugin}
 	 * 
@@ -29,7 +34,7 @@ public interface BindingPlugin {
 	 * @param scope
 	 * @param elem
 	 */
-	<T extends IScope<?, T>> void onBind(IScope<?, T> scope, IScoped<T> elem);
+	void onBind(IScope<?, T> scope, IScoped<T> elem);
 
 	/**
 	 * Invoked immediately after {@link IScope#onUnbind(IScoped) T.onUnbind()}.
@@ -41,9 +46,9 @@ public interface BindingPlugin {
 	 * @param scope
 	 * @param elem
 	 */
-	<T extends IScope<?, T>> void onUnbind(IScope<?, T> scope, IScoped<T> elem);
+	void onUnbind(IScope<?, T> scope, IScoped<T> elem);
 
-	Class<? extends ChemDatabaseComponent> target();
+	Class<T> target();
 
 	/**
 	 * Get the vendor info of this {@link BindingPlugin}

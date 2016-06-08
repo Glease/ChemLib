@@ -6,7 +6,7 @@ package net.glease.chem.simple.datastructure;
  * The Java class of EquationComponent. Common super interface of {@link Reactant}
  * and {@link Resultant}. Directly implementing/extending this is prohibited.
  * @author glease
- * @since 1.0
+ * @since 0.1
  *
  */
 public interface ReactionComponent extends Element<Reaction> {

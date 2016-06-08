@@ -5,7 +5,7 @@ package net.glease.chem.simple.datastructure;
  * <p>
  * The Java class of SubstanceContent.
  * @author glease
- * @since 1.0
+ * @since 0.1
  *
  *
  */

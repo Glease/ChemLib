@@ -4,9 +4,11 @@ import net.glease.chem.simple.datastructure.ChemDatabase;
 import net.glease.chem.simple.datastructure.NormalizationException;
 
 /**
+ * Define a plugin which provides additional normalization on a given
+ * {@link ChemDatabase}.
  * 
  * @author glease
- *
+ * @since 0.1
  */
 public interface NormalizationPlugin {
 	/**
@@ -29,8 +31,7 @@ public interface NormalizationPlugin {
 	 * installed on a single {@link ChemDatabase} instance, the invocation order
 	 * of these plugins are undefined. Clients should synchronize externally if
 	 * a instance of {@link NormalizationPlugin} has to be shared among multiple
-	 * threads.
-	 * {@link #normalize(ChemDatabase)} method.
+	 * threads. {@link #normalize(ChemDatabase)} method.
 	 * 
 	 * 
 	 * @param cdb

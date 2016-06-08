@@ -1,10 +1,13 @@
-package net.glease.chem.simple.util;
+package net.glease.chem.simple.normalizers;
 
 import java.util.ServiceLoader;
 import java.util.stream.StreamSupport;
 
-import net.glease.chem.simple.normalizers.NormalizationPlugin;
-
+/**
+ * Helper methods to find certain {@link NormalizationPlugin}.
+ * @author glease
+ * @since 0.1
+ */
 public final class PluginFactory {
 	public static NormalizationPlugin newInstance(String name) {
 		return StreamSupport.stream(ServiceLoader.load(NormalizationPlugin.class).spliterator(), false)

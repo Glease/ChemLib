@@ -1,5 +1,13 @@
 package net.glease.chem.simple.parsers;
 
+import net.glease.chem.simple.datastructure.ChemDatabase;
+
+/**
+ * Signals a {@link ChemDatabase} parsing went wrong, somehow.
+ * 
+ * @author glease
+ * @since 0.1
+ */
 public class CDBParseException extends Exception {
 
 	private static final long serialVersionUID = 1L;

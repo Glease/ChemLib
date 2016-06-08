@@ -88,6 +88,7 @@ import net.glease.chem.simple.scoping.IScope.ROOT;
  * @param <T_SCOPE>
  *            the type of scope, can't be {@link ROOT}
  * @see IScoped
+ * @since 0.1
  */
 public interface IScoped<T_SCOPE extends IScope<?, T_SCOPE>> {
 	/**

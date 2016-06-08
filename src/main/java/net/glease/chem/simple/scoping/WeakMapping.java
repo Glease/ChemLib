@@ -9,11 +9,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Modified version of {@link WeakHashMap} from Oracle JDK 1.8.0_77. 
+ * Modified version of {@link WeakHashMap} from OpenJDK 1.8.0_77.
+ * 
  * @author glease
  *
- * @param <K>
- * @param <V>
  */
 class WeakMapping<K, V> {
 
@@ -207,7 +206,7 @@ class WeakMapping<K, V> {
 	 */
 	public void clear() {
 		Object x;
-		while ((x=queue.poll()) != null) {
+		while ((x = queue.poll()) != null) {
 			@SuppressWarnings("unchecked")
 			Entry<K, V> e = (Entry<K, V>) x;
 			removalListener.accept(e.value);
@@ -217,10 +216,10 @@ class WeakMapping<K, V> {
 			removalListener.accept(table[i].value);
 			table[i] = null;
 		}
-		
+
 		size = 0;
 
-		while ((x=queue.poll()) != null) {
+		while ((x = queue.poll()) != null) {
 			@SuppressWarnings("unchecked")
 			Entry<K, V> e = (Entry<K, V>) x;
 			removalListener.accept(e.value);

@@ -6,6 +6,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Various adaptors that should be used by all implementations to convert
+ * certain types.
+ * 
+ * @author glease
+ * @since 0.1
+ */
 public final class Adaptors {
 	private static final Map<String, Color> PREDEFINED_COLORS = get();
 	private static final Map<Color, String> PREDEFINED_COLORS_REVERSED = getReversed();
