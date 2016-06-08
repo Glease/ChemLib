@@ -1,6 +1,7 @@
-package net.glease.chem.simple.util;
+package net.glease.chem.simple.normalizers;
 
 import net.glease.chem.simple.datastructure.ChemDatabase;
+import net.glease.chem.simple.datastructure.NormalizationException;
 
 /**
  * 
@@ -34,7 +35,7 @@ public interface NormalizationPlugin {
 	 * 
 	 * @param cdb
 	 */
-	void normalize(ChemDatabase cdb);
+	void normalize(ChemDatabase cdb) throws NormalizationException;
 
 	/**
 	 * Get the vendor info of this {@link NormalizationPlugin}

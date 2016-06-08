@@ -4,10 +4,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import net.glease.chem.simple.normalizers.NormalizationPlugin;
 import net.glease.chem.simple.scoping.IScope;
 import net.glease.chem.simple.scoping.IScoped;
 import net.glease.chem.simple.scoping.ScopeException;
-import net.glease.chem.simple.util.NormalizationPlugin;
 
 /**
  * ChemDatabase represents a set of chemical data. Clients should invoke

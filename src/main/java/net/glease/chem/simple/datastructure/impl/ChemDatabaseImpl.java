@@ -18,15 +18,11 @@ import net.glease.chem.simple.datastructure.NormalizationException;
 import net.glease.chem.simple.datastructure.Reaction;
 import net.glease.chem.simple.datastructure.Reagent;
 import net.glease.chem.simple.datastructure.Substance;
-import net.glease.chem.simple.util.NormalizationPlugin;
+import net.glease.chem.simple.normalizers.NormalizationPlugin;
 
 public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 
 	private final static long serialVersionUID = 1L;
-
-	private static boolean hasContent(String s) {
-		return s != null && !s.isEmpty();
-	}
 
 	protected Map<String, Substance> substances = new HashMap<>();
 	protected Set<Reaction> reactions = new HashSet<>();
@@ -43,46 +39,6 @@ public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 	public void accept(NormalizationPlugin plugin) {
 		if (!plugins.add(plugin))
 			throw new IllegalArgumentException("duplicate plugin: " + plugin);
-	}
-
-	private void addMissingAtomAttributes() throws NormalizationException {
-		Map<Integer, String> symbols = new HashMap<>();
-		Map<Integer, String> names = new HashMap<>();
-		Set<Atom> omitted = new HashSet<>();
-
-		for (Atom atom : getAtoms().values()) {
-			String s = atom.getSymbol(), temp;
-			int index = atom.getIndex();
-			if (hasContent(s))
-				if (!s.equals(temp = symbols.put(index, s)))
-					throw new NormalizationException(
-							String.format("Atom indexed %d Symbol conflict: %s, %s", index, s, temp));
-				else
-					omitted.add(atom);
-			s = atom.getLocalizedName();
-			if (hasContent(s))
-				if (!s.equalsIgnoreCase(temp = names.put(index, s)))
-					throw new NormalizationException(
-							String.format("Atom indexed %d Localized Name conflict: %s, %s", index, s, temp));
-				else
-					omitted.add(atom);
-		}
-
-		for (Atom atom : omitted) {
-			String s;
-			int index = atom.getIndex();
-			if (!hasContent(atom.getSymbol())) {
-				s = symbols.get(index);
-				if (hasContent(s))
-					atom.setSymbol(s);
-				else
-					throw new NormalizationException(String.format("Atom indexed %d has no declared Symbol!", index));
-			}
-			if (!hasContent(atom.getLocalizedName())) {
-				s = names.get(index);
-				atom.setLocalizedName(hasContent(s) ? s : atom.getSymbol());
-			}
-		}
 	}
 
 	@Override
@@ -151,7 +107,6 @@ public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 
 	@Override
 	public final void normalize() throws NormalizationException {
-		addMissingAtomAttributes();
 		for (NormalizationPlugin plugin : plugins) {
 			plugin.normalize(this);
 		}
