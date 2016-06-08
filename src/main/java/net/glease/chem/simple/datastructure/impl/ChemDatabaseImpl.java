@@ -36,7 +36,7 @@ public class ChemDatabaseImpl implements Serializable, ChemDatabase {
 	protected String info;
 
 	@Override
-	public void accept(NormalizationPlugin plugin) {
+	public void install(NormalizationPlugin plugin) {
 		if (!plugins.add(plugin))
 			throw new IllegalArgumentException("duplicate plugin: " + plugin);
 	}

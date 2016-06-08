@@ -27,7 +27,7 @@ public interface ChemDatabase extends IScope<IScope.ROOT, ChemDatabase>, ChemDat
 	 * 
 	 * @param plugin
 	 */
-	void accept(NormalizationPlugin plugin);
+	void install(NormalizationPlugin plugin);
 
 	/**
 	 * Do nothing.
