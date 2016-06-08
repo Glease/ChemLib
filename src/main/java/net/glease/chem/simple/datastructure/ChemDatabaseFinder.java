@@ -7,7 +7,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import net.glease.chem.simple.datastructure.ChemDatabaseFinder.ReactionSide;
 import net.glease.chem.simple.datastructure.impl.ChemDatabaseFinderImpl;
 
 /**
