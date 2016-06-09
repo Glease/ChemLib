@@ -43,7 +43,7 @@ class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T
 		}
 		String id = o.getId();
 		IScoped<T_THIS> old = ids.get(id);
-		if (old != o && old != null)
+		if (!o.equals(old) && old != null)
 			throw new DuplicateElementInScopeException(old, o, s, id);
 		ids.put(id, o);
 		for (BindingPlugin<T_THIS> plugin : plugins) {
@@ -59,8 +59,8 @@ class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T
 		}
 		String id = o.getId();
 		IScoped<T_THIS> old = ids.get(id);
-		if (old != o)
-			throw new ScopeException("Not bind to this scope", s, o);
+		if (!o.equals(old))
+			throw new ScopeException("Not binded to this scope", s, o);
 		ids.remove(id);
 		for (BindingPlugin<T_THIS> plugin : plugins) {
 			plugin.onUnbind(s, o);
