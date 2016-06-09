@@ -1,7 +1,6 @@
 
 package net.glease.chem.simple.datastructure.impl;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,7 +19,7 @@ import net.glease.chem.simple.datastructure.Reagent;
 import net.glease.chem.simple.datastructure.Substance;
 import net.glease.chem.simple.normalizers.NormalizationPlugin;
 
-public class ChemDatabaseImpl implements Serializable, ChemDatabase {
+public class ChemDatabaseImpl implements ChemDatabase {
 
 	private final static long serialVersionUID = 1L;
 

@@ -3,14 +3,13 @@ package net.glease.chem.simple.datastructure.impl;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Objects;
 
 import net.glease.chem.simple.datastructure.Dissolve;
 import net.glease.chem.simple.datastructure.Reagent;
 import net.glease.chem.simple.datastructure.Substance;
 
-public class DissolveImpl implements Serializable, Dissolve {
+public class DissolveImpl implements Dissolve {
 
 	private final static long serialVersionUID = 1L;
 

@@ -4,14 +4,13 @@ package net.glease.chem.simple.datastructure.impl;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Objects;
 
 import net.glease.chem.simple.datastructure.Atom;
 import net.glease.chem.simple.datastructure.Substance;
 import net.glease.chem.simple.datastructure.SubstanceContent;
 
-public class SubstanceContentImpl implements Serializable, SubstanceContent {
+public class SubstanceContentImpl implements SubstanceContent {
 
 	private final static long serialVersionUID = 1L;
 

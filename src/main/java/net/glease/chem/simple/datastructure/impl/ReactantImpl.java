@@ -4,12 +4,11 @@ package net.glease.chem.simple.datastructure.impl;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 
 import net.glease.chem.simple.datastructure.Reactant;
 import net.glease.chem.simple.datastructure.Reaction;
 
-public class ReactantImpl extends ReactionComponentImpl implements Serializable, Reactant {
+public class ReactantImpl extends ReactionComponentImpl implements Reactant {
 
 	private final static long serialVersionUID = 1L;
 

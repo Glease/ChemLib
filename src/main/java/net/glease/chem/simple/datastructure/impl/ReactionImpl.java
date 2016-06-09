@@ -3,7 +3,6 @@ package net.glease.chem.simple.datastructure.impl;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -15,7 +14,7 @@ import net.glease.chem.simple.datastructure.Reaction;
 import net.glease.chem.simple.datastructure.Reagent;
 import net.glease.chem.simple.datastructure.Resultant;
 
-public class ReactionImpl implements Serializable, Reaction {
+public class ReactionImpl implements Reaction {
 
 	private final static long serialVersionUID = 1L;
 

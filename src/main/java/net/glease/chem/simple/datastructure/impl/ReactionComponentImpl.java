@@ -1,7 +1,6 @@
 
 package net.glease.chem.simple.datastructure.impl;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 import net.glease.chem.simple.datastructure.Reaction;
@@ -9,7 +8,7 @@ import net.glease.chem.simple.datastructure.ReactionComponent;
 import net.glease.chem.simple.datastructure.ReagentState;
 import net.glease.chem.simple.datastructure.Substance;
 
-public abstract class ReactionComponentImpl implements Serializable, ReactionComponent {
+public abstract class ReactionComponentImpl implements ReactionComponent {
 
 	private final static long serialVersionUID = 1L;
 

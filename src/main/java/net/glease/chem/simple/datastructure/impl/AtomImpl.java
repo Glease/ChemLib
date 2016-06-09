@@ -4,13 +4,12 @@ package net.glease.chem.simple.datastructure.impl;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Objects;
 
 import net.glease.chem.simple.datastructure.Atom;
 import net.glease.chem.simple.datastructure.ChemDatabase;
 
-public class AtomImpl implements Serializable, Atom {
+public class AtomImpl implements Atom {
 
 	private final static long serialVersionUID = 1L;
 

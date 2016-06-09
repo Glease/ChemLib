@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Objects;
 
 import net.glease.chem.simple.datastructure.ChemDatabase;
@@ -13,7 +12,7 @@ import net.glease.chem.simple.datastructure.Reagent;
 import net.glease.chem.simple.datastructure.ReagentState;
 import net.glease.chem.simple.datastructure.Substance;
 
-public class ReagentImpl implements Serializable, net.glease.chem.simple.datastructure.Reagent {
+public class ReagentImpl implements Reagent {
 
 	private final static long serialVersionUID = 1L;
 	protected String id;
