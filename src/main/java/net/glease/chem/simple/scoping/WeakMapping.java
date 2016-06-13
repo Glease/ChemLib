@@ -3,7 +3,6 @@ package net.glease.chem.simple.scoping;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Map;
-import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -66,7 +65,7 @@ class WeakMapping<K, V> {
 		public int hashCode() {
 			K k = getKey();
 			V v = getValue();
-			return Objects.hashCode(k) ^ Objects.hashCode(v);
+			return System.identityHashCode(k) ^ System.identityHashCode(v);
 		}
 
 		@Override
@@ -335,7 +334,7 @@ class WeakMapping<K, V> {
 	 * bits.
 	 */
 	private final int hash(Object k) {
-		int h = k.hashCode();
+		int h = System.identityHashCode(k);
 
 		// This function ensures that hashCodes that differ only by
 		// constant multiples at each bit position have a bounded

@@ -12,7 +12,7 @@ package net.glease.chem.simple.datastructure;
  * @author glease
  * @since 0.1
  */
-public interface Atom extends Element<ChemDatabase> {
+public interface Atom extends Element<ChemDatabase, Atom> {
 
 	/**
 	 * Get the value of average mol mass. Can be inferred.

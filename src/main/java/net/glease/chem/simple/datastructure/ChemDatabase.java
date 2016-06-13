@@ -1,5 +1,6 @@
 package net.glease.chem.simple.datastructure;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -17,23 +18,11 @@ import net.glease.chem.simple.scoping.ScopeException;
  * @author glease
  * @since 0.1
  */
-public interface ChemDatabase extends IScope<IScope.ROOT, ChemDatabase>, ChemDatabaseComponent {
+public interface ChemDatabase extends IScope<IScope.ROOT, ChemDatabase>, ChemDatabaseComponent<ChemDatabase> {
 
-	/**
-	 * Install a new {@link NormalizationPlugin} into this {@link ChemDatabase}.
-	 * Multiple {@link NormalizationPlugin} of the same class (i.e.
-	 * {@code a.getClass() == b.getClass()}) should be allowed, unless they are
-	 * equal (i.e. {@code a == b}).
-	 * 
-	 * @param plugin
-	 */
-	void install(NormalizationPlugin plugin);
-
-	/**
-	 * Do nothing.
-	 */
 	@Override
-	default void bind(net.glease.chem.simple.scoping.IScope.ROOT cdb) {
+	default boolean bind(IScope.ROOT cdb) {
+		throw new UnsupportedOperationException();
 	}
 
 	/**
@@ -89,6 +78,8 @@ public interface ChemDatabase extends IScope<IScope.ROOT, ChemDatabase>, ChemDat
 	 */
 	String getInfo();
 
+	Locale getLocale();
+	
 	/**
 	 * Get a set containing all {@link Reagent}s in this {@link ChemDatabase}.
 	 * The set is unmodifiable. It is a set because the reaction id doesn't
@@ -151,6 +142,16 @@ public interface ChemDatabase extends IScope<IScope.ROOT, ChemDatabase>, ChemDat
 	int hashCode();
 
 	/**
+	 * Install a new {@link NormalizationPlugin} into this {@link ChemDatabase}.
+	 * Multiple {@link NormalizationPlugin} of the same class (i.e.
+	 * {@code a.getClass() == b.getClass()}) should be allowed, unless they are
+	 * equal (i.e. {@code a == b}).
+	 * 
+	 * @param plugin
+	 */
+	void install(NormalizationPlugin plugin);
+
+	/**
 	 * Perform various tasks that normalize this database into a standard,
 	 * nothing omitted one. It will return <code>false</code> immediately if an
 	 * value is omitted but can't be substituted, leaving everything previously
@@ -178,8 +179,10 @@ public interface ChemDatabase extends IScope<IScope.ROOT, ChemDatabase>, ChemDat
 	 * {@inheritDoc}
 	 */
 	@Override
-	default void onBind(IScoped<ChemDatabase> o) {
-		IScope.super.onBind(o);
+	default boolean onBind(IScoped<ChemDatabase> o) {
+		if(!IScope.super.onBind(o))
+			return false;
+		
 		if (o instanceof Substance) {
 			Substance s = (Substance) o;
 			getSubstances().put(s.getId(), s);
@@ -194,6 +197,7 @@ public interface ChemDatabase extends IScope<IScope.ROOT, ChemDatabase>, ChemDat
 		} else {
 			throw new ScopeException("Element not identified.", this, o);
 		}
+		return true;
 	}
 
 	/**
@@ -243,6 +247,8 @@ public interface ChemDatabase extends IScope<IScope.ROOT, ChemDatabase>, ChemDat
 	 */
 	void setInfo(String value);
 
+	void setLocale(Locale locale);
+	
 	/**
 	 * The UUID this database binds to. A UUID of version 1/4 is prohibited for
 	 * the sake of uniqueness.

@@ -1,18 +1,29 @@
 
 package net.glease.chem.simple.datastructure.impl;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 import net.glease.chem.simple.datastructure.Reactant;
-import net.glease.chem.simple.datastructure.Reaction;
 
-public class ReactantImpl extends ReactionComponentImpl implements Reactant {
+public class ReactantImpl extends ReactionComponentImpl<Reactant> implements Serializable, Reactant {
 
 	private final static long serialVersionUID = 1L;
 
+	public static Reactant copyOf(Reactant o) {
+		ReactantImpl r = new ReactantImpl();
+		r.mol = o.getMol();
+		r.state = o.getState();
+		r.substance = SubstanceImpl.copyOf(o.getSubstance());
+		r.purity = o.getPurity();
+		return r;
+	}
+
 	protected double purity = 100d;
+	
+	@Override
+	public Reactant copy() {
+		return copyOf(this);
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -73,15 +84,5 @@ public class ReactantImpl extends ReactionComponentImpl implements Reactant {
 		builder.append(getMol());
 		builder.append("]");
 		return builder.toString();
-	}
-
-	private void writeObject(ObjectOutputStream out) throws IOException {
-		out.defaultWriteObject();
-		out.writeObject(scope());
-	}
-
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		bind((Reaction) in.readObject());
 	}
 }

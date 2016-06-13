@@ -26,8 +26,8 @@ public final class DefaultPlugins {
 	private static final LazyInitializer<NormalizationPlugin> idReserved = LazyInitializer
 			.create(() -> new BuiltInNormalizationPlugin("IDReservedVerifier", DefaultPlugins::idConflictVerifier));
 
-	public static NormalizationPlugin createSimple(String info, String name, String vendor, String version,
-			NormalizationFunction func) {
+	public static NormalizationPlugin createSimple(final String info, final String name, final String vendor, final String version,
+			final NormalizationFunction func) {
 		return new SimpleNormalizationPlugin(info, name, vendor, version, func);
 	}
 
@@ -43,11 +43,11 @@ public final class DefaultPlugins {
 		return idReserved.get();
 	}
 
-	private static boolean hasContent(String s) {
+	private static boolean hasContent(final String s) {
 		return s != null && !s.isEmpty();
 	}
 
-	private static void atomNormalize(ChemDatabase d) throws NormalizationException {
+	private static void atomNormalize(final ChemDatabase d) throws NormalizationException {
 
 		Map<Integer, String> symbols = new HashMap<>();
 		Map<Integer, String> names = new HashMap<>();
@@ -56,19 +56,23 @@ public final class DefaultPlugins {
 		for (Atom atom : d.getAtoms().values()) {
 			String s = atom.getSymbol(), temp;
 			int index = atom.getIndex();
-			if (hasContent(s))
-				if (!s.equals(temp = symbols.put(index, s)))
+			if (hasContent(s)) {
+				if (!s.equals(temp = symbols.put(index, s))) {
 					throw new NormalizationException(
 							String.format("Atom indexed %d Symbol conflict: %s, %s", index, s, temp));
-				else
+				} else {
 					omitted.add(atom);
+				}
+			}
 			s = atom.getLocalizedName();
-			if (hasContent(s))
-				if (!s.equalsIgnoreCase(temp = names.put(index, s)))
+			if (hasContent(s)) {
+				if (!s.equalsIgnoreCase(temp = names.put(index, s))) {
 					throw new NormalizationException(
 							String.format("Atom indexed %d Localized Name conflict: %s, %s", index, s, temp));
-				else
+				} else {
 					omitted.add(atom);
+				}
+			}
 		}
 
 		for (Atom atom : omitted) {
@@ -76,10 +80,11 @@ public final class DefaultPlugins {
 			int index = atom.getIndex();
 			if (!hasContent(atom.getSymbol())) {
 				s = symbols.get(index);
-				if (hasContent(s))
+				if (hasContent(s)) {
 					atom.setSymbol(s);
-				else
+				} else {
 					throw new NormalizationException(String.format("Atom indexed %d has no declared Symbol!", index));
+				}
 			}
 			if (!hasContent(atom.getLocalizedName())) {
 				s = names.get(index);
@@ -88,7 +93,7 @@ public final class DefaultPlugins {
 		}
 	}
 
-	private static void idConflictVerifier(ChemDatabase d) throws NormalizationException {
+	private static void idConflictVerifier(final ChemDatabase d) throws NormalizationException {
 		Map<String, List<?>> conflicts = Stream
 				.concat(parallelStream(d.getAtoms()),
 						Stream.concat(parallelStream(d.getSubstances()),
@@ -99,8 +104,9 @@ public final class DefaultPlugins {
 				.entrySet().parallelStream().filter(e -> e.getValue().size() > 1)
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-		if (conflicts.isEmpty())
+		if (conflicts.isEmpty()) {
 			return;
+		}
 
 		throw new IDConflictException(conflicts);
 	}
@@ -111,30 +117,33 @@ public final class DefaultPlugins {
 		return s;
 	});
 
-	static void reservedIdVerifier(ChemDatabase d) throws NormalizationException {
-		Map<String, Set<Element<?>>> reserved = new HashMap<>();
+	static void reservedIdVerifier(final ChemDatabase d) throws NormalizationException {
+		Map<String, Set<Element<?, ?>>> reserved = new HashMap<>();
 
 		for (String s : reservedNames.get()) {
-			Set<Element<?>> atom = reserved(d, s);
-			if (!atom.isEmpty())
+			Set<Element<?,?>> atom = reserved(d, s);
+			if (!atom.isEmpty()) {
 				reserved.put(s, atom);
+			}
 		}
 
-		if (!reserved.isEmpty())
+		if (!reserved.isEmpty()) {
 			throw new IDReservedException(reserved);
+		}
 	}
 
-	private static HashSet<Element<?>> reserved(ChemDatabase d, String n) {
+	private static HashSet<Element<?,?>> reserved(final ChemDatabase d, final String n) {
 		return Stream
 				.concat(parallelStream(d.getSubstances()),
 						Stream.concat(parallelStream(d.getReagents()), d.getReactions().parallelStream()))
 				.collect(HashSet::new, (s, e) -> {
-					if (e.getId().startsWith(n))
+					if (e.getId().startsWith(n)) {
 						s.add(e);
+					}
 				}, HashSet::addAll);
 	}
 
-	private static <V> Stream<V> parallelStream(Map<?, V> m) {
+	private static <V> Stream<V> parallelStream(final Map<?, V> m) {
 		return m.values().parallelStream();
 	}
 }

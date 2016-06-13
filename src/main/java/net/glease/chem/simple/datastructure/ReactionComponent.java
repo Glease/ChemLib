@@ -3,13 +3,15 @@ package net.glease.chem.simple.datastructure;
 
 /**
  * <p>
- * The Java class of EquationComponent. Common super interface of {@link Reactant}
- * and {@link Resultant}. Directly implementing/extending this is prohibited.
+ * The Java class of EquationComponent. Common super interface of
+ * {@link Reactant} and {@link Resultant}. Directly implementing/extending this
+ * is prohibited.
+ * 
  * @author glease
  * @since 0.1
  *
  */
-public interface ReactionComponent extends Element<Reaction> {
+public interface ReactionComponent<T_THIS extends ReactionComponent<T_THIS>> extends Element<Reaction, T_THIS> {
 
 	/**
 	 * Should be always effectively the same as {@code getSubstance().getId()}.
@@ -18,7 +20,7 @@ public interface ReactionComponent extends Element<Reaction> {
 	default String getId() {
 		return getSubstance().getId();
 	}
-	
+
 	/**
 	 * Get the value of mol.
 	 * 

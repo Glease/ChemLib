@@ -1,7 +1,10 @@
 package net.glease.chem.simple.parsers;
 
-import static javax.xml.bind.DatatypeConverter.*;
-import static net.glease.chem.simple.parsers.ParseLogger.*;
+import static javax.xml.bind.DatatypeConverter.printDouble;
+import static javax.xml.bind.DatatypeConverter.printInt;
+import static net.glease.chem.simple.parsers.ParseLogger.debug;
+import static net.glease.chem.simple.parsers.ParseLogger.trace;
+import static net.glease.chem.simple.parsers.ParseLogger.warn;
 
 import java.util.Comparator;
 
@@ -25,11 +28,11 @@ class CDBMarshaller {
 	XMLStreamWriter out;
 	String writing;
 
-	public CDBMarshaller(ChemDatabase db) {
+	public CDBMarshaller(final ChemDatabase db) {
 		i = db;
 	}
 
-	public void marshal(XMLStreamWriter out) throws XMLStreamException {
+	public void marshal(final XMLStreamWriter out) throws XMLStreamException {
 		this.out = out;
 
 		debug("Start marshaling");
@@ -43,25 +46,26 @@ class CDBMarshaller {
 		writeAttribute("uuid", i.getUUID().toString());
 		writeAttribute("version", i.getVersion());
 		writeAttribute("info", i.getInfo());
+		writeAttribute("locale", Adaptors.writeLocale(i.getLocale()));
 
 		trace("Start writing atoms");
 		writeStartElement("atoms");
 		writing = "atom";
 		i.getAtoms().values().stream()
-				.sorted(Comparator.comparingInt(Atom::getIndex).thenComparingInt(Atom::getMolMass))
-				.forEachOrdered(a -> {
-					try {
-						writeStartElement("atom");
-						writeAttribute("id", a.getId());
-						writeAttribute("index", a.getIndex());
-						writeAttribute("molMass", a.getMolMass());
-						writeAttribute("symbol", a.getSymbol());
-						writeAttribute("localizedName", a.getLocalizedName());
-						writeEndElement();
-					} catch (XMLStreamException e) {
-						throw new RuntimeException(e);
-					}
-				});
+		.sorted(Comparator.comparingInt(Atom::getIndex).thenComparingInt(Atom::getMolMass))
+		.forEachOrdered(a -> {
+			try {
+				writeStartElement("atom");
+				writeAttribute("id", a.getId());
+				writeAttribute("index", a.getIndex());
+				writeAttribute("molMass", a.getMolMass());
+				writeAttribute("symbol", a.getSymbol());
+				writeAttribute("localizedName", a.getLocalizedName());
+				writeEndElement();
+			} catch (XMLStreamException e) {
+				throw new RuntimeException(e);
+			}
+		});
 		writeEndElement();
 		trace("Ended writing atoms");
 
@@ -87,7 +91,9 @@ class CDBMarshaller {
 			for (Dissolve d : s.getDissolve()) {
 				writeStartElement("dissolve");
 				writeAttribute("solvent", d.getSolvent().getId());
-				writeAttribute("s2TFunction", d.getS2TFunction());
+				@SuppressWarnings("deprecation")
+				String s2tFunction = d.getS2TFunction();
+				writeAttribute("s2TFunction", s2tFunction);
 				writeEndElement();
 			}
 
@@ -106,11 +112,13 @@ class CDBMarshaller {
 			writeAttribute("color", Adaptors.writeColor(r.getColor()));
 			writeAttribute("name", r.getName());
 			ReagentState state = r.getState();
-			if (state != null)
+			if (state != null) {
 				writeAttribute("state", state.value());
+			}
 			Substance solvent = r.getSolvent();
-			if (solvent != null)
+			if (solvent != null) {
 				writeAttribute("solvent", solvent.getId());
+			}
 			writeAttribute("substance", r.getSubstance().getId());
 			writeEndElement();
 		}
@@ -128,11 +136,13 @@ class CDBMarshaller {
 			writeAttribute("speed", r.getSpeed());
 			writeAttribute("temp", r.getTemp());
 			String id = r.getId();
-			if (!id.startsWith("__r_"))// not generated
+			if (!id.startsWith("__r_")) {
 				writeAttribute("id", id);
+			}
 			Reagent solvent = r.getSolvent();
-			if (solvent != null)
+			if (solvent != null) {
 				writeAttribute("", solvent.getId());
+			}
 
 			writing = "reaction-catalyst";
 			for (Reagent c : r.getCatalysts()) {
@@ -155,8 +165,9 @@ class CDBMarshaller {
 				writeAttribute("mol", c.getMol());
 				writeAttribute("purity", c.getPurity());
 				ReagentState state = c.getState();
-				if (state != null)
+				if (state != null) {
 					writeAttribute("state", state.value());
+				}
 				writeEndElement();
 			}
 
@@ -166,8 +177,9 @@ class CDBMarshaller {
 				writeAttribute("substance", c.getSubstance().getId());
 				writeAttribute("mol", c.getMol());
 				ReagentState state = c.getState();
-				if (state != null)
+				if (state != null) {
 					writeAttribute("state", state.value());
+				}
 				writeEndElement();
 			}
 
@@ -181,34 +193,37 @@ class CDBMarshaller {
 		debug("Ended marshaling.");
 	}
 
-	private void writeAttribute(String name, double value) throws XMLStreamException {
-		if (!Double.isNaN(value))
+	private void writeAttribute(final String name, final double value) throws XMLStreamException {
+		if (!Double.isNaN(value)) {
 			writeAttribute(name, printDouble(value));
-		else
+		} else {
 			warn("NaN found writing " + writing + ": " + name + ". Try normalize first.");
+		}
 	}
 
-	private void writeAttribute(String name, int value) throws XMLStreamException {
-		if (value != -1)
+	private void writeAttribute(final String name, final int value) throws XMLStreamException {
+		if (value != -1) {
 			writeAttribute(name, printInt(value));
-		else
+		} else {
 			warn("negative found writing " + writing + ": " + name + ". Try normalize first.");
+		}
 	}
 
-	private void writeAttribute(String name, String value) throws XMLStreamException {
-		if (value != null)
+	private void writeAttribute(final String name, final String value) throws XMLStreamException {
+		if (value != null) {
 			// out.writeAttribute(DEFAULT_NAMESPACE_PREFIX,
 			// CDB_SIMPLE_NAMESPACE, name, value);
 			out.writeAttribute(name, value);
-		else
+		} else {
 			warn("null found writing " + writing + ": " + name + ". Try normalize first.");
+		}
 	}
 
 	private void writeEndElement() throws XMLStreamException {
 		out.writeEndElement();
 	}
 
-	private void writeStartElement(String name) throws XMLStreamException {
+	private void writeStartElement(final String name) throws XMLStreamException {
 		out.writeStartElement(CDBParserFactory.XML_DEFAULT_NAMESPACE_PREFIX, name, CDBParserFactory.XML_NAMESPACE);
 	}
 }

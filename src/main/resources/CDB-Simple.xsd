@@ -181,41 +181,43 @@
 			<xsd:element minOccurs="0" name="substances">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element maxOccurs="unbounded" name="substance"
-							type="Substance" />
+						<xsd:element maxOccurs="unbounded"
+							name="substance" type="Substance" />
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
 			<xsd:element minOccurs="0" name="reactions">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element maxOccurs="unbounded" name="reaction"
-							type="Reaction" />
+						<xsd:element maxOccurs="unbounded"
+							name="reaction" type="Reaction" />
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
 			<xsd:element minOccurs="0" name="atoms">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element name="atom" type="Atom" maxOccurs="unbounded" />
+						<xsd:element name="atom" type="Atom"
+							maxOccurs="unbounded" />
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
 			<xsd:element name="reagents" minOccurs="0">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element name="reagent" type="Reagent" maxOccurs="unbounded" />
+						<xsd:element name="reagent" type="Reagent"
+							maxOccurs="unbounded" />
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
 		</xsd:all>
 		<xsd:attribute use="required" name="uuid" type="UUID" />
 
-		<xsd:attribute name="version" type="xsd:string" use="required">
+		<xsd:attribute name="version" type="xsd:string"
+			use="required">
 			<xsd:annotation>
 				<xsd:documentation>
-					A version string. Loading databases with same
-					UUID
+					A version string. Loading databases with same UUID
 					but different version should result in a crash.
 				</xsd:documentation>
 			</xsd:annotation>
@@ -228,6 +230,19 @@
 					version.
 				</xsd:documentation>
 			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="locale">
+            <xsd:annotation>
+            	<xsd:documentation>A well-formed BCP 47 language tag.</xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:minLength value="2"></xsd:minLength>
+					<xsd:whiteSpace value="collapse"></xsd:whiteSpace>
+					<xsd:maxLength value="8"></xsd:maxLength>
+					<xsd:pattern value="[a-zA-Z]{2,8}(_([a-zA-Z]{2}|[0-9]{3})(_([0-9]\w{3}|\w{5,8})(-[0-9]\w{3}|\w{5,8})*)?)?"></xsd:pattern>
+				</xsd:restriction>
+			</xsd:simpleType>
 		</xsd:attribute>
 	</xsd:complexType>
 

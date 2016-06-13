@@ -11,7 +11,7 @@ import net.glease.chem.simple.scoping.IScoped;
  * @param <T>
  *            scope type
  */
-public interface Element<T extends IScope<?, T>> extends IScoped<T>, ChemDatabaseComponent {
+public interface Element<T extends IScope<?, T>, T_THIS extends Element<T, T_THIS>> extends IScoped<T>, ChemDatabaseComponent<T_THIS> {
 	/**
 	 * Two elements are considered <i>value-equal</i> if all their properties
 	 * are <i>value-equal</i> and their scope <i>identity-equal</i> and both

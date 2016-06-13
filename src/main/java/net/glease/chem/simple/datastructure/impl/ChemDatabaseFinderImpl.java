@@ -154,12 +154,12 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 * 
 		 * @see net.glease.chem.simple.datastructure.impl.ReactionFinder#
 		 * withAllComponents(net.glease.chem.simple.datastructure.
-		 * ReactionComponent)
+		 * ReactionComponent<?>)
 		 */
 		@Override
-		public ReactionFinder withAllComponents(ReactionComponent... comp) {
-			List<ReactionComponent> rs = Arrays.asList(comp);
-			return where(t -> t.getAllReactionComponents().parallelStream().allMatch(rs::contains));
+		public ReactionFinder withAllComponents(ReactionComponent<?>... comp) {
+			List<ReactionComponent<?>> rs = Arrays.asList(comp);
+			return where(t -> t.getAllReactionComponents().parallel().allMatch(rs::contains));
 		}
 
 		/*
@@ -214,12 +214,12 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 * 
 		 * @see net.glease.chem.simple.datastructure.impl.ReactionFinder#
 		 * withAnyComponents(net.glease.chem.simple.datastructure.
-		 * ReactionComponent)
+		 * ReactionComponent<?>)
 		 */
 		@Override
-		public ReactionFinder withAnyComponents(ReactionComponent... comp) {
-			List<ReactionComponent> rs = Arrays.asList(comp);
-			return where(t -> t.getAllReactionComponents().parallelStream().anyMatch(rs::contains));
+		public ReactionFinder withAnyComponents(ReactionComponent<?>... comp) {
+			List<ReactionComponent<?>> rs = Arrays.asList(comp);
+			return where(t -> t.getAllReactionComponents().parallel().anyMatch(rs::contains));
 		}
 
 		/*
@@ -273,10 +273,10 @@ public class ChemDatabaseFinderImpl implements ChemDatabaseFinder {
 		 * (non-Javadoc)
 		 * 
 		 * @see net.glease.chem.simple.datastructure.impl.ReactionFinder#
-		 * withComponent(net.glease.chem.simple.datastructure.ReactionComponent)
+		 * withComponent(net.glease.chem.simple.datastructure.ReactionComponent<?>)
 		 */
 		@Override
-		public ReactionFinder withComponent(ReactionComponent comp) {
+		public ReactionFinder withComponent(ReactionComponent<?> comp) {
 			return where(comp instanceof Resultant ? e -> e.getResultants().contains(comp)
 					: e -> e.getReactants().contains(comp));
 		}
