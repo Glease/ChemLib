@@ -8,7 +8,9 @@
 hs_err_pid*
 /bin/
 
-.*
+.classpath
+.project
+.*/
 /target/
 
 /temp/
