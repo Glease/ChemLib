@@ -1,48 +1,51 @@
 
 package net.glease.chem.simple.datastructure.impl;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Objects;
 
 import net.glease.chem.simple.datastructure.Atom;
-import net.glease.chem.simple.datastructure.ChemDatabase;
 
 public class AtomImpl implements Serializable, Atom {
 
 	private final static long serialVersionUID = 1L;
 
+	/**
+	 * Copy an {@link Atom}. The new atom will retain all info of origin except
+	 * its scope.
+	 * @param o
+	 * @return
+	 */
+	public static Atom copyOf(final Atom o) {
+		AtomImpl a = new AtomImpl();
+		a.averageMolMass = o.getAverageMolMass();
+		a.index = o.getIndex();
+		a.localizedName = o.getLocalizedName();
+		a.molMass = o.getMolMass();
+		a.symbol = o.getSymbol();
+		return a;
+	}
 	protected String localizedName;
 	protected String symbol;
 	protected int molMass;
 	protected int index;
+
 	protected double averageMolMass;
 
-	protected ChemDatabase scope;
-
 	@Override
-	public void bind(ChemDatabase scope) {
-		if (this.scope != null)
-			this.scope.onUnbind(this);
-		this.scope = scope;
-		if (scope != null)
-			scope.onBind(this);
+	public Atom copy() {
+		return copyOf(this);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(final Object obj) {
+		if (this == obj)
 			return true;
-		}
-		if (!(obj instanceof Atom)) {
+		if (!(obj instanceof Atom))
 			return false;
-		}
 		Atom other = (Atom) obj;
-		if (scope == null || scope != other.scope()) {
+		if (scope() == null || scope() != other.scope())
 			return false;
-		}
 		if (getIndex() != other.getIndex())
 			return false;
 		return getMolMass() == other.getMolMass();
@@ -77,47 +80,42 @@ public class AtomImpl implements Serializable, Atom {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((scope() == null) ? 0 : scope().hashCode());
+		result = prime * result + (scope() == null ? 0 : scope().hashCode());
 		result = prime * result + getId().hashCode();
 		return result;
 	}
 
 	@Override
-	public ChemDatabase scope() {
-		return scope;
-	}
-
-	@Override
-	public void setAverageMolMass(double averageMolMass) {
+	public void setAverageMolMass(final double averageMolMass) {
 		this.averageMolMass = averageMolMass;
 	}
 
 	@Override
-	public void setIndex(int value) {
+	public void setIndex(final int value) {
 		if (value < 1)
 			throw new IllegalArgumentException(Integer.toString(value));
-		this.index = value;
+		index = value;
 	}
 
 	@Override
-	public void setLocalizedName(String value) {
+	public void setLocalizedName(final String value) {
 		if (Objects.requireNonNull(value).isEmpty())
 			throw new IllegalArgumentException("name empty");
-		this.localizedName = value;
+		localizedName = value;
 	}
 
 	@Override
-	public void setMolMass(int value) {
+	public void setMolMass(final int value) {
 		if (value < 1)
 			throw new IllegalArgumentException(Integer.toString(value));
-		this.molMass = value;
+		molMass = value;
 	}
 
 	@Override
-	public void setSymbol(String value) {
+	public void setSymbol(final String value) {
 		if (Objects.requireNonNull(value).isEmpty() || !value.matches("^[A-Z][a-z]?$"))
 			throw new IllegalArgumentException(value);
-		this.symbol = value;
+		symbol = value;
 	}
 
 	@Override
@@ -144,15 +142,5 @@ public class AtomImpl implements Serializable, Atom {
 		builder.append(scope().getId());
 		builder.append("]");
 		return builder.toString();
-	}
-
-	private void writeObject(ObjectOutputStream out) throws IOException {
-		out.defaultWriteObject();
-		out.writeObject(scope());
-	}
-
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		bind((ChemDatabase) in.readObject());
 	}
 }

@@ -1,15 +1,16 @@
-
 package net.glease.chem.simple.datastructure.impl;
 
 import java.io.Serializable;
 import java.util.Objects;
 
+import net.glease.chem.simple.datastructure.ChemDatabase;
 import net.glease.chem.simple.datastructure.Reaction;
 import net.glease.chem.simple.datastructure.ReactionComponent;
 import net.glease.chem.simple.datastructure.ReagentState;
 import net.glease.chem.simple.datastructure.Substance;
 
-public abstract class ReactionComponentImpl implements Serializable, ReactionComponent {
+public abstract class ReactionComponentImpl<T_THIS extends ReactionComponent<T_THIS>>
+implements Serializable, ReactionComponent<T_THIS> {
 
 	private final static long serialVersionUID = 1L;
 
@@ -17,42 +18,42 @@ public abstract class ReactionComponentImpl implements Serializable, ReactionCom
 	protected Substance substance;
 	protected ReagentState state = ReagentState.POWDER;
 
-	protected Reaction scope;
-
 	@Override
-	public void bind(Reaction scope) {
-		if (this.scope != null)
-			this.scope.onUnbind(this);
-		this.scope = scope;
-		if (scope != null)
-			scope.onBind(this);
+	public boolean bind(final Reaction newScope) {
+		if (newScope == scope())
+			return false;
+		ChemDatabase cdb = newScope.scope();
+		if (cdb == null || substance == null)
+			return ReactionComponent.super.bind(newScope);
+		Substance s = substance.scope() == null ? substance : SubstanceImpl.copyOf(substance);
+		boolean added = s.bind(cdb);
+		try {
+			return ReactionComponent.super.bind(newScope);
+		} catch (Exception e) {
+			if (added)
+				s.bind(null);
+			throw e;
+		}
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(final Object obj) {
+		if (this == obj)
 			return true;
-		}
-		if (!(obj instanceof ReactionComponent)) {
+		if (!(obj instanceof ReactionComponent))
 			return false;
-		}
-		ReactionComponent other = (ReactionComponent) obj;
-		if (scope == null || scope != other.scope()) {
+		ReactionComponent<?> other = (ReactionComponent<?>) obj;
+		if (scope() == null || scope() != other.scope())
 			return false;
-		}
-		if (mol != other.getMol()) {
+		if (mol != other.getMol())
 			return false;
-		}
-		if (state != other.getState()) {
+		if (state != other.getState())
 			return false;
-		}
 		if (substance == null) {
-			if (other.getSubstance() != null) {
+			if (other.getSubstance() != null)
 				return false;
-			}
-		} else if (!substance.equals(other.getSubstance())) {
+		} else if (!substance.equals(other.getSubstance()))
 			return false;
-		}
 		return true;
 	}
 
@@ -80,7 +81,7 @@ public abstract class ReactionComponentImpl implements Serializable, ReactionCom
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((scope() == null) ? 0 : scope().hashCode());
+		result = prime * result + (scope() == null ? 0 : scope().hashCode());
 		result = prime * result + mol;
 		result = prime * result + state.hashCode();
 		result = prime * result + substance.hashCode();
@@ -88,22 +89,17 @@ public abstract class ReactionComponentImpl implements Serializable, ReactionCom
 	}
 
 	@Override
-	public Reaction scope() {
-		return scope;
-	}
-
-	@Override
-	public void setMol(int value) {
+	public void setMol(final int value) {
 		this.mol = value;
 	}
 
 	@Override
-	public void setState(ReagentState value) {
+	public void setState(final ReagentState value) {
 		this.state = Objects.requireNonNull(value);
 	}
 
 	@Override
-	public void setSubstance(Substance value) {
+	public void setSubstance(final Substance value) {
 		this.substance = Objects.requireNonNull(value);
 	}
 

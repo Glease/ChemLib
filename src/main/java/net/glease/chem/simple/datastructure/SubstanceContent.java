@@ -9,7 +9,7 @@ package net.glease.chem.simple.datastructure;
  *
  *
  */
-public interface SubstanceContent extends Element<Substance> {
+public interface SubstanceContent extends Element<Substance, SubstanceContent> {
 
 	/**
 	 * Get the value of atom.

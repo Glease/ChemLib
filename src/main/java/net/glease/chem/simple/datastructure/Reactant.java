@@ -8,7 +8,7 @@ package net.glease.chem.simple.datastructure;
  * @since 0.1
  *
  */
-public interface Reactant extends ReactionComponent {
+public interface Reactant extends ReactionComponent<Reactant> {
 
 	/**
 	 * Get the value of purity.

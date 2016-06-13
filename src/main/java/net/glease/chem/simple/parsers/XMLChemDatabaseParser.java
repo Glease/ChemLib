@@ -49,7 +49,9 @@ public interface XMLChemDatabaseParser {
 	}
 
 	default void marshal(ChemDatabase db, File out) throws CDBParseException, IOException {
-		marshal(db, new FileWriter(out));
+		try (FileWriter fw = new FileWriter(out)) {
+			marshal(db, fw);
+		}
 	}
 
 	default void marshal(ChemDatabase db, OutputStream out) throws CDBParseException {
@@ -93,7 +95,9 @@ public interface XMLChemDatabaseParser {
 	void marshal(ChemDatabase db, XMLStreamWriter out) throws CDBParseException;
 
 	default ChemDatabase unmarshal(File in) throws CDBParseException, IOException {
-		return unmarshal(new FileReader(in));
+		try (FileReader fr = new FileReader(in)) {
+			return unmarshal(fr);
+		}
 	}
 
 	ChemDatabase unmarshal(InputSource in) throws CDBParseException, IOException;

@@ -1,11 +1,16 @@
 package net.glease.chem.simple.normalizers;
 
+import java.io.Serializable;
+
 import net.glease.chem.simple.datastructure.ChemDatabase;
 import net.glease.chem.simple.datastructure.NormalizationException;
 
 /**
  * Define a plugin which provides additional normalization on a given
- * {@link ChemDatabase}.
+ * {@link ChemDatabase}. All normalization plugin are expected to either provide a
+ * public non-arg constructor or implement {@link Serializable} interface to
+ * support proper serialization of serializable {@link ChemDatabase}
+ * implementations.
  * 
  * @author glease
  * @since 0.1

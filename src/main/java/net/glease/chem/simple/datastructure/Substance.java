@@ -15,7 +15,7 @@ import net.glease.chem.simple.scoping.ScopeException;
  * @since 0.1
  *
  */
-public interface Substance extends Element<ChemDatabase>, IScope<ChemDatabase, Substance> {
+public interface Substance extends Element<ChemDatabase, Substance>, IScope<ChemDatabase, Substance> {
 
 	/**
 	 * 
@@ -76,14 +76,16 @@ public interface Substance extends Element<ChemDatabase>, IScope<ChemDatabase, S
 	String getName();
 
 	@Override
-	default void onBind(IScoped<Substance> o) {
+	default boolean onBind(IScoped<Substance> o) {
+		if (!IScope.super.onBind(o))
+			return false;
 		if (o instanceof Dissolve)
 			getDissolve().add((Dissolve) o);
 		else if (o instanceof SubstanceContent)
 			getContent().add((SubstanceContent) o);
 		else
 			throw new ScopeException("Element not identified.", this, o);
-		IScope.super.onBind(o);
+		return true;
 	}
 
 	@Override

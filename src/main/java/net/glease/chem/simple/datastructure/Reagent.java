@@ -14,7 +14,7 @@ import java.awt.Color;
  * @author glease
  * @since 0.1
  */
-public interface Reagent extends Element<ChemDatabase> {
+public interface Reagent extends Element<ChemDatabase, Reagent> {
 
 	/**
 	 * Get the value of color.

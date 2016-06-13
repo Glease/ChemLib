@@ -50,42 +50,46 @@ class UnmarshallingHanlder implements ContentHandler {
 		private SetterHelper() {
 		}
 
-		private String get(String localName) {
+		private String get(final String localName) {
 			String value = atts.getValue("", localName);
 			return value;
 		}
 
-		private void set(String localName, Consumer<String> setter) {
+		private void set(final String localName, final Consumer<String> setter) {
 			String v = get(localName);
-			if (v != null)
+			if (v != null) {
 				setter.accept(v);
+			}
 		}
 
-		private <T> void set(String localName, Consumer<String> setter, Supplier<String> defaults) {
+		private <T> void set(final String localName, final Consumer<String> setter, final Supplier<String> defaults) {
 			String v = get(localName);
 			setter.accept(v == null ? defaults.get() : v);
 		}
 
-		private <T> void set(String localName, Consumer<T> setter, Function<String, T> mapper) {
+		private <T> void set(final String localName, final Consumer<T> setter, final Function<String, T> mapper) {
 			String v = get(localName);
-			if (v != null)
+			if (v != null) {
 				setter.accept(mapper.apply(v));
+			}
 		}
 
-		private void set(String localName, DoubleConsumer setter) {
+		private void set(final String localName, final DoubleConsumer setter) {
 			String v = get(localName);
-			if (v != null)
+			if (v != null) {
 				setter.accept(parseDouble(v));
+			}
 		}
 
-		public void setAtts(Attributes atts) {
+		public void setAtts(final Attributes atts) {
 			this.atts = atts;
 		}
 
-		private void setInt(String localName, IntConsumer setter) {
+		private void setInt(final String localName, final IntConsumer setter) {
 			String v = get(localName);
-			if (v != null)
+			if (v != null) {
 				setter.accept(parseInt(v));
+			}
 		}
 
 	}
@@ -93,7 +97,7 @@ class UnmarshallingHanlder implements ContentHandler {
 	static class UnexpectedContentException extends SAXParseException {
 		private static final long serialVersionUID = 1L;
 
-		private UnexpectedContentException(String message, Locator locator) {
+		private UnexpectedContentException(final String message, final Locator locator) {
 			super(message, locator);
 		}
 	}
@@ -106,21 +110,21 @@ class UnmarshallingHanlder implements ContentHandler {
 
 	private final SetterHelper set = new SetterHelper();
 
-	private Map<String, ReagentImpl> dummies = new HashMap<>();
+	private final Map<String, ReagentImpl> dummies = new HashMap<>();
 
 	private int reactionId = 0;
 
 	private final Map<Class<? extends IScope<?, ?>>, Set<BindingPlugin<?>>> bindings;
 
-	UnmarshallingHanlder(Map<Class<? extends IScope<?, ?>>, Set<BindingPlugin<?>>> bindings) {
+	UnmarshallingHanlder(final Map<Class<? extends IScope<?, ?>>, Set<BindingPlugin<?>>> bindings) {
 		this.bindings = bindings;
 	}
 
 	@Override
-	public void characters(char[] ch, int start, int length) throws SAXException {
+	public void characters(final char[] ch, final int start, final int length) throws SAXException {
 	}
 
-	private <T extends IScope<?, T>> void addBindingPlugins(T o) {
+	private <T extends IScope<?, T>> void addBindingPlugins(final T o) {
 		// f**k you java generics!
 		// bindings.get(o.getClass()).forEach(o::install);
 		for (BindingPlugin<?> pp : bindings.get(o.getClass())) {
@@ -130,7 +134,7 @@ class UnmarshallingHanlder implements ContentHandler {
 		}
 	}
 
-	private ReagentImpl createDummyReagent(String id) {
+	private ReagentImpl createDummyReagent(final String id) {
 		ReagentImpl s = new ReagentImpl();
 		s.setId(id);
 		dummies.put(id, s);
@@ -142,8 +146,8 @@ class UnmarshallingHanlder implements ContentHandler {
 	}
 
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if (parsing && CDBParserFactory.XML_NAMESPACE.equals(uri))
+	public void endElement(final String uri, final String localName, final String qName) throws SAXException {
+		if (parsing && CDBParserFactory.XML_NAMESPACE.equals(uri)) {
 			switch (localName) {
 			case "substance":
 			case "reagent":
@@ -153,10 +157,11 @@ class UnmarshallingHanlder implements ContentHandler {
 			default:
 				break;
 			}
+		}
 	}
 
 	@Override
-	public void endPrefixMapping(String prefix) throws SAXException {
+	public void endPrefixMapping(final String prefix) throws SAXException {
 		if (parsing && this.prefix.equals(prefix)) {
 			parsing = false;
 			this.prefix = null;
@@ -168,29 +173,32 @@ class UnmarshallingHanlder implements ContentHandler {
 	}
 
 	private String getCurrentParentTypeName() {
-		if (parent == null)
+		if (parent == null) {
 			return "null";
+		}
 		Class<?>[] cs = parent.getClass().getInterfaces();
-		for (int i = 0; i < cs.length; i++) {
-			if (cs[i] != Serializable.class)
-				return cs[i].getSimpleName().toLowerCase();
+		for (Class<?> element : cs) {
+			if (element != Serializable.class) {
+				return element.getSimpleName().toLowerCase();
+			}
 		}
 		throw new AssertionError();
 	}
 
 	@Override
-	public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
+	public void ignorableWhitespace(final char[] ch, final int start, final int length) throws SAXException {
 	}
 
 	@Override
-	public void processingInstruction(String target, String data) throws SAXException {
+	public void processingInstruction(final String target, final String data) throws SAXException {
 		unexpectedContent();
 	}
 
 	private void readAtom() throws SAXParseException {
-		if (parent != null)
+		if (parent != null) {
 			throw new SAXParseException(
 					"Illegal nested element, expecting atoms but found " + getCurrentParentTypeName(), locator);
+		}
 
 		Atom a = new AtomImpl();
 
@@ -203,9 +211,10 @@ class UnmarshallingHanlder implements ContentHandler {
 	}
 
 	private void readCatalyst() throws SAXParseException {
-		if (!(parent instanceof Reaction))
+		if (!(parent instanceof Reaction)) {
 			throw new SAXParseException(
 					"Illegal nested element, expecting reaction but found " + getCurrentParentTypeName(), locator);
+		}
 		((Reaction) parent).getCatalysts().add(instance.getReagents().get(set.get("reagent")));
 	}
 
@@ -217,32 +226,37 @@ class UnmarshallingHanlder implements ContentHandler {
 		set.set("uuid", i::setUUID, UUID::fromString);
 		set.set("info", i::setInfo);
 		set.set("version", i::setVersion);
+		set.set("locale", i::setLocale, Adaptors::readLocale);
 	}
 
 	private void readCondition() throws SAXParseException {
-		if (!(parent instanceof Reaction))
+		if (!(parent instanceof Reaction)) {
 			throw new SAXParseException(
 					"Illegal nested element, expecting reaction but found " + getCurrentParentTypeName(), locator);
+		}
 		((Reaction) parent).getConditions().add(set.get("value"));
 	}
 
+	@SuppressWarnings("deprecation")
 	private void readDissolve() throws SAXParseException {
-		if (!(parent instanceof Substance))
+		if (!(parent instanceof Substance)) {
 			throw new SAXParseException(
 					"Illegal nested element, expecting substance but found " + getCurrentParentTypeName(), locator);
+		}
 
 		Dissolve d = new DissolveImpl();
 
 		set.set("solvent", d::setSolvent, this::createDummyReagent);
-		set.set("s2TFunction", d::setS2TFunction);// TODO
+		set.set("s2TFunction", d::setS2TFunction);// TODO add dependency
 
 		d.bind((Substance) parent);
 	}
 
 	private void readReactant() throws SAXParseException {
-		if (!(parent instanceof Reaction))
+		if (!(parent instanceof Reaction)) {
 			throw new SAXParseException(
 					"Illegal nested element, expecting reaction but found " + getCurrentParentTypeName(), locator);
+		}
 
 		Reactant b = new ReactantImpl();
 
@@ -255,9 +269,10 @@ class UnmarshallingHanlder implements ContentHandler {
 	}
 
 	private void readReaction() throws SAXParseException {
-		if (parent != null)
+		if (parent != null) {
 			throw new SAXParseException(
 					"Illegal nested element, expecting reactions but found " + getCurrentParentTypeName(), locator);
+		}
 
 		Reaction e = new ReactionImpl();
 
@@ -278,9 +293,10 @@ class UnmarshallingHanlder implements ContentHandler {
 	}
 
 	private void readReagent() throws SAXParseException {
-		if (parent != null)
+		if (parent != null) {
 			throw new SAXParseException(
 					"Illegal nested element, expecting reagents but found " + getCurrentParentTypeName(), locator);
+		}
 
 		Reagent r;
 
@@ -302,9 +318,10 @@ class UnmarshallingHanlder implements ContentHandler {
 	}
 
 	private void readResultant() throws SAXParseException {
-		if (!(parent instanceof Reaction))
+		if (!(parent instanceof Reaction)) {
 			throw new SAXParseException(
 					"Illegal nested element, expecting reaction but found " + getCurrentParentTypeName(), locator);
+		}
 
 		Resultant u = new ResultantImpl();
 
@@ -316,9 +333,10 @@ class UnmarshallingHanlder implements ContentHandler {
 	}
 
 	private void readSubstance() throws SAXParseException {
-		if (parent != null)
+		if (parent != null) {
 			throw new SAXParseException(
 					"Illegal nested element, expecting substances but found " + getCurrentParentTypeName(), locator);
+		}
 
 		Substance s = new SubstanceImpl();
 
@@ -336,9 +354,10 @@ class UnmarshallingHanlder implements ContentHandler {
 	}
 
 	private void readSubstanceContent() throws SAXParseException {
-		if (!(parent instanceof Substance))
+		if (!(parent instanceof Substance)) {
 			throw new SAXParseException(
 					"Illegal nested element, expecting substance but found " + getCurrentParentTypeName(), locator);
+		}
 
 		SubstanceContent c = new SubstanceContentImpl();
 
@@ -349,12 +368,12 @@ class UnmarshallingHanlder implements ContentHandler {
 	}
 
 	@Override
-	public void setDocumentLocator(Locator locator) {
+	public void setDocumentLocator(final Locator locator) {
 		this.locator = locator;
 	}
 
 	@Override
-	public void skippedEntity(String name) throws SAXException {
+	public void skippedEntity(final String name) throws SAXException {
 	}
 
 	@Override
@@ -362,9 +381,10 @@ class UnmarshallingHanlder implements ContentHandler {
 	}
 
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-		if (!parsing || !CDBParserFactory.XML_NAMESPACE.equals(uri))
+	public void startElement(final String uri, final String localName, final String qName, final Attributes atts) throws SAXException {
+		if (!parsing || !CDBParserFactory.XML_NAMESPACE.equals(uri)) {
 			return;
+		}
 
 		set.setAtts(atts);
 
@@ -374,10 +394,11 @@ class UnmarshallingHanlder implements ContentHandler {
 				readCDBInfos();
 				break;
 			case "atom":
-				if (parent == null)
+				if (parent == null) {
 					readAtom();
-				else
+				} else {
 					readSubstanceContent();
+				}
 				break;
 			case "substance":
 				readSubstance();
@@ -420,7 +441,7 @@ class UnmarshallingHanlder implements ContentHandler {
 	}
 
 	@Override
-	public void startPrefixMapping(String prefix, String uri) throws SAXException {
+	public void startPrefixMapping(final String prefix, final String uri) throws SAXException {
 		if (CDBParserFactory.XML_NAMESPACE.equals(uri)) {
 			parsing = true;
 			this.prefix = prefix;
@@ -428,8 +449,9 @@ class UnmarshallingHanlder implements ContentHandler {
 	}
 
 	public void unexpectedContent() throws SAXException {
-		if (parsing)
+		if (parsing) {
 			throw new UnexpectedContentException("Unexpected content", locator);
+		}
 	}
 
 }

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -67,6 +68,19 @@ public final class Adaptors {
 
 		String s = PREDEFINED_COLORS_REVERSED.get(v);
 		return s == null ? Integer.toHexString(v.getRGB()) : s;
+	}
+	
+	public static Locale readLocale(String v) {
+		if(v == null)
+			return null;
+		
+		return Locale.forLanguageTag(v);	
+	}
+	
+	public static String writeLocale(Locale v) {
+		if(v == null)
+			return null;
+		return v.toLanguageTag();
 	}
 
 	private Adaptors() {

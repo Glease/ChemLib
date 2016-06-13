@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
- * Need refactor. TODO
+ * TODO Need refactor.
  *
  * @param <S>
  */
@@ -22,11 +22,11 @@ final class ServiceFinder<S> implements Iterable<S> {
 		private Supplier<S> defaultService = ServiceFinder.this.defaultService;
 
 		public LazyIter() {
-			if (valid[0])
+			if (valid[0]) {
 				state = Finding.SYSTEM_PROPERTY;
-			else if (valid[1])
+			} else if (valid[1]) {
 				state = Finding.CONFIG_PROPERTY;
-			else {
+			} else {
 				state = Finding.SERVICE;
 				backing = sl.iterator();
 			}
@@ -34,8 +34,8 @@ final class ServiceFinder<S> implements Iterable<S> {
 
 		@Override
 		public boolean hasNext() {
-			return state != Finding.SERVICE 
-					|| backing.hasNext() 
+			return state != Finding.SERVICE
+					|| backing.hasNext()
 					|| defaultService != null;
 		}
 
@@ -43,9 +43,9 @@ final class ServiceFinder<S> implements Iterable<S> {
 		public S next() {
 			switch (state) {
 			case SYSTEM_PROPERTY:
-				if (valid[1])
+				if (valid[1]) {
 					state = Finding.CONFIG_PROPERTY;
-				else {
+				} else {
 					state = Finding.SERVICE;
 					backing = sl.iterator();
 				}
@@ -62,8 +62,9 @@ final class ServiceFinder<S> implements Iterable<S> {
 				return backing.next();
 			case DEFAULT:
 				Supplier<S> dss = defaultService;
-				if (!endlessDefault)
+				if (!endlessDefault) {
 					defaultService = null;
+				}
 				return dss.get();
 			default:
 				throw new Error();
@@ -81,12 +82,12 @@ final class ServiceFinder<S> implements Iterable<S> {
 	private final boolean endlessDefault;
 	private S system;
 	private S config;
-	private ServiceLoader<S> sl;
+	private final ServiceLoader<S> sl;
 
-	private boolean[] valid = new boolean[2];
+	private final boolean[] valid = new boolean[2];
 
-	public ServiceFinder(String systemPropertyName, String configName, String configPropertyName, ClassLoader cl,
-			Class<S> clazz, Supplier<S> defaultService, boolean endlessDefault) {
+	public ServiceFinder(final String systemPropertyName, final String configName, final String configPropertyName, final ClassLoader cl,
+			final Class<S> clazz, final Supplier<S> defaultService, final boolean endlessDefault) {
 		super();
 		this.systemPropertyName = systemPropertyName;
 		this.configName = configName;
@@ -99,12 +100,13 @@ final class ServiceFinder<S> implements Iterable<S> {
 		reload();
 	}
 
-	S find(Predicate<S> filter) {
+	S find(final Predicate<S> filter) {
 		LazyIter iter = iterator();
 		while (iter.hasNext()) {
 			S s = iter.next();
-			if (filter.test(s))
+			if (filter.test(s)) {
 				return s;
+			}
 		}
 		return null;
 	}
@@ -119,7 +121,7 @@ final class ServiceFinder<S> implements Iterable<S> {
 		return new LazyIter();
 	}
 
-	private S load(InputStream url, ClassLoader cl) {
+	private S load(final InputStream url, final ClassLoader cl) {
 		Properties p = new Properties();
 		try {
 			p.load(url);
@@ -127,12 +129,13 @@ final class ServiceFinder<S> implements Iterable<S> {
 			return null;
 		}
 		String e = p.getProperty(configPropertyName);
-		if (e == null || e.isEmpty())
+		if (e == null || e.isEmpty()) {
 			return null;
+		}
 		return load(e, cl);
 	}
 
-	private S load(String s, ClassLoader cl) {
+	private S load(final String s, final ClassLoader cl) {
 		try {
 			Class<?> c = Class.forName(s, false, cl);
 			return clazz.cast(c.newInstance());
@@ -148,15 +151,17 @@ final class ServiceFinder<S> implements Iterable<S> {
 	}
 
 	private boolean tryLoadConfig() {
-		if (configName == null)
+		if (configName == null) {
 			return false;
+		}
 		config = load(cl.getResourceAsStream(configName), cl);
 		return config != null;
 	}
 
 	private boolean tryLoadSystem() {
-		if (systemPropertyName == null)
+		if (systemPropertyName == null) {
 			return false;
+		}
 		String s = System.getProperty(systemPropertyName);
 		system = s == null ? null : load(s, cl);
 		return system != null;
