@@ -3,6 +3,7 @@ package net.glease.chem.simple.datastructure.impl;
 import static net.glease.chem.simple.datastructure.impl.ScopeUtils.bindSub;
 import static net.glease.chem.simple.datastructure.impl.ScopeUtils.orphan;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -17,7 +18,7 @@ import net.glease.chem.simple.datastructure.Element;
 import net.glease.chem.simple.datastructure.Substance;
 import net.glease.chem.simple.datastructure.SubstanceContent;
 
-public class SubstanceImpl implements Substance {
+public class SubstanceImpl implements Substance, Serializable {
 
 	private final static long serialVersionUID = 1L;
 
