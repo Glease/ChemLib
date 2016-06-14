@@ -2,7 +2,8 @@ language: java
 jdk:
   - oraclejdk8
 
-sudo: true
+# use container to speed up builds
+sudo: false
 
 branches:
   only:

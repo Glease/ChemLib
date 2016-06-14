@@ -1,4 +1,5 @@
 # ChemLib
+[![Build Status](https://travis-ci.org/Glease/ChemLib.svg?branch=master)](https://travis-ci.org/Glease/ChemLib)
 A simple ChemLib. Currently ~~only data structure~~many functions are all implemented. Check it
  out!
 
