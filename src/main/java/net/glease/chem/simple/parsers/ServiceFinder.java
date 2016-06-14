@@ -22,11 +22,11 @@ final class ServiceFinder<S> implements Iterable<S> {
 		private Supplier<S> defaultService = ServiceFinder.this.defaultService;
 
 		public LazyIter() {
-			if (valid[0]) {
+			if (valid[0])
 				state = Finding.SYSTEM_PROPERTY;
-			} else if (valid[1]) {
+			else if (valid[1])
 				state = Finding.CONFIG_PROPERTY;
-			} else {
+			else {
 				state = Finding.SERVICE;
 				backing = sl.iterator();
 			}
@@ -43,9 +43,9 @@ final class ServiceFinder<S> implements Iterable<S> {
 		public S next() {
 			switch (state) {
 			case SYSTEM_PROPERTY:
-				if (valid[1]) {
+				if (valid[1])
 					state = Finding.CONFIG_PROPERTY;
-				} else {
+				else {
 					state = Finding.SERVICE;
 					backing = sl.iterator();
 				}
@@ -62,9 +62,8 @@ final class ServiceFinder<S> implements Iterable<S> {
 				return backing.next();
 			case DEFAULT:
 				Supplier<S> dss = defaultService;
-				if (!endlessDefault) {
+				if (!endlessDefault)
 					defaultService = null;
-				}
 				return dss.get();
 			default:
 				throw new Error();
@@ -104,9 +103,8 @@ final class ServiceFinder<S> implements Iterable<S> {
 		LazyIter iter = iterator();
 		while (iter.hasNext()) {
 			S s = iter.next();
-			if (filter.test(s)) {
+			if (filter.test(s))
 				return s;
-			}
 		}
 		return null;
 	}
@@ -129,9 +127,8 @@ final class ServiceFinder<S> implements Iterable<S> {
 			return null;
 		}
 		String e = p.getProperty(configPropertyName);
-		if (e == null || e.isEmpty()) {
+		if (e == null || e.isEmpty())
 			return null;
-		}
 		return load(e, cl);
 	}
 
@@ -139,7 +136,7 @@ final class ServiceFinder<S> implements Iterable<S> {
 		try {
 			Class<?> c = Class.forName(s, false, cl);
 			return clazz.cast(c.newInstance());
-		} catch (Exception e) {
+		} catch (ReflectiveOperationException e) {
 			return null;
 		}
 	}
@@ -151,17 +148,15 @@ final class ServiceFinder<S> implements Iterable<S> {
 	}
 
 	private boolean tryLoadConfig() {
-		if (configName == null) {
+		if (configName == null)
 			return false;
-		}
 		config = load(cl.getResourceAsStream(configName), cl);
 		return config != null;
 	}
 
 	private boolean tryLoadSystem() {
-		if (systemPropertyName == null) {
+		if (systemPropertyName == null)
 			return false;
-		}
 		String s = System.getProperty(systemPropertyName);
 		system = s == null ? null : load(s, cl);
 		return system != null;

@@ -28,7 +28,7 @@ public class ReagentImpl implements Serializable, Reagent {
 		r.substance = SubstanceImpl.copyOf(o.getSubstance());
 		return r;
 	}
-	protected String id;
+	protected String id = "";
 	protected String name;
 	protected Substance substance;
 	protected Substance solvent;

@@ -3,6 +3,8 @@ package net.glease.chem.simple.datastructure.impl;
 import static net.glease.chem.simple.datastructure.impl.ScopeUtils.bindSub;
 import static net.glease.chem.simple.datastructure.impl.ScopeUtils.orphan;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
@@ -38,6 +40,7 @@ public class ReactionImpl implements Serializable, Reaction {
 		r.temp = o.getTemp();
 		return r;
 	}
+
 	protected Set<String> conditions = new HashSet<>();
 	protected Set<Reagent> catalysts = new HashSet<>();
 	protected Set<Reactant> reactants = new HashSet<>();
@@ -70,15 +73,14 @@ public class ReactionImpl implements Serializable, Reaction {
 
 	@Override
 	public boolean bind(final ChemDatabase newScope) {
-		if(newScope == scope())
+		if (newScope == scope())
 			return false;
-		Set<Substance> a = bindSub(getAllReactionComponents()
-				.map(ReactionComponent::getSubstance), this, newScope);
+		Set<Substance> a = bindSub(getAllReactionComponents().map(ReactionComponent::getSubstance), this, newScope);
 		Set<Reagent> b = new HashSet<>();
-		if(solvent != null)
-			b.addAll(bindSub(Stream.of(solvent.scope() == null ? solvent : ReagentImpl.copyOf(solvent)), this, newScope));
-		b.addAll(bindSub(catalysts.stream()
-				.map(r -> r.scope() == null ? r : ReagentImpl.copyOf(r)), this, newScope));
+		if (solvent != null)
+			b.addAll(bindSub(Stream.of(solvent.scope() == null ? solvent : ReagentImpl.copyOf(solvent)), this,
+					newScope));
+		b.addAll(bindSub(catalysts.stream().map(r -> r.scope() == null ? r : ReagentImpl.copyOf(r)), this, newScope));
 
 		try {
 			return Reaction.super.bind(newScope);
@@ -175,6 +177,14 @@ public class ReactionImpl implements Serializable, Reaction {
 		ChemDatabase scope = scope();
 		result = prime * result + (scope == null ? 0 : scope.hashCode());
 		return result;
+	}
+
+	private void readObject(final ObjectInputStream in) throws ClassNotFoundException, IOException {
+		in.defaultReadObject();
+		unmodifiableCatalysts = Collections.unmodifiableSet(catalysts);
+		unmodifiableConditions = Collections.unmodifiableSet(conditions);
+		unmodifiableReactants = Collections.unmodifiableSet(reactants);
+		unmodifiableResultants = Collections.unmodifiableSet(resultants);
 	}
 
 	@Override

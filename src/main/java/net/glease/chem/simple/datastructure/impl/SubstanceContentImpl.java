@@ -19,6 +19,7 @@ public class SubstanceContentImpl implements SubstanceContent, Serializable {
 		c.mol = o.getMol();
 		return c;
 	}
+
 	protected Atom atom;
 
 	protected int mol = 1;
@@ -72,7 +73,7 @@ public class SubstanceContentImpl implements SubstanceContent, Serializable {
 
 	@Override
 	public String getId() {
-		return atom.getId();
+		return atom == null ? "" : atom.getId();
 	}
 
 	@Override

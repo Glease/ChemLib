@@ -59,7 +59,7 @@ implements Serializable, ReactionComponent<T_THIS> {
 
 	@Override
 	public String getId() {
-		return substance.getId();
+		return substance == null ? "" : substance.getId();
 	}
 
 	@Override
@@ -84,7 +84,7 @@ implements Serializable, ReactionComponent<T_THIS> {
 		result = prime * result + (scope() == null ? 0 : scope().hashCode());
 		result = prime * result + mol;
 		result = prime * result + state.hashCode();
-		result = prime * result + substance.hashCode();
+		result = prime * result + (substance == null ? 0 : substance.hashCode());
 		return result;
 	}
 

@@ -19,6 +19,7 @@ public class DissolveImpl implements Dissolve, Serializable {
 		d.solvent = ReagentImpl.copyOf(o.getSolvent());
 		return d;
 	}
+
 	protected Reagent solvent;
 
 	protected String s2TFunction;
@@ -46,24 +47,36 @@ public class DissolveImpl implements Dissolve, Serializable {
 		return copyOf(this);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
+		if (obj == null)
+			return false;
 		if (!(obj instanceof Dissolve))
 			return false;
 		Dissolve other = (Dissolve) obj;
 		if (scope() == null || scope() != other.scope())
 			return false;
-		if (!s2TFunction.equals(other.getS2TFunction()))
+		@SuppressWarnings("deprecation")
+		String s2tFunction2 = other.getS2TFunction();
+		if (s2TFunction == null) {
+			if (s2tFunction2 != null)
+				return false;
+		} else if (!s2TFunction.equals(s2tFunction2))
 			return false;
-		return solvent.equals(other.getSolvent());
+		Reagent solvent2 = other.getSolvent();
+		if (solvent == null) {
+			if (solvent2 != null)
+				return false;
+		} else if (!solvent.equals(solvent2))
+			return false;
+		return true;
 	}
 
 	@Override
 	public String getId() {
-		return solvent.getId();
+		return solvent == null ? "" : solvent.getId();
 	}
 
 	@Override
@@ -81,8 +94,8 @@ public class DissolveImpl implements Dissolve, Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (scope() == null ? 0 : scope().hashCode());
-		result = prime * result + s2TFunction.hashCode();
-		result = prime * result + solvent.hashCode();
+		result = prime * result + (s2TFunction == null ? 0 : s2TFunction.hashCode());
+		result = prime * result + (solvent == null ? 0 : solvent.hashCode());
 		return result;
 	}
 
