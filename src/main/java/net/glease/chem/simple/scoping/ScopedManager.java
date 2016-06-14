@@ -1,7 +1,7 @@
 package net.glease.chem.simple.scoping;
 
 class ScopedManager<T_SCOPE extends IScope<?, T_SCOPE>> {
-	private static WeakMapping<IScoped<?>, ScopedManager<?>> instances = new WeakMapping<>(ScopedManager::clear);
+	private static WeakMapping<IScoped<?>, ScopedManager<?>> instances = new WeakMapping<IScoped<?>, ScopedManager<?>>(ScopedManager::clear);
 
 	@SuppressWarnings("unchecked")
 	static <T_SCOPE extends IScope<?, T_SCOPE>> ScopedManager<T_SCOPE> get(IScoped<T_SCOPE> scope) {

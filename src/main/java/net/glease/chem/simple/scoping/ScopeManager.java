@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T_PARENT, T_THIS>> {
-	private static final WeakMapping<IScope<?, ?>, ScopeManager<?, ?>> instances = new WeakMapping<>(
+	private static final WeakMapping<IScope<?, ?>, ScopeManager<?, ?>> instances = new WeakMapping<IScope<?, ?>, ScopeManager<?, ?>>(
 			ScopeManager::clear);
 	private static final ThreadLocal<WeakReference<Map.Entry<IScope<?, ?>, ScopeManager<?, ?>>>> WORKING = new ThreadLocal<>();
 

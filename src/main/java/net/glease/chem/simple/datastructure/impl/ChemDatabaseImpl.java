@@ -17,7 +17,6 @@ import java.util.UUID;
 
 import net.glease.chem.simple.datastructure.Atom;
 import net.glease.chem.simple.datastructure.ChemDatabase;
-import net.glease.chem.simple.datastructure.ChemDatabaseComponent;
 import net.glease.chem.simple.datastructure.ChemDatabaseFinder;
 import net.glease.chem.simple.datastructure.Element;
 import net.glease.chem.simple.datastructure.NormalizationException;
@@ -30,21 +29,23 @@ public class ChemDatabaseImpl implements ChemDatabase, Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@SafeVarargs
-	private static void bindCopyTo(ChemDatabase scope, Collection<? extends Element<ChemDatabase, ?>>... cs) {
-		for (Collection<? extends Element<ChemDatabase, ?>> c : cs) {
-			c.stream().map(ChemDatabaseComponent::copy).forEach(a->a.bind(scope));
-		}
+	private static <T extends Element<ChemDatabase, T>> void bindCopyTo(final ChemDatabase scope, final Collection<? extends T> c) {
+		c.stream().map(Element::copy).forEach(a -> a.bind(scope));
 	}
-	public static ChemDatabase copyOf(ChemDatabase db) {
+
+	public static ChemDatabase copyOf(final ChemDatabase db) {
 		ChemDatabaseImpl c = new ChemDatabaseImpl();
-		bindCopyTo(c, db.getAtoms().values(), db.getSubstances().values(), db.getReagents().values(), db.getReactions());
+		bindCopyTo(c, db.getAtoms().values());
+		bindCopyTo(c, db.getSubstances().values());
+		bindCopyTo(c, db.getReagents().values());
+		bindCopyTo(c, db.getReactions());
 		c.info = db.getInfo();
 		c.locale = db.getLocale();
 		c.uuid = db.getUUID();
 		c.version = db.getVersion();
 		return c;
 	}
+
 	protected Map<String, Substance> substances = new HashMap<>();
 	protected Set<Reaction> reactions = new HashSet<>();
 
@@ -74,17 +75,14 @@ public class ChemDatabaseImpl implements ChemDatabase, Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(final Object obj) {
+		if (this == obj)
 			return true;
-		}
-		if (!(obj instanceof ChemDatabase)) {
+		if (!(obj instanceof ChemDatabase))
 			return false;
-		}
 		ChemDatabase other = (ChemDatabase) obj;
-		if (!uuid.equals(other.getUUID())) {
+		if (!uuid.equals(other.getUUID()))
 			return false;
-		}
 		return version.equals(other.getVersion());
 	}
 
@@ -137,25 +135,24 @@ public class ChemDatabaseImpl implements ChemDatabase, Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
-		result = prime * result + ((version == null) ? 0 : version.hashCode());
+		result = prime * result + (uuid == null ? 0 : uuid.hashCode());
+		result = prime * result + (version == null ? 0 : version.hashCode());
 		return result;
 	}
 
 	@Override
-	public void install(NormalizationPlugin plugin) {
+	public void install(final NormalizationPlugin plugin) {
 		if (!plugins.add(plugin))
 			throw new IllegalArgumentException("duplicate plugin: " + plugin);
 	}
 
 	@Override
 	public final void normalize() throws NormalizationException {
-		for (NormalizationPlugin plugin : plugins) {
+		for (NormalizationPlugin plugin : plugins)
 			plugin.normalize(this);
-		}
 	}
 
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
 		unmodifiableAtoms = Collections.unmodifiableMap(atoms);
 		unmodifiableReactions = Collections.unmodifiableSet(reactions);
@@ -164,27 +161,27 @@ public class ChemDatabaseImpl implements ChemDatabase, Serializable {
 	}
 
 	@Override
-	public void setInfo(String value) {
-		this.info = value;
+	public void setInfo(final String value) {
+		info = value;
 	}
 
 	@Override
-	public void setLocale(Locale locale) {
+	public void setLocale(final Locale locale) {
 		this.locale = locale;
 	}
 
 	@Override
-	public void setUUID(UUID value) {
-		this.uuid = Objects.requireNonNull(value);
+	public void setUUID(final UUID value) {
+		uuid = Objects.requireNonNull(value);
 	}
 
 	@Override
-	public void setVersion(String value) {
+	public void setVersion(final String value) {
 		if (Objects.requireNonNull(value).isEmpty())
 			throw new IllegalArgumentException("empty version");
-		this.version = value;
+		version = value;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

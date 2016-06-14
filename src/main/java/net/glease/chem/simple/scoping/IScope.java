@@ -7,7 +7,7 @@ import java.lang.ref.WeakReference;
  * scopes, unless they declare their parent scope is {@link ROOT}.
  * <h2>Scopes with their parent declared as {@link ROOT}</h2> These scopes's
  * {@link #bind(IScope)} method should always throw an
- * 
+ *
  * <h2>Implementation Notes</h2>
  * <p>
  * While all four methods have default implementation, clients are still
@@ -15,14 +15,14 @@ import java.lang.ref.WeakReference;
  * caused enormous internal hash maps (used to store the mapping from
  * {@link IScope} to scope managers) resulted from the heavy use of default
  * implementation.
- * 
+ *
  * <h2>Reference Strength</h2>
  * <p>
  * An {@link IScope} should ensure all its elements are strongly reachable
  * unless itself becomes phantom reachable or unreachable. It should also clear
  * the references to its elements as soon as itself becomes phantom reachable or
  * unreachable.
- * 
+ *
  * <h2>Calling default implementation from sub-classes</h2>
  * <p>
  * Sub-classes can happily invoke default implementations many times during
@@ -41,24 +41,24 @@ import java.lang.ref.WeakReference;
  * </pre>
  * We cache scope manager on a per thread basis using {@link WeakReference}.
  * <h2>Typical Usage</h2>
- * 
+ *
  * <pre>
  * public class Common implements IScope&lt;IScope.ROOT, Common> {
  * 	&#64;Override
  * 	public boolean bind(IScope.ROOT unused) {
  * 		throw new UnsupportedOperationException();
  * 	}
- * 
+ *
  * 	&#64;Override
  * 	public IScope.ROOT scope() {
  * 		throw new UnsupportedOperationException();
  * 	}
  * }
- * 
+ *
  * public class SubScope implements IScope&lt;Common, SubScope> {
  * }
  * </pre>
- * 
+ *
  * @author glease
  *
  * @param <T_PARENT>
@@ -68,13 +68,13 @@ import java.lang.ref.WeakReference;
  * @since 0.1
  */
 public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T_PARENT, T_THIS>>
-		extends IScoped<T_PARENT> {
+extends IScoped<T_PARENT> {
 	/**
 	 * Root is the synthetic holder indicating some {@link IScope} is a top
 	 * level scope, i.e. has no parent. If a {@link IScope} declare it's parent
 	 * to be of type {@link ROOT}, it can be always considered in an undefined
 	 * scope.
-	 * 
+	 *
 	 * @author glease
 	 *
 	 */
@@ -84,7 +84,7 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 		}
 
 		@Override
-		public boolean bind(ROOT parent) {
+		public boolean bind(final ROOT parent) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -94,12 +94,12 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 		}
 
 		@Override
-		public boolean onBind(IScoped<ROOT> o) {
+		public boolean onBind(final IScoped<ROOT> o) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public void onUnbind(IScoped<ROOT> o) {
+		public void onUnbind(final IScoped<ROOT> o) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -109,7 +109,7 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 		}
 	}
 
-	default void install(BindingPlugin<T_THIS> plugin) {
+	default void install(final BindingPlugin<T_THIS> plugin) {
 		ScopeManager.get(this).install(plugin);
 	}
 
@@ -123,7 +123,7 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 	 * {@code o} is already in this scope. It should not notify any installed
 	 * plugin about this addition. It should not substitute the old element with
 	 * the new equivalent, either.
-	 * 
+	 *
 	 * @param o
 	 *            the {@link IScoped} to be bind to this {@link IScope}.
 	 * @return <code>true</code> if element changed, <code>false</code> if
@@ -138,7 +138,7 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 	 *             {@link IScope} unless the {@link IScope} thinks the given
 	 *             {@link IScoped} is malicious and require human moderation.
 	 */
-	default boolean onBind(IScoped<T_THIS> o) {
+	default boolean onBind(final IScoped<T_THIS> o) {
 		return ScopeManager.get(this).onBind(o);
 	}
 
@@ -146,7 +146,7 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 	 * Called upon {@link IScoped#bind(IScope) o.bind(this)}.
 	 * {@link #onBind(IScoped) newScope.onBind(o)} aren't called yet.
 	 * {@link IScoped#scope()} still return {@code this}.
-	 * 
+	 *
 	 * @param o
 	 *            the {@link IScoped} which will be unbinded.
 	 * @throws ScopeException
@@ -155,13 +155,13 @@ public interface IScope<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends ISc
 	 *             {@link IScope} unless the {@link IScope} thinks the given
 	 *             {@link IScoped} is malicious and require human moderation.
 	 */
-	default void onUnbind(IScoped<T_THIS> o) {
+	default void onUnbind(final IScoped<T_THIS> o) {
 		ScopeManager.get(this).onUnbind(o);
 	}
 
 	@Override
-	default boolean bind(T_PARENT scope) {
-		return ScopeManager.get(this).bind(scope);
+	default <T extends T_PARENT> boolean bind(final T newScope) {
+		return ScopeManager.get(this).bind(newScope);
 	}
 
 	@Override
