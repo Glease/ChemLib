@@ -20,6 +20,8 @@ import net.glease.chem.simple.datastructure.ReactionComponent;
 import net.glease.chem.simple.datastructure.Reagent;
 import net.glease.chem.simple.datastructure.Resultant;
 import net.glease.chem.simple.datastructure.Substance;
+import net.glease.chem.simple.scoping.IScoped;
+import net.glease.chem.simple.scoping.ScopeException;
 
 public class ReactionImpl implements Serializable, Reaction {
 	private final static long serialVersionUID = 1L;
@@ -177,6 +179,33 @@ public class ReactionImpl implements Serializable, Reaction {
 		ChemDatabase scope = scope();
 		result = prime * result + (scope == null ? 0 : scope.hashCode());
 		return result;
+	}
+
+	@Override
+	public boolean onBind(final IScoped<Reaction> o) {
+		if (!Reaction.super.onBind(o))
+			return false;
+
+		if (o instanceof Reactant)
+			reactants.add((Reactant) o);
+		else if (o instanceof Resultant)
+			resultants.add((Resultant) o);
+		else
+			throw new ScopeException("Element not identified.", this, o);
+		return true;
+	}
+
+	@Override
+	public void onUnbind(final IScoped<Reaction> o) {
+		if (o instanceof Reactant) {
+			if (!reactants.remove(o))
+				throw new ScopeException("Not binded to this scope", this, o);
+		} else if (o instanceof Resultant) {
+			if (!resultants.remove(o))
+				throw new ScopeException("Not binded to this scope", this, o);
+		} else
+			throw new ScopeException("Element not identified.", this, o);
+		Reaction.super.onUnbind(o);
 	}
 
 	private void readObject(final ObjectInputStream in) throws ClassNotFoundException, IOException {

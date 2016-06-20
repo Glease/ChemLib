@@ -15,7 +15,7 @@ class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T
 	private static final ThreadLocal<WeakReference<Map.Entry<IScope<?, ?>, ScopeManager<?, ?>>>> WORKING = new ThreadLocal<>();
 
 	static <T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T_PARENT, T_THIS>> ScopeManager<T_PARENT, T_THIS> get(
-			IScope<T_PARENT, T_THIS> scope) {
+			final IScope<T_PARENT, T_THIS> scope) {
 		WeakReference<Entry<IScope<?, ?>, ScopeManager<?, ?>>> r = WORKING.get();
 
 		if (r != null) {
@@ -38,7 +38,7 @@ class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T
 	private final Map<String, IScoped<T_THIS>> ids = new HashMap<>();
 	private final Set<BindingPlugin<T_THIS>> plugins = Collections.newSetFromMap(new IdentityHashMap<>());
 
-	private ScopeManager(T_THIS scope) {
+	private ScopeManager(final T_THIS scope) {
 		ref = scope;
 	}
 
@@ -48,12 +48,12 @@ class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T
 		ids.clear();
 	}
 
-	public void install(BindingPlugin<T_THIS> plugin) {
+	public void install(final BindingPlugin<T_THIS> plugin) {
 		if (!plugins.add(plugin))
 			throw new IllegalArgumentException("duplicate plugin: " + plugin);
 	}
 
-	public boolean bind(T_PARENT s) {
+	public boolean bind(final T_PARENT s) {
 		if (s == scope)
 			return false;
 
@@ -69,7 +69,7 @@ class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T
 		return scope;
 	}
 
-	public boolean onBind(IScoped<T_THIS> o) {
+	public boolean onBind(final IScoped<T_THIS> o) {
 		String id = o.getId();
 		IScoped<T_THIS> old = ids.get(id);
 		if (o.equals(old))
@@ -77,20 +77,36 @@ class ScopeManager<T_PARENT extends IScope<?, T_PARENT>, T_THIS extends IScope<T
 		if (old != null)
 			throw new DuplicateElementInScopeException(old, o, ref, id);
 		ids.put(id, o);
-		for (BindingPlugin<T_THIS> plugin : plugins) {
+		for (BindingPlugin<T_THIS> plugin : plugins)
 			plugin.onBind(ref, o);
-		}
 		return true;
 	}
 
-	public void onUnbind(IScoped<T_THIS> o) {
+	public void onUnbind(final IScoped<T_THIS> o) {
 		String id = o.getId();
 		IScoped<T_THIS> old = ids.get(id);
 		if (!o.equals(old))
 			throw new ScopeException("Not binded to this scope", ref, o);
 		ids.remove(id);
-		for (BindingPlugin<T_THIS> plugin : plugins) {
+		for (BindingPlugin<T_THIS> plugin : plugins)
 			plugin.onUnbind(ref, o);
-		}
+	}
+
+	public Set<BindingPlugin<T_THIS>> plugins() {
+		return Collections.unmodifiableSet(plugins);
+	}
+
+	public boolean uninstall(final BindingPlugin<T_THIS> plugin) {
+		return plugins.remove(plugin);
+	}
+
+	public void updateId(final String oldId, final IScoped<T_THIS> updated) {
+		IScoped<T_THIS> o = ids.get(oldId);
+		if (o == null)
+			throw new ScopeException(String.format("No such element with old id \"%s\"!", oldId), ref, updated);
+		ids.remove(o, updated);
+		ids.put(updated.getId(), updated);
+		for (BindingPlugin<T_THIS> plugin : plugins)
+			plugin.updateId(ref, oldId, updated);
 	}
 }

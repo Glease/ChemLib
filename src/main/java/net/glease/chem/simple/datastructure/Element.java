@@ -5,18 +5,25 @@ import net.glease.chem.simple.scoping.IScoped;
 
 /**
  * An element with given scope of type <i>T</i>.
- * 
+ *
  * @author glease
  * @since 0.1
  * @param <T>
  *            scope type
  */
 public interface Element<T extends IScope<?, T>, T_THIS extends Element<T, T_THIS>> extends IScoped<T>, ChemDatabaseComponent<T_THIS> {
+	@Override
+	default boolean isBroken() {
+		return scope() == null || getId() == null;
+	}
+
+	ChemDatabase rootScope();
+
 	/**
 	 * Two elements are considered <i>value-equal</i> if all their properties
 	 * are <i>value-equal</i> and their scope <i>identity-equal</i> and both
 	 * non-null:
-	 * 
+	 *
 	 * <pre>
 	 * 		Element&lt;T> e1 = Elements.createA();
 	 * 		Element&lt;T> e2 = Elements.createB();
@@ -25,7 +32,7 @@ public interface Element<T extends IScope<?, T>, T_THIS extends Element<T, T_THI
 	 * </pre>
 	 * <p>
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @param obj
 	 *            the reference object with which to compare.
 	 * @return <code>true</code> if this object is the same as the obj argument;
@@ -41,7 +48,7 @@ public interface Element<T extends IScope<?, T>, T_THIS extends Element<T, T_THI
 	 * non-null.
 	 * <p>
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @return a hash code value for this object.
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 * @see java.lang.System#identityHashCode

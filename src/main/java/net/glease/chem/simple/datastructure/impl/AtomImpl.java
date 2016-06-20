@@ -3,8 +3,8 @@ package net.glease.chem.simple.datastructure.impl;
 
 import java.io.Serializable;
 import java.util.Objects;
-
 import net.glease.chem.simple.datastructure.Atom;
+import net.glease.chem.simple.scoping.IScoped;
 
 public class AtomImpl implements Atom, Serializable {
 
@@ -13,6 +13,7 @@ public class AtomImpl implements Atom, Serializable {
 	/**
 	 * Copy an {@link Atom}. The new atom will retain all info of origin except
 	 * its scope.
+	 *
 	 * @param o
 	 * @return
 	 */
@@ -25,6 +26,7 @@ public class AtomImpl implements Atom, Serializable {
 		a.symbol = o.getSymbol();
 		return a;
 	}
+
 	protected String localizedName;
 	protected String symbol;
 	protected int molMass;
@@ -94,7 +96,7 @@ public class AtomImpl implements Atom, Serializable {
 	public void setIndex(final int value) {
 		if (value < 1)
 			throw new IllegalArgumentException(Integer.toString(value));
-		index = value;
+		IScoped.updateIdBy(this, a -> a.index = value);
 	}
 
 	@Override
@@ -108,7 +110,7 @@ public class AtomImpl implements Atom, Serializable {
 	public void setMolMass(final int value) {
 		if (value < 1)
 			throw new IllegalArgumentException(Integer.toString(value));
-		molMass = value;
+		IScoped.updateIdBy(this, a -> a.molMass = value);
 	}
 
 	@Override

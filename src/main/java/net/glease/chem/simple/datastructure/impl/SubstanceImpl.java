@@ -17,6 +17,8 @@ import net.glease.chem.simple.datastructure.Dissolve;
 import net.glease.chem.simple.datastructure.Element;
 import net.glease.chem.simple.datastructure.Substance;
 import net.glease.chem.simple.datastructure.SubstanceContent;
+import net.glease.chem.simple.scoping.IScoped;
+import net.glease.chem.simple.scoping.ScopeException;
 
 public class SubstanceImpl implements Substance, Serializable {
 
@@ -126,6 +128,34 @@ public class SubstanceImpl implements Substance, Serializable {
 		result = prime * result + (scope() == null ? 0 : scope().hashCode());
 		result = prime * result + (id == null ? 0 : id.hashCode());
 		return result;
+	}
+
+
+
+	@Override
+	public boolean onBind(final IScoped<Substance> o) {
+		if (!Substance.super.onBind(o))
+			return false;
+		if (o instanceof Dissolve)
+			dissolve.add((Dissolve) o);
+		else if (o instanceof SubstanceContent)
+			content.add((SubstanceContent) o);
+		else
+			throw new ScopeException("Element not identified.", this, o);
+		return true;
+	}
+
+	@Override
+	public void onUnbind(final IScoped<Substance> o) {
+		if (o instanceof Dissolve) {
+			if (!dissolve.remove(o))
+				throw new ScopeException("Not binded to this scope", this, o);
+		} else if (o instanceof SubstanceContent) {
+			if (!content.remove(o))
+				throw new ScopeException("Not binded to this scope", this, o);
+		} else
+			throw new ScopeException("Element not identified.", this, o);
+		Substance.super.onUnbind(o);
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 
 package net.glease.chem.simple.datastructure;
 
+import static net.glease.chem.simple.CDBConstants.*;
+
 /**
  * <p>
  * The Java class of Atom. Atom is just a certain kind of real atom. Most of the
@@ -16,7 +18,7 @@ public interface Atom extends Element<ChemDatabase, Atom> {
 
 	/**
 	 * Get the value of average mol mass. Can be inferred.
-	 * 
+	 *
 	 */
 	double getAverageMolMass();
 
@@ -32,71 +34,82 @@ public interface Atom extends Element<ChemDatabase, Atom> {
 
 	/**
 	 * Get the value of index.
-	 * 
+	 *
 	 */
 	int getIndex();
 
 	/**
 	 * Get the value of localizedName. Can be inferred.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	String getLocalizedName();
 
 	/**
 	 * Get the value of molMass.
-	 * 
+	 *
 	 * @return possible object is {@link int }
-	 * 
+	 *
 	 */
 	int getMolMass();
 
 	/**
 	 * Get the value of symbol. Can be inferred.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	String getSymbol();
 
 	/**
 	 * Set the value of average mol mass.
-	 * 
+	 *
 	 */
 	void setAverageMolMass(double value);
 
 	/**
 	 * Set the value of index.
-	 * 
+	 *
 	 */
 	void setIndex(int value);
 
 	/**
 	 * Set the value of localizedName.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	void setLocalizedName(String value);
 
+	@Override
+	default boolean isBroken() {
+		return Element.super.isBroken() || getIndex() < 0 || getIndex() > LARGEST_ATOM_INDEX || getMolMass() < 0
+				|| getMolMass() > LARGEST_ATOM_MASS;
+	}
+
 	/**
 	 * Set the value of molMass.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	void setMolMass(int value);
 
 	/**
 	 * Set the value of symbol.
-	 * 
+	 *
 	 * @param value
 	 *            allowed object is {@link String }
-	 * 
+	 *
 	 */
 	void setSymbol(String value);
+
+	@Override
+	default ChemDatabase rootScope() {
+		return scope();
+	}
 
 }

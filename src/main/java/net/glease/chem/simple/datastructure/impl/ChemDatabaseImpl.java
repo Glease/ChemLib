@@ -24,6 +24,8 @@ import net.glease.chem.simple.datastructure.Reaction;
 import net.glease.chem.simple.datastructure.Reagent;
 import net.glease.chem.simple.datastructure.Substance;
 import net.glease.chem.simple.normalizers.NormalizationPlugin;
+import net.glease.chem.simple.scoping.IScoped;
+import net.glease.chem.simple.scoping.ScopeException;
 
 public class ChemDatabaseImpl implements ChemDatabase, Serializable {
 
@@ -150,6 +152,46 @@ public class ChemDatabaseImpl implements ChemDatabase, Serializable {
 	public final void normalize() throws NormalizationException {
 		for (NormalizationPlugin plugin : plugins)
 			plugin.normalize(this);
+	}
+
+	@Override
+	public boolean onBind(final IScoped<ChemDatabase> o) {
+		if (!ChemDatabase.super.onBind(o))
+			return false;
+
+		if (o instanceof Substance) {
+			Substance s = (Substance) o;
+			substances.put(s.getId(), s);
+		} else if (o instanceof Reaction)
+			reactions.add((Reaction) o);
+		else if (o instanceof Atom) {
+			Atom s = (Atom) o;
+			atoms.put(s.getId(), s);
+		} else if (o instanceof Reagent) {
+			Reagent s = (Reagent) o;
+			reagents.put(s.getId(), s);
+		} else
+			throw new ScopeException("Element not identified.", this, o);
+		return true;
+	}
+
+	@Override
+	public void onUnbind(final IScoped<ChemDatabase> o) {
+		if (o instanceof Substance) {
+			if (substances.remove(o.getId()) == null)
+				throw new ScopeException("Not binded to this scope", this, o);
+		} else if (o instanceof Reaction) {
+			if (!reactions.remove(o))
+				throw new ScopeException("Not binded to this scope", this, o);
+		} else if (o instanceof Atom) {
+			if (atoms.remove(o.getId()) == null)
+				throw new ScopeException("Not binded to this scope", this, o);
+		} else if (o instanceof Reagent) {
+			if (reagents.remove(o.getId()) == null)
+				throw new ScopeException("Not binded to this scope", this, o);
+		} else
+			throw new ScopeException("Element not identified.", this, o);
+		ChemDatabase.super.onUnbind(o);
 	}
 
 	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {

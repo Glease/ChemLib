@@ -25,7 +25,6 @@ import net.glease.chem.simple.datastructure.impl.ChemDatabaseImpl;
 import net.glease.chem.simple.normalizers.NormalizationPlugin;
 import net.glease.chem.simple.parsers.CDBParserFactory.DefaultFactory;
 import net.glease.chem.simple.scoping.BindingPlugin;
-import net.glease.chem.simple.scoping.IScope;
 
 /**
  * @author glease
@@ -39,10 +38,10 @@ class DefaultParser implements XMLChemDatabaseParser {
 
 	private final Map<String, Object> ps;
 
-	private final Map<Class<? extends IScope<?, ?>>, Set<BindingPlugin<?>>> bindings;
+	private final Map<Class<?>, Set<BindingPlugin<?>>> bindings;
 	private final Set<NormalizationPlugin> normalizors;
 
-	public DefaultParser(DefaultFactory f) {
+	public DefaultParser(final DefaultFactory f) {
 		er = f.er;
 		eh = f.eh;
 		fs = new HashMap<>(f.fs);
@@ -58,7 +57,7 @@ class DefaultParser implements XMLChemDatabaseParser {
 	}
 
 	@Override
-	public void marshal(ChemDatabase db, XMLStreamWriter out) throws CDBParseException {
+	public void marshal(final ChemDatabase db, final XMLStreamWriter out) throws CDBParseException {
 		try {
 			new CDBMarshaller(db).marshal(out);
 		} catch (XMLStreamException e) {
@@ -67,17 +66,15 @@ class DefaultParser implements XMLChemDatabaseParser {
 	}
 
 	@Override
-	public ChemDatabase unmarshal(InputSource in) throws CDBParseException, IOException {
+	public ChemDatabase unmarshal(final InputSource in) throws CDBParseException, IOException {
 		XMLReader reader;
 		try {
 			SAXParserFactory f = SAXParserFactory.newInstance();
-			for (Entry<String, Boolean> e : fs.entrySet()) {
+			for (Entry<String, Boolean> e : fs.entrySet())
 				f.setFeature(e.getKey(), e.getValue());
-			}
 			SAXParser p = f.newSAXParser();
-			for (Entry<String, Object> e : ps.entrySet()) {
+			for (Entry<String, Object> e : ps.entrySet())
 				p.setProperty(e.getKey(), e.getValue());
-			}
 			reader = p.getXMLReader();
 		} catch (SAXException | ParserConfigurationException e) {
 			throw new CDBParseException("can't create org.sax.XMLReader", e);

@@ -1,6 +1,7 @@
 package net.glease.chem.simple.scoping;
 
 import java.lang.ref.WeakReference;
+import java.util.Set;
 
 /**
  * Indicates this is a scope. Scopes themselves are also elements of other
@@ -113,6 +114,19 @@ extends IScoped<T_PARENT> {
 		ScopeManager.get(this).install(plugin);
 	}
 
+	default boolean  uninstall(final BindingPlugin<T_THIS> plugin) {
+		return ScopeManager.get(this).uninstall(plugin);
+	}
+
+	/**
+	 * Get a unmmodifiable set view of all installed plugins backed by this {@link IScope}, i.e.
+	 * further installation will change the content of returned set.
+	 * @return
+	 */
+	default Set<BindingPlugin<T_THIS>> bindingPlugins(){
+		return ScopeManager.get(this).plugins();
+	}
+
 	/**
 	 * Called upon {@link IScoped#bind(IScope) o.bind(this)}.
 	 * {@link #onUnbind(IScoped) o.scope().onUnbind()} are already called at the
@@ -167,5 +181,12 @@ extends IScoped<T_PARENT> {
 	@Override
 	default T_PARENT scope() {
 		return ScopeManager.get(this).scope();
+	}
+
+	/**
+	 * Update the recorded ids of this scopes's elements.
+	 */
+	default void updateId(final String oldId, final IScoped<T_THIS> updated) {
+		ScopeManager.get(this).updateId(oldId, updated);
 	}
 }

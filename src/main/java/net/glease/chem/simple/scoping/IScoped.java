@@ -1,5 +1,8 @@
 package net.glease.chem.simple.scoping;
 
+import java.util.Set;
+import java.util.function.Consumer;
+
 import net.glease.chem.simple.scoping.IScope.ROOT;
 
 /**
@@ -87,6 +90,42 @@ import net.glease.chem.simple.scoping.IScope.ROOT;
  * @since 0.1
  */
 public interface IScoped<T_SCOPE extends IScope<?, T_SCOPE>> {
+
+	default void install(final ScopedPlugin<T_SCOPE> plugin) {
+		ScopedManager.get(this).install(plugin);
+	}
+
+	default boolean uninstall(final ScopedPlugin<T_SCOPE> plugin) {
+		return ScopedManager.get(this).uninstall(plugin);
+	}
+
+	/**
+	 * Get a unmmodifiable set view of all installed plugins backed by this
+	 * {@link IScoped}, i.e. further installation will change the content of
+	 * returned set.
+	 *
+	 * @return
+	 */
+	default Set<ScopedPlugin<T_SCOPE>> plugins() {
+		return ScopedManager.get(this).plugins();
+	}
+
+	/**
+	 * Update a key state of given {@link IScoped}, and notify its scope about
+	 * its ID changes. Mainly exists to wipe boilerplate.
+	 *
+	 * @param updated
+	 * @param updator
+	 */
+	static <T extends IScoped<T_SCOPE>, T_SCOPE extends IScope<?, T_SCOPE>> void updateIdBy(final T updated,
+			final Consumer<T> updator) {
+		String oldId = updated.getId();
+		updator.accept(updated);
+		T_SCOPE scope = updated.scope();
+		if (scope != null)
+			scope.updateId(oldId, updated);
+	}
+
 	/**
 	 * Bind this element to a given scope.
 	 * <h2>Order of Invocation</h2>
@@ -108,9 +147,9 @@ public interface IScoped<T_SCOPE extends IScope<?, T_SCOPE>> {
 	 * should return false as soon as they found it the same. (i.e.
 	 * {@code newScope == scope()}
 	 * <p>
-	 * {@link #bind(IScope)} only ensure there will be an {@link IScoped}
-	 * equals to this method, but don't guarantee this object to be in
-	 * given scope.
+	 * {@link #bind(IScope)} only ensure there will be an {@link IScoped} equals
+	 * to this method, but don't guarantee this object to be in given scope.
+	 *
 	 * @param newScope
 	 *            the scope to be binded to. may be <code>null</code>
 	 * @return <code>true</code> if binding successful, <code>false</code> if
@@ -138,6 +177,16 @@ public interface IScoped<T_SCOPE extends IScope<?, T_SCOPE>> {
 	}
 
 	/**
+	 * Some how get an ID for this element. It could be explicitly set ID, or an
+	 * generated value based on various internal data. Non-null. Empty
+	 * {@link String} permitted for the sake of simplicity, but that's really
+	 * not recommended.
+	 *
+	 * @return an non-null id.
+	 */
+	String getId();
+
+	/**
 	 * Test whether this {@link IScoped} accept to be binded to the given
 	 * {@link IScope T_SCOPE}. The test result should only be based on this
 	 * {@link IScoped}'s opinion, i.e. invoking
@@ -145,6 +194,7 @@ public interface IScoped<T_SCOPE extends IScope<?, T_SCOPE>> {
 	 * accept this {@link IScoped} to become its element is <i>not allowed</i>.
 	 * <p>
 	 * Default implementation always accept the new scope.
+	 *
 	 * @param newScope
 	 *            scope others want this {@link IScoped} to be binded to.
 	 * @return
@@ -158,16 +208,6 @@ public interface IScoped<T_SCOPE extends IScope<?, T_SCOPE>> {
 	}
 
 	/**
-	 * Some how get an ID for this element. It could be explicitly set ID, or an
-	 * generated value based on various internal data. Non-null. Empty
-	 * {@link String} permitted for the sake of simplicity, but that's really
-	 * not recommended.
-	 *
-	 * @return an non-null id.
-	 */
-	String getId();
-
-	/**
 	 * Get the scope this element binds to. May be <code>null</code>. a
 	 * <code>null</code> scope means scope undefined, not something else, like
 	 * the default scope. Two elements whose scopes are both undefined shouldn't
@@ -178,5 +218,4 @@ public interface IScoped<T_SCOPE extends IScope<?, T_SCOPE>> {
 	default T_SCOPE scope() {
 		return ScopedManager.get(this).scope();
 	}
-
 }

@@ -5,7 +5,6 @@ import java.util.stream.Stream;
 
 import net.glease.chem.simple.scoping.IScope;
 import net.glease.chem.simple.scoping.IScoped;
-import net.glease.chem.simple.scoping.ScopeException;
 
 /**
  * <p>
@@ -24,10 +23,11 @@ public interface Reaction extends Element<ChemDatabase, Reaction>, IScope<ChemDa
 	boolean addCondition(String condition);
 
 	/**
-	 * Get a new set containing all {@link ReactionComponent reactants and resultants} in this
-	 * {@link Reaction}. The set is modifiable and is <b> only a snapshot of current
-	 * {@link Reaction}</b>, i.e. any further modification both to the returned set and
-	 *  this {@link Reaction} won't interfere with each other.
+	 * Get a new set containing all {@link ReactionComponent reactants and
+	 * resultants} in this {@link Reaction}. The set is modifiable and is <b>
+	 * only a snapshot of current {@link Reaction}</b>, i.e. any further
+	 * modification both to the returned set and this {@link Reaction} won't
+	 * interfere with each other.
 	 *
 	 * @return possible object is {@link Set&lt;Reagent> }
 	 */
@@ -38,8 +38,8 @@ public interface Reaction extends Element<ChemDatabase, Reaction>, IScope<ChemDa
 	/**
 	 * Get a set containing all {@link Reagent catalysts} in this
 	 * {@link Reaction}. The set is unmodifiable. Addition/removal to this set
-	 * should be done with {@link IScoped#bind(IScope) bind(this)} or
-	 * {@link IScoped#bind(IScope) bind(null)}.
+	 * should be done with {@link #addCatalyst(Reagent)} and
+	 * {@link #removeCatalyst(Reagent)}
 	 *
 	 * @return possible object is {@link Set&lt;Reagent> }
 	 */
@@ -48,8 +48,8 @@ public interface Reaction extends Element<ChemDatabase, Reaction>, IScope<ChemDa
 	/**
 	 * Get a set containing all {@link String conditions} in this
 	 * {@link Reaction}. The set is unmodifiable. Addition/removal to this set
-	 * should be done with {@link IScoped#bind(IScope) bind(this)} or
-	 * {@link IScoped#bind(IScope) bind(null)}.
+	 * should be done with {@link #addCondition(String)} and
+	 * {@link #removeCondition(String)}
 	 *
 	 * @return possible object is {@link Set&lt;String> }
 	 */
@@ -123,7 +123,7 @@ public interface Reaction extends Element<ChemDatabase, Reaction>, IScope<ChemDa
 	Reagent getSolvent();
 
 	/**
-	 * Get the value of speed.
+	 * Get the value of speed. measured in {@code mol/(L*min)}
 	 *
 	 * @return possible object is {@link double }
 	 *
@@ -132,7 +132,8 @@ public interface Reaction extends Element<ChemDatabase, Reaction>, IScope<ChemDa
 
 	/**
 	 *
-	 * Represents a temperature, measured in K, not Censils
+	 * Represents a temperature, measured in K, not Censils. Defaults to
+	 * {@code 293.15d} i.e. 20 cense
 	 *
 	 *
 	 * @return possible object is {@link double }
@@ -141,40 +142,19 @@ public interface Reaction extends Element<ChemDatabase, Reaction>, IScope<ChemDa
 	double getTemp();
 
 	@Override
-	default boolean onBind(final IScoped<Reaction> o) {
-		if(!IScope.super.onBind(o)) {
-			return false;
-		}
-
-		if (o instanceof Reactant) {
-			getReactants().add((Reactant) o);
-		} else if (o instanceof Resultant) {
-			getResultants().add((Resultant) o);
-		} else {
-			throw new ScopeException("Element not identified.", this, o);
-		}
-		return true;
-	}
-
-	@Override
-	default void onUnbind(final IScoped<Reaction> o) {
-		if (o instanceof Reactant) {
-			if (!getReactants().remove(o)) {
-				throw new ScopeException("Not binded to this scope", this, o);
-			} else if (o instanceof Resultant) {
-				if (!getResultants().remove(o)) {
-					throw new ScopeException("Not binded to this scope", this, o);
-				} else {
-					throw new ScopeException("Element not identified.", this, o);
-				}
-			}
-		}
-		IScope.super.onUnbind(o);
+	default boolean isBroken() {
+		return Element.super.isBroken() || Utils.isBroken(this, getAllReactionComponents(), getCatalysts().stream())
+				|| Utils.isBroken(this, getSolvent()) || getK() < 0 || getTemp() < 0 || getSpeed() < 0;
 	}
 
 	boolean removeCatalyst(Reagent catalyst);
 
 	boolean removeCondition(String condition);
+
+	@Override
+	default ChemDatabase rootScope() {
+		return scope();
+	}
 
 	/**
 	 * Set the value of heat.

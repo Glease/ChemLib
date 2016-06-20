@@ -1,5 +1,7 @@
 package net.glease.chem.simple.datastructure;
 
+import net.glease.chem.simple.util.Utilities;
+
 /**
  * <p>
  * Dissolve could be think of a row of data in a database.
@@ -38,6 +40,18 @@ public interface Dissolve extends Element<Substance, Dissolve> {
 	 *
 	 */
 	Reagent getSolvent();
+
+	@Override
+	default boolean isBroken() {
+		return Element.super.isBroken() || Utils.isBroken(this, getSolvent())
+				|| Utilities.isNullOrEmpty(getS2TFunction());
+	}
+
+	@Override
+	default ChemDatabase rootScope() {
+		Substance s = scope();
+		return s == null ? null : s.scope();
+	}
 
 	/**
 	 * Set the value of s2TFunction.
