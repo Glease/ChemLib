@@ -8,7 +8,7 @@ package net.glease.chem.simple.calculation;
  * encouraged to implement this marker interface.
  * @author glease
  * @since 0.1
- * @param <T> the type of the mutable version or itself
+ * @param <T> the type of the mutable version, or itself if no mutable version
  */
 public interface Immutable<T> {
 }

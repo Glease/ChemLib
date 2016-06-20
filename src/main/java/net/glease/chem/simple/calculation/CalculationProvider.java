@@ -1,6 +1,10 @@
 package net.glease.chem.simple.calculation;
 
+import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.stream.StreamSupport;
+
+import net.glease.chem.simple.parsers.FactoryNotFoundException;
 
 /**
  * The service provider interface to provide creation and conversion of various
@@ -17,8 +21,38 @@ import java.util.Set;
  * <li>No bit-wise operation, nor boolean operations, at least no native
  * support. It can be achieved with functions, though.
  * </ul>
- * <h2>Concurrency</h2> Methods in this class should support concurrent
- * invocation.
+ * <h2>Basic stuff</h2>
+ * <p>
+ * Some stuff must be supported by all {@link CalculationProvider}s.
+ * <p>
+ * <table border = "1">
+ * <tr>
+ * <td>Type</td>
+ * <td>Must</td>
+ * <td>Recommended</td>
+ * </tr>
+ * <tr>
+ * <td>Constants</td>
+ * <td>{@link Math#PI PI}, {@link Math#E E}, {@link Double#NaN NaN}</td>
+ * <td>/</td>
+ * </tr>
+ * <tr>
+ * <td>Functions</td>
+ * <td>every double function<br/>
+ * in {@link StrictMath}</td>
+ * <td>sum, multiplicative,<br/>
+ * definite integral</td>
+ * </tr>
+ * <tr>
+ * <td>Ranges</td>
+ * <td>{@link ContinuousDoubleRange}</td>
+ * <td>a union of multiple<br/>
+ * {@link ContinuousDoubleRange}</td>
+ * </tr>
+ * </table>
+ * <h2>Concurrency</h2>
+ * <p>
+ * Methods in this class should support concurrent method invocation.
  *
  * @author glease
  * @since 0.1
@@ -26,9 +60,9 @@ import java.util.Set;
 public interface CalculationProvider {
 	/**
 	 * Compile a well-formed function literal (see <a href="#syntax">Syntax</a>
-	 * chapter for details) into a {@link DoubleCalculation} without restriction.
-	 * {@link CalculationProvider} are required not to retain a strong reference
-	 * to the created {@link DoubleCalculation}.
+	 * chapter for details) into a {@link DoubleCalculation} without
+	 * restriction. {@link CalculationProvider} are required not to retain a
+	 * strong reference to the created {@link DoubleCalculation}.
 	 *
 	 * @param literal
 	 */
@@ -112,4 +146,62 @@ public interface CalculationProvider {
 	 * @return the immutable object
 	 */
 	<T> T mutable(Immutable<T> immutable);
+
+	/**
+	 * Create a new provider. Not suggested if you need some commonly
+	 * implemented non-standard functionalities.
+	 *
+	 * @return a newly-created {@link CalculationProvider}
+	 * @throws FactoryNotFoundException
+	 *             if no service provider is found or something wrong happened
+	 *             during loading.
+	 */
+	static CalculationProvider newInstance() {
+		try {
+			return StreamSupport.stream(ServiceLoader.load(CalculationProvider.class).spliterator(), false)
+					.filter(p -> p != null).findFirst().get();
+		} catch (Exception e) {
+			throw new FactoryNotFoundException(e);
+		}
+	}
+
+	/**
+	 * Create a new provider. Not suggested if you need some commonly
+	 * implemented non-standard functionalities.
+	 *
+	 * @param cl
+	 *            the {@link ClassLoader} used to locate services
+	 * @return a newly-created {@link CalculationProvider}
+	 * @throws FactoryNotFoundException
+	 *             if no service provider is found or something wrong happened
+	 *             during loading.
+	 */
+	static CalculationProvider newInstance(final ClassLoader cl) {
+		try {
+			return StreamSupport.stream(ServiceLoader.load(CalculationProvider.class, cl).spliterator(), false)
+					.filter(p -> p != null).findFirst().get();
+		} catch (Exception e) {
+			throw new FactoryNotFoundException(e);
+		}
+	}
+
+	/**
+	 * Create a new provider.
+	 *
+	 * @param name
+	 *            the fully-qualified name of your service.
+	 * @param cl
+	 *            the {@link ClassLoader} used to locate service
+	 * @return a newly-created {@link CalculationProvider}
+	 * @throws FactoryNotFoundException
+	 *             if no service provider is found or something wrong happened
+	 *             during loading.
+	 */
+	static CalculationProvider newInstance(final String name, final ClassLoader cl) {
+		try {
+			return (CalculationProvider) Class.forName(name, true, cl).newInstance();
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			throw new FactoryNotFoundException(e);
+		}
+	}
 }

@@ -5,7 +5,7 @@ import java.math.RoundingMode;
 import net.glease.chem.simple.calculation.VariableTable.ImmutableVariableTable;
 
 /**
- * An immutable CalculationContext that specific behavior of
+ * An immutable CalculationContext that specific behavior of {@link DoubleCalculation}
  * @author glease
  * @since 0.1
  */
