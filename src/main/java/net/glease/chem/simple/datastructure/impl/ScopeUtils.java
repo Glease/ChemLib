@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import net.glease.chem.simple.datastructure.ChemDatabaseComponent.ComponentType;
-import net.glease.chem.simple.datastructure.Element;
+import net.glease.chem.simple.datastructure.IElement;
 import net.glease.chem.simple.scoping.IScope;
 import net.glease.chem.simple.scoping.IScoped;
 import net.glease.chem.simple.scoping.ScopeException;
@@ -17,8 +17,8 @@ class ScopeUtils {
 	 *
 	 * @param s tolerate <code>null</code> values in the stream
 	 */
-	public static <T extends Element<T_SCOPE, T>, T_SCOPE extends IScope<?, T_SCOPE>> Set<T> bindSub(final Stream<T> s,
-			final Element<T_SCOPE, ?> master, final T_SCOPE newScope) {
+	public static <T extends IElement<T_SCOPE, T>, T_SCOPE extends IScope<?, T_SCOPE>> Set<T> bindSub(final Stream<T> s,
+			final IElement<T_SCOPE, ?> master, final T_SCOPE newScope) {
 		Iterator<T> iter = s.iterator();
 		Set<T> added = new HashSet<>();
 		while (iter.hasNext()) {
@@ -37,8 +37,8 @@ class ScopeUtils {
 		return added;
 	}
 
-	public static <T extends Element<T_SCOPE, T>, T_SCOPE extends IScope<?, T_SCOPE>> Set<T> bindSub(final Stream<T> s,
-			final Element<T_SCOPE, ?> master, final T_SCOPE newScope, final Set<? extends IScoped<T_SCOPE>> addedOld) {
+	public static <T extends IElement<T_SCOPE, T>, T_SCOPE extends IScope<?, T_SCOPE>> Set<T> bindSub(final Stream<T> s,
+			final IElement<T_SCOPE, ?> master, final T_SCOPE newScope, final Set<? extends IScoped<T_SCOPE>> addedOld) {
 		Iterator<T> iter = s.iterator();
 		Set<T> added = new HashSet<>();
 		while (iter.hasNext()) {
@@ -61,7 +61,7 @@ class ScopeUtils {
 		return added;
 	}
 
-	public static <T extends IScope<?, T>> ScopeException bindSubFailed(final Element<?, ?> sub, final T scope, final Element<T, ?> issuer,
+	public static <T extends IScope<?, T>> ScopeException bindSubFailed(final IElement<?, ?> sub, final T scope, final IElement<T, ?> issuer,
 			final Throwable cause) {
 		return new ScopeException(String.format("Can't bind %s because a referenced %s refused to be bind to given %s",
 				ComponentType.get(issuer).getName(), ComponentType.get(sub).getName(),

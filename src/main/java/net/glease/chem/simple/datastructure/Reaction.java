@@ -16,7 +16,7 @@ import net.glease.chem.simple.scoping.IScoped;
  * @since 0.1
  *
  */
-public interface Reaction extends Element<ChemDatabase, Reaction>, IScope<ChemDatabase, Reaction> {
+public interface Reaction extends IElement<ChemDatabase, Reaction>, IScope<ChemDatabase, Reaction> {
 
 	boolean addCatalyst(Reagent catalyst);
 
@@ -143,7 +143,7 @@ public interface Reaction extends Element<ChemDatabase, Reaction>, IScope<ChemDa
 
 	@Override
 	default boolean isBroken() {
-		return Element.super.isBroken() || Utils.isBroken(this, getAllReactionComponents(), getCatalysts().stream())
+		return IElement.super.isBroken() || Utils.isBroken(this, getAllReactionComponents(), getCatalysts().stream())
 				|| Utils.isBroken(this, getSolvent()) || getK() < 0 || getTemp() < 0 || getSpeed() < 0;
 	}
 

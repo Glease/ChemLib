@@ -14,7 +14,7 @@ import net.glease.chem.simple.datastructure.Atom;
 import net.glease.chem.simple.datastructure.ChemDatabase;
 import net.glease.chem.simple.datastructure.CrystalType;
 import net.glease.chem.simple.datastructure.Dissolve;
-import net.glease.chem.simple.datastructure.Element;
+import net.glease.chem.simple.datastructure.IElement;
 import net.glease.chem.simple.datastructure.Substance;
 import net.glease.chem.simple.datastructure.SubstanceContent;
 import net.glease.chem.simple.scoping.IScoped;
@@ -52,7 +52,7 @@ public class SubstanceImpl implements Substance, Serializable {
 		Set<Atom> added = bindSub(content.stream()
 				.map(SubstanceContent::getAtom)
 				.map(a -> a.scope() == null ? a : AtomImpl.copyOf(a)), this, newScope);
-		Set<? extends Element<ChemDatabase,?>> addedSubstance = bindSub(dissolve.stream()
+		Set<? extends IElement<ChemDatabase,?>> addedSubstance = bindSub(dissolve.stream()
 				.map(Dissolve::getSolvent)
 				.map(a -> a.scope() == null ? a : ReagentImpl.copyOf(a)), this, newScope, added);
 		try {

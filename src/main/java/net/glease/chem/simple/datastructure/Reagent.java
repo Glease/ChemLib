@@ -14,7 +14,7 @@ import java.awt.Color;
  * @author glease
  * @since 0.1
  */
-public interface Reagent extends Element<ChemDatabase, Reagent> {
+public interface Reagent extends IElement<ChemDatabase, Reagent> {
 
 	/**
 	 * Get the value of color.
@@ -73,7 +73,7 @@ public interface Reagent extends Element<ChemDatabase, Reagent> {
 
 	@Override
 	default boolean isBroken() {
-		return Element.super.isBroken() || Utils.isBroken(this, getSolvent(), getSubstance()) || getState() == null;
+		return IElement.super.isBroken() || Utils.isBroken(this, getSolvent(), getSubstance()) || getState() == null;
 	}
 
 	@Override

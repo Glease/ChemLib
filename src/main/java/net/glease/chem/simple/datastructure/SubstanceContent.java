@@ -9,7 +9,7 @@ package net.glease.chem.simple.datastructure;
  *
  *
  */
-public interface SubstanceContent extends Element<Substance, SubstanceContent> {
+public interface SubstanceContent extends IElement<Substance, SubstanceContent> {
 
 	/**
 	 * Get the value of atom.
@@ -37,7 +37,7 @@ public interface SubstanceContent extends Element<Substance, SubstanceContent> {
 
 	@Override
 	default boolean isBroken() {
-		return Element.super.isBroken() || Utils.isBroken(this, getAtom()) || getMol() < 0;
+		return IElement.super.isBroken() || Utils.isBroken(this, getAtom()) || getMol() < 0;
 	}
 
 	@Override

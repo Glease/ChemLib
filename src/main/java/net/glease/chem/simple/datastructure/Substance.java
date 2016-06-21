@@ -14,7 +14,7 @@ import net.glease.chem.simple.scoping.IScoped;
  * @since 0.1
  *
  */
-public interface Substance extends Element<ChemDatabase, Substance>, IScope<ChemDatabase, Substance> {
+public interface Substance extends IElement<ChemDatabase, Substance>, IScope<ChemDatabase, Substance> {
 
 	/**
 	 *
@@ -76,7 +76,7 @@ public interface Substance extends Element<ChemDatabase, Substance>, IScope<Chem
 
 	@Override
 	default boolean isBroken() {
-		return Element.super.isBroken() || Utils.isBroken(this, getContent().stream(), getDissolve().stream())
+		return IElement.super.isBroken() || Utils.isBroken(this, getContent().stream(), getDissolve().stream())
 				|| Utils.isBroken(getBoilPoint(), getMeltPoint()) || getCrystal() == null || getId() == null;
 	}
 

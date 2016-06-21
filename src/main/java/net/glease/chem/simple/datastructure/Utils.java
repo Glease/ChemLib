@@ -11,17 +11,17 @@ class Utils {
 		return Arrays.stream(cs).flatMap(Collection::stream).anyMatch(ChemDatabaseComponent::isBroken);
 	}
 
-	public static boolean isBroken(final Element<?, ?> t, final Element<?, ?> e) {
+	public static boolean isBroken(final IElement<?, ?> t, final IElement<?, ?> e) {
 		return isBroken(t.rootScope(), e);
 	}
 
-	public static boolean isBroken(final ChemDatabase root, final Element<?, ?> e) {
+	public static boolean isBroken(final ChemDatabase root, final IElement<?, ?> e) {
 		return e == null || e.isBroken() || e.rootScope() != root;
 	}
 
-	public static boolean isBroken(final Element<?, ?> t, final Element<?, ?>... es) {
+	public static boolean isBroken(final IElement<?, ?> t, final IElement<?, ?>... es) {
 		ChemDatabase root = t.rootScope();
-		for (Element<?, ?> e : es)
+		for (IElement<?, ?> e : es)
 			if( e == null || e.isBroken() || e.rootScope() != root)
 				return true;
 		return false;
@@ -35,7 +35,7 @@ class Utils {
 	}
 
 	@SafeVarargs
-	public static boolean isBroken(final Element<?, ?> t, final Stream<? extends Element<?, ?>>... es) {
+	public static boolean isBroken(final IElement<?, ?> t, final Stream<? extends IElement<?, ?>>... es) {
 		ChemDatabase root = t.rootScope();
 		return Arrays.stream(es)
 				.flatMap(Function.identity())

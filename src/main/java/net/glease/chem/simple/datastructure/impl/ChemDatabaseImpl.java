@@ -18,7 +18,7 @@ import java.util.UUID;
 import net.glease.chem.simple.datastructure.Atom;
 import net.glease.chem.simple.datastructure.ChemDatabase;
 import net.glease.chem.simple.datastructure.ChemDatabaseFinder;
-import net.glease.chem.simple.datastructure.Element;
+import net.glease.chem.simple.datastructure.IElement;
 import net.glease.chem.simple.datastructure.NormalizationException;
 import net.glease.chem.simple.datastructure.Reaction;
 import net.glease.chem.simple.datastructure.Reagent;
@@ -31,8 +31,8 @@ public class ChemDatabaseImpl implements ChemDatabase, Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	private static <T extends Element<ChemDatabase, T>> void bindCopyTo(final ChemDatabase scope, final Collection<? extends T> c) {
-		c.stream().map(Element::copy).forEach(a -> a.bind(scope));
+	private static <T extends IElement<ChemDatabase, T>> void bindCopyTo(final ChemDatabase scope, final Collection<? extends T> c) {
+		c.stream().map(IElement::copy).forEach(a -> a.bind(scope));
 	}
 
 	public static ChemDatabase copyOf(final ChemDatabase db) {

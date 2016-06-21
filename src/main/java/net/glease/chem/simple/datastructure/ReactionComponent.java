@@ -11,7 +11,7 @@ package net.glease.chem.simple.datastructure;
  * @since 0.1
  *
  */
-public interface ReactionComponent<T_THIS extends ReactionComponent<T_THIS>> extends Element<Reaction, T_THIS> {
+public interface ReactionComponent<T_THIS extends ReactionComponent<T_THIS>> extends IElement<Reaction, T_THIS> {
 
 	/**
 	 * Should be always effectively the same as {@code getSubstance().getId()}.
@@ -47,7 +47,7 @@ public interface ReactionComponent<T_THIS extends ReactionComponent<T_THIS>> ext
 
 	@Override
 	default boolean isBroken() {
-		return Element.super.isBroken() || getMol() < 0 || Utils.isBroken(this, getSubstance()) || getState() == null;
+		return IElement.super.isBroken() || getMol() < 0 || Utils.isBroken(this, getSubstance()) || getState() == null;
 	}
 
 	@Override

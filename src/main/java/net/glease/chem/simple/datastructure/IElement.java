@@ -11,7 +11,7 @@ import net.glease.chem.simple.scoping.IScoped;
  * @param <T>
  *            scope type
  */
-public interface Element<T extends IScope<?, T>, T_THIS extends Element<T, T_THIS>> extends IScoped<T>, ChemDatabaseComponent<T_THIS> {
+public interface IElement<T extends IScope<?, T>, T_THIS extends IElement<T, T_THIS>> extends IScoped<T>, ChemDatabaseComponent<T_THIS> {
 	@Override
 	default boolean isBroken() {
 		return scope() == null || getId() == null;

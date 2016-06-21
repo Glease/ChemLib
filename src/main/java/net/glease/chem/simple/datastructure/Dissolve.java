@@ -14,7 +14,7 @@ import net.glease.chem.simple.util.Utilities;
  * @author glease
  * @since 0.1
  */
-public interface Dissolve extends Element<Substance, Dissolve> {
+public interface Dissolve extends IElement<Substance, Dissolve> {
 
 	/**
 	 * Should be always effectively the same as {@code getSolvent().getId()}.
@@ -43,7 +43,7 @@ public interface Dissolve extends Element<Substance, Dissolve> {
 
 	@Override
 	default boolean isBroken() {
-		return Element.super.isBroken() || Utils.isBroken(this, getSolvent())
+		return IElement.super.isBroken() || Utils.isBroken(this, getSolvent())
 				|| Utilities.isNullOrEmpty(getS2TFunction());
 	}
 

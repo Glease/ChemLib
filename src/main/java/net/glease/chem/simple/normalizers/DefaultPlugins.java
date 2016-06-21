@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 import net.glease.chem.simple.datastructure.Atom;
 import net.glease.chem.simple.datastructure.ChemDatabase;
-import net.glease.chem.simple.datastructure.Element;
+import net.glease.chem.simple.datastructure.IElement;
 import net.glease.chem.simple.datastructure.NormalizationException;
 import net.glease.chem.simple.util.LazyInitializer;
 
@@ -118,10 +118,10 @@ public final class DefaultPlugins {
 	});
 
 	static void reservedIdVerifier(final ChemDatabase d) throws NormalizationException {
-		Map<String, Set<Element<?, ?>>> reserved = new HashMap<>();
+		Map<String, Set<IElement<?, ?>>> reserved = new HashMap<>();
 
 		for (String s : reservedNames.get()) {
-			Set<Element<?,?>> atom = reserved(d, s);
+			Set<IElement<?,?>> atom = reserved(d, s);
 			if (!atom.isEmpty()) {
 				reserved.put(s, atom);
 			}
@@ -132,7 +132,7 @@ public final class DefaultPlugins {
 		}
 	}
 
-	private static HashSet<Element<?,?>> reserved(final ChemDatabase d, final String n) {
+	private static HashSet<IElement<?,?>> reserved(final ChemDatabase d, final String n) {
 		return Stream
 				.concat(parallelStream(d.getSubstances()),
 						Stream.concat(parallelStream(d.getReagents()), d.getReactions().parallelStream()))

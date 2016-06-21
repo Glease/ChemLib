@@ -14,7 +14,7 @@ import static net.glease.chem.simple.CDBConstants.*;
  * @author glease
  * @since 0.1
  */
-public interface Atom extends Element<ChemDatabase, Atom> {
+public interface Atom extends IElement<ChemDatabase, Atom> {
 
 	/**
 	 * Get the value of average mol mass. Can be inferred.
@@ -85,7 +85,7 @@ public interface Atom extends Element<ChemDatabase, Atom> {
 
 	@Override
 	default boolean isBroken() {
-		return Element.super.isBroken() || getIndex() < 0 || getIndex() > LARGEST_ATOM_INDEX || getMolMass() < 0
+		return IElement.super.isBroken() || getIndex() < 0 || getIndex() > LARGEST_ATOM_INDEX || getMolMass() < 0
 				|| getMolMass() > LARGEST_ATOM_MASS;
 	}
 
