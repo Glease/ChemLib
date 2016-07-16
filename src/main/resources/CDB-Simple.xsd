@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema targetNamespace="http://glease.net/chem/simple/DataStructure"
+<xsd:schema targetNamespace="http://glease.net/chem/simple/DataStructure/1.0"
 	elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns="http://glease.net/chem/simple/DataStructure" xmlns:Q1="http://glease.net/chem/simple/DataStructure">
+	xmlns="http://glease.net/chem/simple/DataStructure/1.0">
 
 	<xsd:complexType name="Substance">
 		<xsd:annotation>
